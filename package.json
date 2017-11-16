@@ -1,0 +1,11 @@
+{
+  "name": "zos-lab",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Francisco Giordano <fran@zeppelin.solutions>",
+  "license": "MIT",
+  "devDependencies": {
+    "truffle": "^4.0.1",
+    "ethereumjs-testrpc": "^6.0.2"
+  }
+}
