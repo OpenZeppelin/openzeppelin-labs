@@ -18,7 +18,7 @@ contract Proxy is Proxied {
         address _impl = impl;
 
         assembly {
-            let result := delegatecall(sub(gas, 10000), _impl, add(data, 0x20), mload(data), 0, 0)
+            let result := delegatecall(gas, _impl, add(data, 0x20), mload(data), 0, 0)
             let size := returndatasize
 
             let ptr := mload(0x40)
