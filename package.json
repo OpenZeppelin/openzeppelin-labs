@@ -4,8 +4,10 @@
   "private": true,
   "author": "Francisco Giordano <fran@zeppelin.solutions>",
   "license": "MIT",
+  "scripts": {
+    "test": "truffle test"
+  },
   "devDependencies": {
-    "truffle": "^4.0.1",
-    "ethereumjs-testrpc": "^6.0.2"
+    "truffle": "^4.0.4"
   }
 }
