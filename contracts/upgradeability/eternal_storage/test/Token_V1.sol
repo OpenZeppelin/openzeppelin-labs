@@ -3,6 +3,11 @@ pragma solidity ^0.4.18;
 import '../UpgradeableTokenStorage.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
+/**
+ * @title Token_V1
+ * @dev Version 1 of a token to show upgradeability.
+ * The idea here is to extend a token behaviour providing a burn function as opposed to version 0
+ */
 contract Token_V1 is UpgradeableTokenStorage {
   using SafeMath for uint256;
 

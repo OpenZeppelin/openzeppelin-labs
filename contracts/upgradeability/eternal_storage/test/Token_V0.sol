@@ -3,6 +3,10 @@ pragma solidity ^0.4.18;
 import '../UpgradeableTokenStorage.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
+/**
+ * @title Token_V0
+ * @dev Version 0 of a token to show upgradeability.
+ */
 contract Token_V0 is UpgradeableTokenStorage {
   using SafeMath for uint256;
 
