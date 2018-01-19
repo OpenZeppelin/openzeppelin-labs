@@ -5,7 +5,7 @@ const UpgradeabilityStorage = artifacts.require('generic_eternal_storage/Upgrade
 const TokenV0 = artifacts.require('generic_eternal_storage/test/TokenV0')
 const TokenV1 = artifacts.require('generic_eternal_storage/test/TokenV1')
 
-contract('Generic ES TokenProxy', function ([owner, sender]) {
+contract('Generic ES TokenProxy', function ([owner, sender, receiver]) {
   let proxy
   let proxyAddress
 
@@ -102,9 +102,13 @@ contract('Generic ES TokenProxy', function ([owner, sender]) {
     // It should be able to burn in version 1
     await TokenV1.at(proxyAddress).burn(50, { from: sender })
 
+    const transferTx = await TokenV1.at(proxyAddress).transfer(receiver, 10, { from: sender })
+
+    console.log("Transfer TX gas cost using Eternal Storage Proxy", transferTx.receipt.gasUsed);
+
     // Check balance and total supply
     const balance = await TokenV1.at(proxyAddress).balanceOf(sender)
-    assert(balance.eq(50))
+    assert(balance.eq(40))
     const totalSupply = await TokenV1.at(proxyAddress).totalSupply()
     assert(totalSupply.eq(50))
   })

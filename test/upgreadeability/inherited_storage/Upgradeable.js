@@ -4,7 +4,7 @@ const TokenV1_1 = artifacts.require('TokenV1_1')
 const Registry = artifacts.require('Registry')
 const Proxy = artifacts.require('Proxy')
 
-contract('Upgradeable', function ([sender]) {
+contract('Upgradeable', function ([sender, receiver]) {
 
   it('should work', async function () {
     const impl_v1_0 = await TokenV1_0.new()
@@ -24,9 +24,13 @@ contract('Upgradeable', function ([sender]) {
 
     await TokenV1_1.at(proxy).mint(sender, 100)
 
-    const balance = await TokenV1_1.at(proxy).balanceOf(sender)
+    const transferTx = await TokenV1_1.at(proxy).transfer(receiver, 10, { from: sender })
 
-    assert(balance.eq(10200))
+    console.log("Transfer TX gas cost using Inherited Storage Proxy", transferTx.receipt.gasUsed);
+
+    const balance = await TokenV1_1.at(proxy).balanceOf(sender)
+    assert(balance.eq(10190))
+
   })
 
 })
