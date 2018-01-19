@@ -5,7 +5,7 @@ const UpgradeabilityStorage = artifacts.require('UpgradeabilityStorage')
 const Token_V0 = artifacts.require('eternal_storage/test/Token_V0')
 const Token_V1 = artifacts.require('eternal_storage/test/Token_V1')
 
-contract('TokenProxy', function ([sender]) {
+contract('TokenProxy', function ([sender, nonOwner]) {
   let proxy
   let proxyAddress
 
@@ -25,6 +25,11 @@ contract('TokenProxy', function ([sender]) {
   it('reverts when no implementation was given', async function () {
     await assertRevert(Token_V0.at(proxyAddress).totalSupply());
     await assertRevert(Token_V0.at(proxyAddress).mint(sender, 100));
+  })
+
+  it('only the proxy owner can upgrade', async function() {
+    const impl_v0 = await Token_V0.new()
+    await assertRevert(proxy.upgradeTo('0', impl_v0.address, {from: nonOwner}));
   })
 
   it('can be upgraded to a first version', async function () {
