@@ -25,7 +25,7 @@ contract TokenProxy is UpgradeabilityProxy, TokenStorage {
     proxyOwner = _newOwner;
   }
 
-  function upgradeTo(string version, address implementation) public onlyProxyOwner {
-    super.upgrade(version, implementation);
+  function upgradeTokenTo(string version, address implementation) public onlyProxyOwner {
+    upgradeTo(version, implementation);
   }
 }

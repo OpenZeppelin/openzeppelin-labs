@@ -29,12 +29,12 @@ contract('TokenProxy', function ([sender, nonOwner]) {
 
   it('only the proxy owner can upgrade', async function() {
     const impl_v0 = await Token_V0.new()
-    await assertRevert(proxy.upgradeTo('0', impl_v0.address, {from: nonOwner}));
+    await assertRevert(proxy.upgradeTokenTo('0', impl_v0.address, {from: nonOwner}));
   })
 
   it('can be upgraded to a first version', async function () {
     const impl_v0 = await Token_V0.new()
-    await proxy.upgradeTo('0', impl_v0.address)
+    await proxy.upgradeTokenTo('0', impl_v0.address)
 
     const version = await proxy.version();
     await assert.equal(version, '0');
@@ -55,9 +55,9 @@ contract('TokenProxy', function ([sender, nonOwner]) {
 
   it('can be upgraded to a second version', async function () {
     const impl_v0 = await Token_V0.new()
-    await proxy.upgradeTo('0', impl_v0.address)
+    await proxy.upgradeTokenTo('0', impl_v0.address)
     const impl_v1 = await Token_V1.new()
-    await proxy.upgradeTo('1', impl_v1.address)
+    await proxy.upgradeTokenTo('1', impl_v1.address)
 
     const version = await proxy.version();
     await assert.equal(version, '1');
