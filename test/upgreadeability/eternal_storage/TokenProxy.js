@@ -5,7 +5,7 @@ const UpgradeabilityStorage = artifacts.require('UpgradeabilityStorage')
 const Token_V0 = artifacts.require('eternal_storage/test/Token_V0')
 const Token_V1 = artifacts.require('eternal_storage/test/Token_V1')
 
-contract('TokenProxy', function ([sender]) {
+contract('TokenProxy', function ([sender, receiver]) {
   let proxy
   let proxyAddress
 
@@ -63,9 +63,13 @@ contract('TokenProxy', function ([sender]) {
     await Token_V1.at(proxyAddress).mint(sender, 100)
     await Token_V1.at(proxyAddress).burn(50, { from: sender })
 
-    const balance = await Token_V1.at(proxyAddress).balanceOf(sender)
-    assert(balance.eq(50))
+    const transferTx = await Token_V1.at(proxyAddress).transfer(receiver, 10, { from: sender })
 
+    console.log("Transfer TX gas cost using Token Storage Proxy", transferTx.receipt.gasUsed);
+
+    // Check balance and total supply
+    const balance = await Token_V1.at(proxyAddress).balanceOf(sender)
+    assert(balance.eq(40))
     const totalSupply = await Token_V1.at(proxyAddress).totalSupply()
     assert(totalSupply.eq(50))
   })
