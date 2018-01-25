@@ -20,7 +20,7 @@ contract UpgradeabilityProxy is Proxy, UpgradeabilityStorage {
   * @param version representing the version name of the new implementation to be set
   * @param implementation representing the address of the new implementation to be set
   */
-  function upgradeTo(string version, address implementation) public {
+  function upgradeTo(string version, address implementation) internal {
     require(_implementation != implementation);
     _version = version;
     _implementation = implementation;

@@ -5,7 +5,7 @@ const UpgradeabilityStorage = artifacts.require('UpgradeabilityStorage')
 const Token_V0 = artifacts.require('eternal_storage/test/Token_V0')
 const Token_V1 = artifacts.require('eternal_storage/test/Token_V1')
 
-contract('TokenProxy', function ([sender, receiver]) {
+contract('TokenProxy', function ([sender, receiver, nonOwner]) {
   let proxy
   let proxyAddress
 
@@ -27,9 +27,14 @@ contract('TokenProxy', function ([sender, receiver]) {
     await assertRevert(Token_V0.at(proxyAddress).mint(sender, 100));
   })
 
+  it('only the proxy owner can upgrade', async function() {
+    const impl_v0 = await Token_V0.new()
+    await assertRevert(proxy.upgradeTokenTo('0', impl_v0.address, {from: nonOwner}));
+  })
+
   it('can be upgraded to a first version', async function () {
     const impl_v0 = await Token_V0.new()
-    await proxy.upgradeTo('0', impl_v0.address)
+    await proxy.upgradeTokenTo('0', impl_v0.address)
 
     const version = await proxy.version();
     await assert.equal(version, '0');
@@ -50,9 +55,9 @@ contract('TokenProxy', function ([sender, receiver]) {
 
   it('can be upgraded to a second version', async function () {
     const impl_v0 = await Token_V0.new()
-    await proxy.upgradeTo('0', impl_v0.address)
+    await proxy.upgradeTokenTo('0', impl_v0.address)
     const impl_v1 = await Token_V1.new()
-    await proxy.upgradeTo('1', impl_v1.address)
+    await proxy.upgradeTokenTo('1', impl_v1.address)
 
     const version = await proxy.version();
     await assert.equal(version, '1');
