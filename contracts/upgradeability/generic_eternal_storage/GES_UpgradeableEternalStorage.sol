@@ -1,15 +1,15 @@
 pragma solidity ^0.4.18;
 
-import './EternalStorage.sol';
-import './UpgradeabilityStorage.sol';
+import './GES_EternalStorage.sol';
+import './GES_UpgradeabilityStorage.sol';
 
 /**
- * @title UpgradeableEternalStorage
+ * @title GES_pgradeableEternalStorage
  * @dev This is the storage necessary to perform upgradeable contracts.
  * This means, required state variables for upgradeability purpose and those
  * strictly related to token contracts.
  */
-contract UpgradeableEternalStorage is UpgradeabilityStorage, EternalStorage {
+contract GES_UpgradeableEternalStorage is GES_UpgradeabilityStorage, GES_EternalStorage {
 
   bool public initialized = false;
 

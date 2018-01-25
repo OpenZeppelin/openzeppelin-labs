@@ -1,10 +1,10 @@
 pragma solidity ^0.4.18;
 
 /**
- * @title UpgradeabilityStorage
+ * @title GES_UpgradeabilityStorage
  * @dev This contract holds all the necessary state variables to support the upgrade functionality
  */
-contract UpgradeabilityStorage {
+contract GES_UpgradeabilityStorage {
   // Version name of the current implementation
   string internal _version;
 

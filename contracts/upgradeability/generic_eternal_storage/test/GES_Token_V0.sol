@@ -1,14 +1,14 @@
 pragma solidity ^0.4.18;
 
-import '../UpgradeableEternalStorage.sol';
-import './Ownable.sol';
+import './GES_Ownable.sol';
+import '../GES_UpgradeableEternalStorage.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 /**
- * @title Token_V0
+ * @title GES_Token_V0
  * @dev Version 0 of a token to show upgradeability.
  */
-contract TokenV0 is UpgradeableEternalStorage, Ownable {
+contract GES_Token_V0 is GES_UpgradeableEternalStorage, GES_Ownable {
   using SafeMath for uint256;
 
   event Transfer(address indexed from, address indexed to, uint256 value);

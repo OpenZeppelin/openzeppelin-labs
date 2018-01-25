@@ -1,4 +1,4 @@
-# Upgradeability using Eternal Storage
+# Upgradeability using generic Eternal Storage
 
 The idea of this approach is to allow us to upgrade a contract's behavior, assuming that the storage structure won't
 change and that it will use a set of mappings for each type of variable to store, this mappings will be internal variables that can be only modified inside the contract.

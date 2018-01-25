@@ -1,10 +1,10 @@
 pragma solidity ^0.4.18;
 
 /**
- * @title Proxy
+ * @title GES_Proxy
  * @dev Gives the possibility to delegate any call to a foreign implementation.
  */
-contract Proxy {
+contract GES_Proxy {
 
   /**
   * @dev Tells the address of the implementation where every call will be delegated.

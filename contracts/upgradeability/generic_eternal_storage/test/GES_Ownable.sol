@@ -1,13 +1,13 @@
 pragma solidity ^0.4.18;
 
-import '../UpgradeableEternalStorage.sol';
+import '../GES_UpgradeableEternalStorage.sol';
 
 /**
- * @title Ownable
+ * @title GES_Ownable
  * @dev The Ownable contract has an owner address, and provides basic authorization control
  * functions, this simplifies the implementation of "user permissions".
  */
-contract Ownable is UpgradeableEternalStorage {
+contract GES_Ownable is GES_UpgradeableEternalStorage {
 
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
