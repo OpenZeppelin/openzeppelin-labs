@@ -8,11 +8,8 @@ import '../UpgradeableEternalStorage.sol';
  * functions, this simplifies the implementation of "user permissions".
  */
 contract Ownable is UpgradeableEternalStorage {
-  address public owner;
-
 
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
 
   /**
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
