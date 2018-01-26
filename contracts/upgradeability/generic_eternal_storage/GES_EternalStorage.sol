@@ -2,8 +2,7 @@ pragma solidity ^0.4.18;
 
 /**
  * @title GES_EternalStorage
- * @dev This contract holds all the necessary state variables to carry out the
- * storage of any contract.
+ * @dev This contract holds all the necessary state variables to carry out the storage of any contract.
  */
 contract GES_EternalStorage {
 

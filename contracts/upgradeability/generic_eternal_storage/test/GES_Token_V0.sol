@@ -1,14 +1,13 @@
 pragma solidity ^0.4.18;
 
-import './GES_Ownable.sol';
-import '../GES_UpgradeableEternalStorage.sol';
+import '../GES_OwnedUpgradeabilityStorage.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 /**
  * @title GES_Token_V0
  * @dev Version 0 of a token to show upgradeability.
  */
-contract GES_Token_V0 is GES_UpgradeableEternalStorage, GES_Ownable {
+contract GES_Token_V0 is GES_OwnedUpgradeabilityStorage {
   using SafeMath for uint256;
 
   event Transfer(address indexed from, address indexed to, uint256 value);
@@ -22,7 +21,7 @@ contract GES_Token_V0 is GES_UpgradeableEternalStorage, GES_Ownable {
     return uintStorage[keccak256("balance", owner)];
   }
 
-  function mint(address to, uint256 value) public onlyOwner {
+  function mint(address to, uint256 value) public {
     bytes32 balanceToHash = keccak256("balance", to);
     bytes32 totalSupplyHash = keccak256("totalSupply");
 
