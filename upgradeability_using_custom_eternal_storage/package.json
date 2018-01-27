@@ -1,0 +1,15 @@
+{
+  "name": "token-upgradeability-using-custom-eternal-storage",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Facu Spagnuolo <facu@zeppelin.solutions>",
+  "license": "MIT",
+  "scripts": {
+    "test": "truffle test"
+  },
+  "devDependencies": {
+    "ethereumjs-abi": "^0.6.5",
+    "truffle": "^4.0.4",
+    "zeppelin-solidity": "^1.5.0"
+  }
+}

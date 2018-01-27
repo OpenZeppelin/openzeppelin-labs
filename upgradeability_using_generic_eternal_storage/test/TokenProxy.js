@@ -1,5 +1,5 @@
 const abi = require('ethereumjs-abi');
-const assertRevert = require('../../helpers/assertRevert')
+const assertRevert = require('./helpers/assertRevert')
 
 const Token_V0 = artifacts.require('GES_Token_V0')
 const Token_V1 = artifacts.require('GES_Token_V1')

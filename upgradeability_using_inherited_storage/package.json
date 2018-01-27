@@ -5,10 +5,9 @@
   "author": "Francisco Giordano <fran@zeppelin.solutions>",
   "license": "MIT",
   "scripts": {
-    "test": "scripts/test.sh",
-    "install-all": "npx recursive-install"
+    "test": "truffle test"
   },
   "devDependencies": {
-    "recursive-install": "^1.3.0"
+    "truffle": "^4.0.4"
   }
 }

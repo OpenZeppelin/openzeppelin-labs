@@ -1,4 +1,4 @@
-const assertRevert = require('../../helpers/assertRevert')
+const assertRevert = require('./helpers/assertRevert')
 
 const TokenProxy = artifacts.require('TokenProxy')
 const Token_V0 = artifacts.require('Token_V0')
