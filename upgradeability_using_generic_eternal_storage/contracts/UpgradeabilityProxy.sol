@@ -1,13 +1,13 @@
 pragma solidity ^0.4.18;
 
-import './GES_Proxy.sol';
-import './GES_UpgradeabilityStorage.sol';
+import './Proxy.sol';
+import './UpgradeabilityStorage.sol';
 
 /**
- * @title GES_UpgradeabilityProxy
+ * @title UpgradeabilityProxy
  * @dev This contract represents a proxy where the implementation address to which it will delegate can be upgraded
  */
-contract GES_UpgradeabilityProxy is GES_Proxy, GES_UpgradeabilityStorage {
+contract UpgradeabilityProxy is Proxy, UpgradeabilityStorage {
   /**
   * @dev This event will be emitted every time the implementation gets upgraded
   * @param version representing the version name of the upgraded implementation

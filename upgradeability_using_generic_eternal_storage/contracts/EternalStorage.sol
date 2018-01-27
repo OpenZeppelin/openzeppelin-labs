@@ -1,10 +1,10 @@
 pragma solidity ^0.4.18;
 
 /**
- * @title GES_EternalStorage
+ * @title EternalStorage
  * @dev This contract holds all the necessary state variables to carry out the storage of any contract.
  */
-contract GES_EternalStorage {
+contract EternalStorage {
 
   mapping(bytes32 => uint256) internal uintStorage;
   mapping(bytes32 => string) internal stringStorage;

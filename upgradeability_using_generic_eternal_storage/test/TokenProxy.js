@@ -1,9 +1,9 @@
 const abi = require('ethereumjs-abi');
 const assertRevert = require('./helpers/assertRevert')
 
-const Token_V0 = artifacts.require('GES_Token_V0')
-const Token_V1 = artifacts.require('GES_Token_V1')
-const TokenProxy = artifacts.require('GES_TokenProxy')
+const Token_V0 = artifacts.require('Token_V0')
+const Token_V1 = artifacts.require('Token_V1')
+const TokenProxy = artifacts.require('TokenProxy')
 
 contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner, anotherAccount]) => {
   let proxy

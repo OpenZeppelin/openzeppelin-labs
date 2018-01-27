@@ -2,10 +2,10 @@ pragma solidity ^0.4.18;
 
 
 /**
- * @title GES_UpgradeabilityOwnerStorage
+ * @title UpgradeabilityOwnerStorage
  * @dev This contract keeps track of the upgradeability owner
  */
-contract GES_UpgradeabilityOwnerStorage {
+contract UpgradeabilityOwnerStorage {
   // Owner of the contract
   address private _upgradeabilityOwner;
 

@@ -1,12 +1,12 @@
 pragma solidity ^0.4.18;
 
-import '../GES_EternalStorage.sol';
+import '../EternalStorage.sol';
 
 /**
- * @title GES_OwnedToken
+ * @title OwnedToken
  * @dev This contract has a token owner address providing basic authorization control
  */
-contract GES_OwnedToken is GES_EternalStorage {
+contract OwnedToken is EternalStorage {
   /**
    * @dev Event to show ownership has been transferred
    * @param previousOwner representing the address of the previous owner

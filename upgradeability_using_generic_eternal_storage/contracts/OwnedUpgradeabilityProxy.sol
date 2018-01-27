@@ -1,13 +1,13 @@
 pragma solidity ^0.4.18;
 
-import './GES_UpgradeabilityProxy.sol';
-import './GES_UpgradeabilityOwnerStorage.sol';
+import './UpgradeabilityProxy.sol';
+import './UpgradeabilityOwnerStorage.sol';
 
 /**
- * @title GES_OwnedUpgradeabilityProxy
+ * @title OwnedUpgradeabilityProxy
  * @dev This contract combines an upgradeability proxy with basic authorization control functionalities
  */
-contract GES_OwnedUpgradeabilityProxy is GES_UpgradeabilityOwnerStorage, GES_UpgradeabilityProxy {
+contract OwnedUpgradeabilityProxy is UpgradeabilityOwnerStorage, UpgradeabilityProxy {
   /**
   * @dev Event to show ownership has been transferred
   * @param previousOwner representing the address of the previous owner
@@ -18,7 +18,7 @@ contract GES_OwnedUpgradeabilityProxy is GES_UpgradeabilityOwnerStorage, GES_Upg
   /**
   * @dev the constructor sets the original owner of the contract to the sender account.
   */
-  function GES_OwnedUpgradeabilityProxy() public {
+  function OwnedUpgradeabilityProxy() public {
     setUpgradeabilityOwner(msg.sender);
   }
 

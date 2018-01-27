@@ -1,5 +1,5 @@
 const assertRevert = require('./helpers/assertRevert')
-const OwnedUpgradeabilityProxy = artifacts.require('GES_OwnedUpgradeabilityProxy')
+const OwnedUpgradeabilityProxy = artifacts.require('OwnedUpgradeabilityProxy')
 
 contract('OwnedUpgradeabilityProxy', ([owner, anotherAccount]) => {
   let ownedUpgradeabilityToken

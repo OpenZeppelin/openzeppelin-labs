@@ -1,14 +1,14 @@
 pragma solidity ^0.4.18;
 
-import './GES_Token_V0.sol';
-import './GES_OwnedToken.sol';
+import './Token_V0.sol';
+import './OwnedToken.sol';
 
 /**
- * @title GES_Token_V1
+ * @title Token_V1
  * @dev Version 1 of a token to show upgradeability.
  * The idea here is to extend a token behaviour providing a burn and onlyOwner mint functions as opposed to version 0
  */
-contract GES_Token_V1 is GES_Token_V0, GES_OwnedToken {
+contract Token_V1 is Token_V0, OwnedToken {
 
   function initialize(address owner) public {
     setTokenOwner(owner);
