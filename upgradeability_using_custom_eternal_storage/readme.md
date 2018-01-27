@@ -1,4 +1,4 @@
-# Upgradeability using Eternal Storage
+# Upgradeability using custom Eternal Storage
 
 The idea of this approach is to allow us to upgrade a contract's behavior, assuming that the storage structure won't 
 change. This scenario is referred to as eternal storage. 

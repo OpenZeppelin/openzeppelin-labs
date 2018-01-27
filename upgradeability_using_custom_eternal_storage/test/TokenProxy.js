@@ -1,16 +1,16 @@
-const assertRevert = require('../../helpers/assertRevert')
+const assertRevert = require('./helpers/assertRevert')
 
 const TokenProxy = artifacts.require('TokenProxy')
+const Token_V0 = artifacts.require('Token_V0')
+const Token_V1 = artifacts.require('Token_V1')
 const UpgradeabilityStorage = artifacts.require('UpgradeabilityStorage')
-const Token_V0 = artifacts.require('eternal_storage/test/Token_V0')
-const Token_V1 = artifacts.require('eternal_storage/test/Token_V1')
 
-contract('TokenProxy', function ([sender, receiver, nonOwner]) {
+contract('TokenProxy with custom Eternal Storage', ([sender, receiver, anotherAccount]) => {
   let proxy
   let proxyAddress
 
   beforeEach(async function () {
-    proxy = await TokenProxy.new()
+    proxy = await TokenProxy.new({ from: sender })
     proxyAddress = proxy.address
   })
 
@@ -29,12 +29,12 @@ contract('TokenProxy', function ([sender, receiver, nonOwner]) {
 
   it('only the proxy owner can upgrade', async function() {
     const impl_v0 = await Token_V0.new()
-    await assertRevert(proxy.upgradeTokenTo('0', impl_v0.address, {from: nonOwner}));
+    await assertRevert(proxy.upgradeTo('0', impl_v0.address, { from: anotherAccount }));
   })
 
   it('can be upgraded to a first version', async function () {
     const impl_v0 = await Token_V0.new()
-    await proxy.upgradeTokenTo('0', impl_v0.address)
+    await proxy.upgradeTo('0', impl_v0.address)
 
     const version = await proxy.version();
     await assert.equal(version, '0');
@@ -55,9 +55,9 @@ contract('TokenProxy', function ([sender, receiver, nonOwner]) {
 
   it('can be upgraded to a second version', async function () {
     const impl_v0 = await Token_V0.new()
-    await proxy.upgradeTokenTo('0', impl_v0.address)
+    await proxy.upgradeTo('0', impl_v0.address)
     const impl_v1 = await Token_V1.new()
-    await proxy.upgradeTokenTo('1', impl_v1.address)
+    await proxy.upgradeTo('1', impl_v1.address)
 
     const version = await proxy.version();
     await assert.equal(version, '1');

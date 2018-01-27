@@ -5,13 +5,13 @@ import './UpgradeabilityProxy.sol';
 
 /**
  * @title TokenProxy
- * @dev This holds the storage of the token contract and delegates every call to the current implementation set.
+ * @dev This proxy holds the storage of the token contract and delegates every call to the current implementation set.
  * Besides, it allows to upgrade the token's behaviour towards further implementations.
  */
 contract TokenProxy is UpgradeabilityProxy, TokenStorage {
   address public proxyOwner;
 
-  function TokenProxy() {
+  function TokenProxy() public {
     proxyOwner = msg.sender;
   }
 
@@ -25,7 +25,7 @@ contract TokenProxy is UpgradeabilityProxy, TokenStorage {
     proxyOwner = _newOwner;
   }
 
-  function upgradeTokenTo(string version, address implementation) public onlyProxyOwner {
-    upgradeTo(version, implementation);
+  function upgradeTo(string version, address implementation) public onlyProxyOwner {
+    _upgradeTo(version, implementation);
   }
 }
