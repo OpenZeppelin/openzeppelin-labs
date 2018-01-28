@@ -58,14 +58,13 @@ contract Token_V0 is OwnedUpgradeabilityStorage {
     Approval(msg.sender, spender, value);
   }
 
-  function increaseApproval(address spender, uint256 addedValue) public returns (bool) {
+  function increaseApproval(address spender, uint256 addedValue) public {
     bytes32 allowanceSenderToSpenderHash = keccak256("allowance", msg.sender, spender);
     uintStorage[allowanceSenderToSpenderHash] = allowance(msg.sender, spender).add(addedValue);
     Approval(msg.sender, spender, allowance(msg.sender, spender));
-    return true;
   }
 
-  function decreaseApproval(address spender, uint256 subtractedValue) public returns (bool) {
+  function decreaseApproval(address spender, uint256 subtractedValue) public {
     uint256 oldValue = allowance(msg.sender, spender);
     bytes32 allowanceSenderToSpenderHash = keccak256("allowance", msg.sender, spender);
     if (subtractedValue > oldValue) {
@@ -74,7 +73,6 @@ contract Token_V0 is OwnedUpgradeabilityStorage {
       uintStorage[allowanceSenderToSpenderHash] = oldValue.sub(subtractedValue);
     }
     Approval(msg.sender, spender, allowance(msg.sender, spender));
-    return true;
   }
 
   function mint(address to, uint256 value) public {
