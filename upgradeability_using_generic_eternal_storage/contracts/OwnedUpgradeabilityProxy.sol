@@ -42,7 +42,7 @@ contract OwnedUpgradeabilityProxy is UpgradeabilityOwnerStorage, UpgradeabilityP
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
    * @param newOwner The address to transfer ownership to.
    */
-  function transferOwnership(address newOwner) public onlyProxyOwner {
+  function transferProxyOwnership(address newOwner) public onlyProxyOwner {
     require(newOwner != address(0));
     ProxyOwnershipTransferred(proxyOwner(), newOwner);
     setUpgradeabilityOwner(newOwner);

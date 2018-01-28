@@ -16,7 +16,7 @@ contract('OwnedUpgradeabilityProxy', ([owner, anotherAccount]) => {
     })
   })
 
-  describe('transferOwnership', function () {
+  describe('transfer ownership', function () {
     describe('when the new proposed owner is not the zero address', function () {
       const newOwner = anotherAccount
 
@@ -24,10 +24,19 @@ contract('OwnedUpgradeabilityProxy', ([owner, anotherAccount]) => {
         const from = owner
 
         it('transfers the ownership', async function () {
-          await ownedUpgradeabilityToken.transferOwnership(newOwner, { from })
+          await ownedUpgradeabilityToken.transferProxyOwnership(newOwner, { from })
 
           const proxyOwner = await ownedUpgradeabilityToken.proxyOwner()
           assert.equal(proxyOwner, anotherAccount)
+        })
+
+        it('emits an event', async function () {
+          const { logs } = await ownedUpgradeabilityToken.transferProxyOwnership(newOwner, { from })
+
+          assert.equal(logs.length, 1)
+          assert.equal(logs[0].event, 'ProxyOwnershipTransferred')
+          assert.equal(logs[0].args.previousOwner, owner)
+          assert.equal(logs[0].args.newOwner, newOwner)
         })
       })
 
@@ -35,7 +44,7 @@ contract('OwnedUpgradeabilityProxy', ([owner, anotherAccount]) => {
         const from = anotherAccount
 
         it('reverts', async function () {
-          await assertRevert(ownedUpgradeabilityToken.transferOwnership(newOwner, { from }))
+          await assertRevert(ownedUpgradeabilityToken.transferProxyOwnership(newOwner, { from }))
         })
       })
     })
@@ -44,7 +53,7 @@ contract('OwnedUpgradeabilityProxy', ([owner, anotherAccount]) => {
       const newOwner = 0x0
 
       it('reverts', async function () {
-        await assertRevert(ownedUpgradeabilityToken.transferOwnership(newOwner, { from: owner }))
+        await assertRevert(ownedUpgradeabilityToken.transferProxyOwnership(newOwner, { from: owner }))
       })
     })
   })
