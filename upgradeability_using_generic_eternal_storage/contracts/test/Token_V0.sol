@@ -21,20 +21,17 @@ contract Token_V0 is OwnedUpgradeabilityStorage {
     return uintStorage[keccak256("balance", owner)];
   }
 
-  function mint(address to, uint256 value) public {
-    bytes32 balanceToHash = keccak256("balance", to);
-    bytes32 totalSupplyHash = keccak256("totalSupply");
-
-    uintStorage[balanceToHash] = uintStorage[balanceToHash].add(value);
-    uintStorage[totalSupplyHash] = uintStorage[totalSupplyHash].add(value);
-    Transfer(0x0, to, value);
+  function allowance(address owner, address spender) public view returns (uint256) {
+    return uintStorage[keccak256("allowance", owner, spender)];
   }
 
   function transfer(address to, uint256 value) public {
     bytes32 balanceToHash = keccak256("balance", to);
     bytes32 balanceSenderHash = keccak256("balance", msg.sender);
 
+    require(to != address(0));
     require(uintStorage[balanceSenderHash] >= value);
+
     uintStorage[balanceSenderHash] = uintStorage[balanceSenderHash].sub(value);
     uintStorage[balanceToHash] = uintStorage[balanceToHash].add(value);
     Transfer(msg.sender, to, value);
@@ -45,7 +42,10 @@ contract Token_V0 is OwnedUpgradeabilityStorage {
     bytes32 balanceToHash = keccak256("balance", to);
     bytes32 balanceFromHash = keccak256("balance", from);
 
+    require(to != address(0));
+    require(uintStorage[balanceFromHash] >= value );
     require(uintStorage[allowanceFromToSenderHash] >= value);
+
     uintStorage[allowanceFromToSenderHash] = uintStorage[allowanceFromToSenderHash].sub(value);
     uintStorage[balanceFromHash] = uintStorage[balanceFromHash].sub(value);
     uintStorage[balanceToHash] = uintStorage[balanceToHash].add(value);
@@ -54,9 +54,35 @@ contract Token_V0 is OwnedUpgradeabilityStorage {
 
   function approve(address spender, uint256 value) public {
     bytes32 allowanceSenderToSpenderHash = keccak256("allowance", msg.sender, spender);
-
     uintStorage[allowanceSenderToSpenderHash] = value;
     Approval(msg.sender, spender, value);
   }
 
+  function increaseApproval(address spender, uint256 addedValue) public returns (bool) {
+    bytes32 allowanceSenderToSpenderHash = keccak256("allowance", msg.sender, spender);
+    uintStorage[allowanceSenderToSpenderHash] = allowance(msg.sender, spender).add(addedValue);
+    Approval(msg.sender, spender, allowance(msg.sender, spender));
+    return true;
+  }
+
+  function decreaseApproval(address spender, uint256 subtractedValue) public returns (bool) {
+    uint256 oldValue = allowance(msg.sender, spender);
+    bytes32 allowanceSenderToSpenderHash = keccak256("allowance", msg.sender, spender);
+    if (subtractedValue > oldValue) {
+      uintStorage[allowanceSenderToSpenderHash] = 0;
+    } else {
+      uintStorage[allowanceSenderToSpenderHash] = oldValue.sub(subtractedValue);
+    }
+    Approval(msg.sender, spender, allowance(msg.sender, spender));
+    return true;
+  }
+
+  function mint(address to, uint256 value) public {
+    bytes32 balanceToHash = keccak256("balance", to);
+    bytes32 totalSupplyHash = keccak256("totalSupply");
+
+    uintStorage[balanceToHash] = uintStorage[balanceToHash].add(value);
+    uintStorage[totalSupplyHash] = uintStorage[totalSupplyHash].add(value);
+    Transfer(0x0, to, value);
+  }
 }
