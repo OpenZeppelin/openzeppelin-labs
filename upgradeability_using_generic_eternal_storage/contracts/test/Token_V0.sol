@@ -32,23 +32,23 @@ contract Token_V0 is OwnedUpgradeabilityStorage {
     require(to != address(0));
     require(uintStorage[balanceSenderHash] >= value);
 
-    uintStorage[balanceSenderHash] = uintStorage[balanceSenderHash].sub(value);
-    uintStorage[balanceToHash] = uintStorage[balanceToHash].add(value);
+    uintStorage[balanceSenderHash] = balanceOf(msg.sender).sub(value);
+    uintStorage[balanceToHash] = balanceOf(to).add(value);
     Transfer(msg.sender, to, value);
   }
 
   function transferFrom(address from, address to, uint256 value) public {
-    bytes32 allowanceFromToSenderHash = keccak256("allowance", from, msg.sender);
     bytes32 balanceToHash = keccak256("balance", to);
     bytes32 balanceFromHash = keccak256("balance", from);
+    bytes32 allowanceFromToSenderHash = keccak256("allowance", from, msg.sender);
 
     require(to != address(0));
     require(uintStorage[balanceFromHash] >= value );
     require(uintStorage[allowanceFromToSenderHash] >= value);
 
-    uintStorage[allowanceFromToSenderHash] = uintStorage[allowanceFromToSenderHash].sub(value);
-    uintStorage[balanceFromHash] = uintStorage[balanceFromHash].sub(value);
-    uintStorage[balanceToHash] = uintStorage[balanceToHash].add(value);
+    uintStorage[balanceFromHash] = balanceOf(from).sub(value);
+    uintStorage[balanceToHash] = balanceOf(to).add(value);
+    uintStorage[allowanceFromToSenderHash] = allowance(from, msg.sender).sub(value);
     Transfer(from, to, value);
   }
 
@@ -81,8 +81,8 @@ contract Token_V0 is OwnedUpgradeabilityStorage {
     bytes32 balanceToHash = keccak256("balance", to);
     bytes32 totalSupplyHash = keccak256("totalSupply");
 
-    uintStorage[balanceToHash] = uintStorage[balanceToHash].add(value);
-    uintStorage[totalSupplyHash] = uintStorage[totalSupplyHash].add(value);
+    uintStorage[balanceToHash] = balanceOf(to).add(value);
+    uintStorage[totalSupplyHash] = totalSupply().add(value);
     Transfer(0x0, to, value);
   }
 }
