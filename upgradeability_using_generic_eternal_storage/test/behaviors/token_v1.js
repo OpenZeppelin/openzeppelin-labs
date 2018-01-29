@@ -9,7 +9,7 @@ function shouldBehaveLikeTokenV1(proxyOwner, tokenOwner, owner, anotherAccount) 
 
   describe('owner', function () {
     it('has an owner', async function () {
-      const owner = await this.token.tokenOwner()
+      const owner = await this.token.owner()
 
       assert.equal(owner, tokenOwner)
     })
@@ -23,17 +23,17 @@ function shouldBehaveLikeTokenV1(proxyOwner, tokenOwner, owner, anotherAccount) 
         const from = tokenOwner
 
         it('transfers the ownership', async function () {
-          await this.token.transferTokenOwnership(newOwner, { from })
+          await this.token.transferOwnership(newOwner, { from })
 
-          const owner = await this.token.tokenOwner()
+          const owner = await this.token.owner()
           assert.equal(owner, anotherAccount)
         })
 
         it('emits an event', async function () {
-          const { logs } = await this.token.transferTokenOwnership(newOwner, { from })
+          const { logs } = await this.token.transferOwnership(newOwner, { from })
 
           assert.equal(logs.length, 1)
-          assert.equal(logs[0].event, 'TokenOwnershipTransferred')
+          assert.equal(logs[0].event, 'OwnershipTransferred')
           assert.equal(logs[0].args.previousOwner, tokenOwner)
           assert.equal(logs[0].args.newOwner, newOwner)
         })
@@ -43,7 +43,7 @@ function shouldBehaveLikeTokenV1(proxyOwner, tokenOwner, owner, anotherAccount) 
         const from = proxyOwner
 
         it('reverts', async function () {
-          await assertRevert(this.token.transferTokenOwnership(newOwner, { from }))
+          await assertRevert(this.token.transferOwnership(newOwner, { from }))
         })
       })
 
@@ -51,7 +51,7 @@ function shouldBehaveLikeTokenV1(proxyOwner, tokenOwner, owner, anotherAccount) 
         const from = anotherAccount
 
         it('reverts', async function () {
-          await assertRevert(this.token.transferTokenOwnership(newOwner, { from }))
+          await assertRevert(this.token.transferOwnership(newOwner, { from }))
         })
       })
     })
@@ -60,7 +60,7 @@ function shouldBehaveLikeTokenV1(proxyOwner, tokenOwner, owner, anotherAccount) 
       const newOwner = 0x0
 
       it('reverts', async function () {
-        await assertRevert(this.token.transferTokenOwnership(newOwner, { from: tokenOwner }))
+        await assertRevert(this.token.transferOwnership(newOwner, { from: tokenOwner }))
       })
     })
   })

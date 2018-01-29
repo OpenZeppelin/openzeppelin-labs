@@ -185,7 +185,7 @@ contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner,
         it('calls the implementation using the given data as msg.data', async function () {
           await proxy.upgradeToAndCall('1', impl_v1.address, initializeData, { from })
 
-          const owner = await token_v1.tokenOwner()
+          const owner = await token_v1.owner()
           assert.equal(owner, tokenOwner);
 
           await assertRevert(token_v1.mint(anotherAccount, 100, { from: anotherAccount }))

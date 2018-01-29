@@ -38,7 +38,7 @@ contract Token_V3 is Token_V2 {
   /**
    * @dev called by the owner to pause the token, triggers stopped state
    */
-  function pause() public onlyTokenOwner whenNotPaused {
+  function pause() public onlyOwner whenNotPaused {
     boolStorage['paused'] = true;
     Pause();
   }
@@ -46,7 +46,7 @@ contract Token_V3 is Token_V2 {
   /**
    * @dev called by the owner to unpause the tokn, returns to normal state
    */
-  function unpause() public onlyTokenOwner whenPaused {
+  function unpause() public onlyOwner whenPaused {
     boolStorage['paused'] = false;
     Unpause();
   }
