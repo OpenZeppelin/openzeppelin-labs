@@ -5,7 +5,8 @@ import './Token_V2.sol';
 /**
  * @title Token_V2
  * @dev Version 2 of a token to show upgradeability.
- * The idea here is to extend a token behaviour providing pausable functionalities as opposed to version 2
+ * The idea here is to extend a token behaviour providing pausable functionalities
+ * in addition to what's provided in version 2
  */
 contract Token_V3 is Token_V2 {
   event Pause();

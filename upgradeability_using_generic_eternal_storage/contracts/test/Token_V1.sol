@@ -6,7 +6,8 @@ import './OwnedToken.sol';
 /**
  * @title Token_V1
  * @dev Version 1 of a token to show upgradeability.
- * The idea here is to extend a token behaviour providing mintable token functionalities as opposed to version 0
+ * The idea here is to extend a token behaviour providing mintable token functionalities
+ * in addition to what's provided in version 0
  */
 contract Token_V1 is Token_V0, OwnedToken {
   event Mint(address indexed to, uint256 amount);
