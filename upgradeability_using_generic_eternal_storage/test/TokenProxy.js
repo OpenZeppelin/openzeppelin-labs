@@ -26,7 +26,7 @@ contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner,
 
   describe('owner', function () {
     it('has an owner', async function () {
-      const owner = await proxy.proxyOwner.call()
+      const owner = await proxy.proxyOwner()
 
       assert.equal(owner, proxyOwner)
     })
@@ -40,10 +40,19 @@ contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner,
         const from = proxyOwner
 
         it('transfers the ownership', async function () {
-          await proxy.transferOwnership(newOwner, { from })
+          await proxy.transferProxyOwnership(newOwner, { from })
 
-          const owner = await proxy.proxyOwner.call()
-          assert.equal(owner, anotherAccount)
+          const owner = await proxy.proxyOwner()
+          assert.equal(owner, newOwner)
+        })
+
+        it('emits an event', async function () {
+          const { logs } = await proxy.transferProxyOwnership(newOwner, { from })
+
+          assert.equal(logs.length, 1)
+          assert.equal(logs[0].event, 'ProxyOwnershipTransferred')
+          assert.equal(logs[0].args.previousOwner, proxyOwner)
+          assert.equal(logs[0].args.newOwner, newOwner)
         })
       })
 
@@ -53,7 +62,7 @@ contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner,
         beforeEach(async () => await proxy.upgradeToAndCall('1', impl_v1.address, initializeData, { from: proxyOwner }))
 
         it('reverts', async function () {
-          await assertRevert(proxy.transferOwnership(newOwner, { from }))
+          await assertRevert(proxy.transferProxyOwnership(newOwner, { from }))
         })
       })
 
@@ -61,7 +70,7 @@ contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner,
         const from = anotherAccount
 
         it('reverts', async function () {
-          await assertRevert(proxy.transferOwnership(newOwner, { from }))
+          await assertRevert(proxy.transferProxyOwnership(newOwner, { from }))
         })
       })
     })
@@ -70,7 +79,7 @@ contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner,
       const newOwner = 0x0
 
       it('reverts', async function () {
-        await assertRevert(proxy.transferOwnership(newOwner, { from: proxyOwner }))
+        await assertRevert(proxy.transferProxyOwnership(newOwner, { from: proxyOwner }))
       })
     })
   })
@@ -176,7 +185,7 @@ contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner,
         it('calls the implementation using the given data as msg.data', async function () {
           await proxy.upgradeToAndCall('1', impl_v1.address, initializeData, { from })
 
-          const owner = await token_v1.tokenOwner()
+          const owner = await token_v1.owner()
           assert.equal(owner, tokenOwner);
 
           await assertRevert(token_v1.mint(anotherAccount, 100, { from: anotherAccount }))
@@ -230,7 +239,7 @@ contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner,
         it('fails when trying to call an unknown function of the current implementation', async function () {
           await token_v0.mint(sender, 100)
 
-          await assertRevert(token_v1.burn(50))
+          await assertRevert(token_v1.mintingFinished())
         })
       })
 
@@ -242,14 +251,13 @@ contract('TokenProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner,
 
         it('delegates calls to the last upgraded implementation', async function() {
           await token_v1.mint(sender, 20, { from: tokenOwner })
-          await token_v1.burn(50, { from: sender })
           await assertRevert(token_v1.mint(sender, 20, { from: sender }))
 
           const balance = await token_v1.balanceOf(sender)
-          assert(balance.eq(70))
+          assert(balance.eq(120))
 
           const totalSupply = await token_v1.totalSupply()
-          assert(totalSupply.eq(70))
+          assert(totalSupply.eq(120))
         })
       })
     })
