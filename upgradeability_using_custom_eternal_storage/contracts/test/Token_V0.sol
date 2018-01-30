@@ -1,17 +1,24 @@
 pragma solidity ^0.4.18;
 
-import '../UpgradeableTokenStorage.sol';
+import '../ownership/Ownable.sol';
+import '../OwnedUpgradeableTokenStorage.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 /**
  * @title Token_V0
  * @dev Version 0 of a token to show upgradeability.
  */
-contract Token_V0 is UpgradeableTokenStorage {
+contract Token_V0 is Ownable, OwnedUpgradeableTokenStorage {
   using SafeMath for uint256;
 
   event Transfer(address indexed from, address indexed to, uint256 value);
   event Approval(address indexed owner, address indexed spender, uint256 value);
+
+  function initialize(address owner) public {
+    require(!_initialized);
+    setOwner(owner);
+    _initialized = true;
+  }
 
   function totalSupply() public view returns (uint256) {
     return _totalSupply;
@@ -21,25 +28,30 @@ contract Token_V0 is UpgradeableTokenStorage {
     return _balances[owner];
   }
 
-  function mint(address to, uint256 value) public {
-    _balances[to] = _balances[to].add(value);
-    _totalSupply = _totalSupply.add(value);
-    Transfer(0x0, to, value);
+  function allowance(address owner, address spender) public view returns (uint256) {
+    return _allowances[owner][spender];
   }
 
-  function transfer(address to, uint256 value) public {
-    require(_balances[msg.sender] >= value);
+  function transfer(address to, uint256 value) public returns (bool) {
+    require(to != address(0));
+    require(value <= _balances[msg.sender]);
+    
     _balances[msg.sender] = _balances[msg.sender].sub(value);
     _balances[to] = _balances[to].add(value);
     Transfer(msg.sender, to, value);
+    return true;
   }
 
-  function transferFrom(address from, address to, uint256 value) public {
-    require(_allowances[from][msg.sender] >= value);
-    _allowances[from][msg.sender] = _allowances[from][msg.sender].sub(value);
+  function transferFrom(address from, address to, uint256 value) public returns (bool) {
+    require(to != address(0));
+    require(value <= _balances[from]);
+    require(value <= _allowances[from][msg.sender]);
+
     _balances[from] = _balances[from].sub(value);
     _balances[to] = _balances[to].add(value);
+    _allowances[from][msg.sender] = _allowances[from][msg.sender].sub(value);
     Transfer(from, to, value);
+    return true;
   }
 
   function approve(address spender, uint256 value) public {
@@ -47,4 +59,24 @@ contract Token_V0 is UpgradeableTokenStorage {
     Approval(msg.sender, spender, value);
   }
 
+  function increaseApproval(address spender, uint256 addedValue) public {
+    _allowances[msg.sender][spender] = _allowances[msg.sender][spender].add(addedValue);
+    Approval(msg.sender, spender, _allowances[msg.sender][spender]);
+  }
+
+  function decreaseApproval(address spender, uint256 subtractedValue) public {
+    uint oldValue = _allowances[msg.sender][spender];
+    if (subtractedValue > oldValue) {
+      _allowances[msg.sender][spender] = 0;
+    } else {
+      _allowances[msg.sender][spender] = oldValue.sub(subtractedValue);
+    }
+    Approval(msg.sender, spender, _allowances[msg.sender][spender]);
+  }
+
+  function mint(address to, uint256 value) public onlyOwner {
+    _balances[to] = _balances[to].add(value);
+    _totalSupply = _totalSupply.add(value);
+    Transfer(0x0, to, value);
+  }
 }
