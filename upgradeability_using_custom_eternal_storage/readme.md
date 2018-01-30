@@ -11,34 +11,38 @@ Since we have two really different kinds of data, one related to the upgradeabil
 strictly related to the token contract domain, naming was really important here to expressed correctly what's 
 going on. This is the proposed model:
 
-        -------            =======================            ========================
-       | Proxy |          ║ UpgradeabilityStorage ║          ║      TokenStorage      ║
-        -------            =======================            ======================== 
-             ↑              ↑                   ↑              ↑            ↑
-           ---------------------            =========================       |
-          | UpgradeabilityProxy |          ║ UpgradeableTokenStorage ║      |
-           ---------------------            =========================       |
-                             ↑                    ↑           ↑             |
-                             |               ----------   ----------        |         
-                             |              | Token_V0 | | Token_V1 |       |                    
-                             |               ----------   ----------        |                               
-                         --------------  ___________________________________|
-                        |  TokenProxy  | 
+        -------      =======================     ============================      ================
+       | Proxy |    ║ UpgradeabilityStorage ║   ║ UpgradeabilityOwnerStorage ║    ║  TokenStorage  ║
+        -------      =======================     ============================      ================
+             ↑              ↑            ↑        ↑    ↑                           ↑       ↑
+           ---------------------         |_______ | __ ==============================      |
+          | UpgradeabilityProxy |                └|┘  ║ OwnedUpgradeableTokenStorage ║     |
+           ---------------------                  |    ==============================      | 
+                   ↑                              |           ↑              ↑             |
+                  -------------------------- _____|           |              |             |
+                 | OwnedUpgradeabilityProxy |            ----------      ----------        |
+                  --------------------------            | Token_V0 |    | Token_V1 |       | 
+                             ↑                           ----------      ----------        |         
+                         --------------  __________________________________________________|
+                        |  TokenProxy  |
                          --------------
 
-`Proxy`, `UpgradeabilityProxy` and `UpgradeabilityStorage` are generic contracts that can be used to implement 
-upgradeability through proxies. In this example we use them to implement an upgradeable ERC20 token. `TokenStorage`
-defines the token-specific storage, which combined with the generic `UpgradeabilityProxy` results in `TokenProxy`. 
+`Proxy`, `UpgradeabilityProxy` and `UpgradeabilityStorage` are generic contracts that can be used to implement
+upgradeability through proxies. In this example we use all these contracts to implement an upgradeable ERC20 token. 
+
+The `UpgradeabilityStorage` contract holds data needed for upgradeability, while the `UpgradeabilityOwnerStorage` 
+provides the required state variables to track upgradeability ownership. `TokenStorage` defines the token-specific 
+storage structure. Then, `OwnedUpgradeableTokenStorage` contract combines all the mentioned storage contracts, 
+which every implementation of the upgradeable behavior needs.
+
+The `OwnedUpgradeabilityProxy` combines proxy, upgradeability and ownable functionalities restricting version upgrade
+functions to be accessible just from the declared proxy owner.
+
 `TokenProxy` is the contract that will delegate calls to specific implementations of the ERC20 token behavior. These
-behaviors are the code that can be upgraded by the token developer (e.g. `Token_V0` and `Token_V1`). 
+behaviors are the code that can be upgraded by the token developer (e.g. `Token_V0` and `Token_V1`). `TokenProxy` 
+extends from `OwnedUpgradeabilityProxy` (which in turn extends from `UpgradeabilityStorage` and 
+`UpgradeabilityOwnerStorage`), and then from the `TokenStorage` contract. Notice that inheritance order needs to be 
+the same as the one in `OwnedUpgradeabilityStorage`, to respect storage structure (given we are using `delegatecall`).
 
-The `TokenStorage` contract holds token-related information, while the `UpgradeabilityStorage` contract holds data 
-needed for upgradeability. All this information is contained in the `UpgradeableTokenStorage` contract, which every 
-implementation of the upgradeable behavior needs. 
-
-On the other hand, `TokenProxy` extends from `UpgradeabilityProxy` (which in turn extends from `UpgradeabilityStorage`), 
-and then from the `TokenStorage` contract. Notice that inheritance order in `TokenProxy` needs to be the same as the 
-one in `UpgradeableTokenStorage`, to respect storage structure (given we are using `delegatecall`).
-
-Notice that we are not defining any new state variables in the token behavior implementation contracts. This is a 
+In addition, we are not defining any new state variables in the token behavior implementation contracts. This is a 
 requirement of the proposed approach to ensure the proxy storage is not messed up.
