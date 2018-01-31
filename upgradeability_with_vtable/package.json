@@ -1,0 +1,13 @@
+{
+  "name": "zos-lab",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Francisco Giordano <fran@zeppelin.solutions>",
+  "license": "MIT",
+  "scripts": {
+    "test": "truffle test"
+  },
+  "devDependencies": {
+    "truffle": "^4.0.4"
+  }
+}
