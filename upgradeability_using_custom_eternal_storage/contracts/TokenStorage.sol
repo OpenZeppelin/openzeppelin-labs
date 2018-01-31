@@ -1,10 +1,15 @@
 pragma solidity ^0.4.18;
 
+import './ownership/OwnableStorage.sol';
+
 /**
  * @title TokenStorage
  * @dev This contract holds all the necessary state variables to carry out the storage of a token contract
  */
-contract TokenStorage {
+contract TokenStorage is OwnableStorage {
+  // Tells whether the token has been initialized or not
+  bool internal _initialized;
+
   // Total amount of tokens
   uint256 internal _totalSupply;
 
