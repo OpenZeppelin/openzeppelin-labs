@@ -2,7 +2,7 @@ const TokenV1_0 = artifacts.require('TokenV1_0')
 const TokenV1_1 = artifacts.require('TokenV1_1')
 
 const Registry = artifacts.require('Registry')
-const Proxy = artifacts.require('Proxy')
+const Proxy = artifacts.require('UpgradeabilityProxy')
 
 contract('Upgradeable', function ([sender, receiver]) {
 

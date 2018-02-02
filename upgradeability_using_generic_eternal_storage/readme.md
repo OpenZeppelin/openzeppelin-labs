@@ -7,7 +7,7 @@ upgradeable contract. Notice that the contract developer should work only follow
 The approach consists in having a proxy that delegates calls to specific implementations which can be upgraded,
 leaving the storage structure immutable. Given the proxy uses `delegatecall` to resolve the requested behaviors,
 the upgradeable contract's state will be stored in the proxy contract itself.
-The upgradebale contract can be initialized only once by a contract owner.
+The upgradeable contract can be initialized only once by a contract owner.
 
 Since we have two really different kinds of data, one related to the upgradeability mechanism and another
 strictly related to the token contract domain, naming was really important here to expressed correctly what's
