@@ -1,8 +1,8 @@
 {
-  "name": "zos-lab",
+  "name": "upgradeability-with-vtable",
   "version": "0.1.0",
   "private": true,
-  "author": "Francisco Giordano <fran@zeppelin.solutions>",
+  "author": "Santiago Palladino <santiago@zeppelin.solutions>",
   "license": "MIT",
   "scripts": {
     "test": "truffle test"
