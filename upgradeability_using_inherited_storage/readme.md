@@ -17,7 +17,7 @@ going on. This is the proposed model:
                    -------             =========================
                       ↑                 ↑                     ↑            
                      ---------------------              -------------
-                    | UpgradeabilityProxy |            | Upgredeable |
+                    | UpgradeabilityProxy |            | Upgradeable |
                      ---------------------              ------------- 
                                                           ↑        ↑
                                                   ----------      ---------- 
