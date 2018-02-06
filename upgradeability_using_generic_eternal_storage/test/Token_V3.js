@@ -3,7 +3,7 @@ const Token_V0 = artifacts.require('Token_V0')
 const Token_V1 = artifacts.require('Token_V1')
 const Token_V2 = artifacts.require('Token_V2')
 const Token_V3 = artifacts.require('Token_V3')
-const TokenProxy = artifacts.require('TokenProxy')
+const EternalStorageProxy = artifacts.require('EternalStorageProxy')
 const assertRevert = require('./helpers/assertRevert')
 const shouldBehaveLikeTokenV0 = require('./behaviors/token_v0')
 const shouldBehaveLikeTokenV1 = require('./behaviors/token_v1')
@@ -12,7 +12,7 @@ const shouldBehaveLikeTokenV2 = require('./behaviors/token_v2')
 contract('Token_V3', ([_, proxyOwner, tokenOwner, owner, recipient, anotherAccount]) => {
 
   beforeEach(async function () {
-    const proxy = await TokenProxy.new({ from: proxyOwner })
+    const proxy = await EternalStorageProxy.new({ from: proxyOwner })
 
     const impl_v0 = await Token_V0.new()
     await proxy.upgradeTo('0', impl_v0.address, { from: proxyOwner })
