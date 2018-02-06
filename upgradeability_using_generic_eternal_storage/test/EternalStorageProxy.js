@@ -5,7 +5,7 @@ const Token_V0 = artifacts.require('Token_V0')
 const Token_V1 = artifacts.require('Token_V1')
 const EternalStorageProxy = artifacts.require('EternalStorageProxy')
 
-contract('EternalStorageProxy with generic Eternal Storage', ([_, proxyOwner, tokenOwner, anotherAccount]) => {
+contract('EternalStorageProxy', ([_, proxyOwner, tokenOwner, anotherAccount]) => {
   let proxy
   let impl_v0
   let impl_v1
