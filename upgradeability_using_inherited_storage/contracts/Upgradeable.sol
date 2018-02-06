@@ -1,13 +1,9 @@
 pragma solidity ^0.4.18;
 
-import './Proxied.sol';
+import './UpgradeabilityStorage.sol';
 
-contract Upgradeable is Proxied {
+contract Upgradeable is UpgradeabilityStorage {
   function initialize(address sender) public payable {
     require(msg.sender == address(registry));
-  }
-
-  function upgradeTo(string version) pure private {
-    assert(false);
   }
 }
