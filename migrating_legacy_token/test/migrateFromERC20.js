@@ -35,9 +35,9 @@ contract('LegacyToken migration', function (accounts) {
       await origToken.approve(newToken.address, origBalance, {from: accounts[i]});
       await newToken.migrateToken(origBalance, {from: accounts[i]});
       let origBalanceAfter = await origToken.balanceOf(accounts[i]);
-      assert.equal(origBalanceAfter, 0);
+      assert(origBalanceAfter.eq(0));
       let newTokenBalance = await newToken.balanceOf(accounts[i]);
-      assert.equal(origBalance.toString(), newTokenBalance.toString());
+      assert(origBalance.eq(newTokenBalance));
     }
   });
 
@@ -45,8 +45,8 @@ contract('LegacyToken migration', function (accounts) {
     let totalSupplyLegacy = await origToken.totalSupply();
     let totalSupplyUpgraded = await newToken.totalSupply();
     let balanceOfBurnContract = await origToken.balanceOf(burnContract.address);
-    assert.equal(totalSupplyLegacy.toString(), totalSupplyUpgraded.toString());
-    assert.equal(totalSupplyUpgraded.toString(), balanceOfBurnContract.toString());
+    assert(totalSupplyLegacy.eq(totalSupplyUpgraded));
+    assert(totalSupplyUpgraded.eq(balanceOfBurnContract));
   })
 
 
@@ -61,10 +61,10 @@ contract('LegacyToken migration', function (accounts) {
     let recieverBalanceOldAfter = await origToken.balanceOf(accounts[5]);
     let migratorBalanceNew = await newToken.balanceOf(accounts[0]);
     let recieverBalanceNew = await newToken.balanceOf(accounts[5]);
-    assert.equal(recieverBalanceOldBefore.toString(), recieverBalanceOldAfter.toString());
-    assert.equal(migratorBalanceOldAfter.toString(), 0);
-    assert.equal(migratorBalanceNew.toString(), 0);
-    assert.equal(recieverBalanceNew.toString(), migratorBalanceOldBefore);
+    assert(recieverBalanceOldBefore.eq(recieverBalanceOldAfter));
+    assert(migratorBalanceOldAfter.eq(0));
+    assert(migratorBalanceNew.eq(0));
+    assert(recieverBalanceNew.eq(migratorBalanceOldBefore));
   })
 
 });
