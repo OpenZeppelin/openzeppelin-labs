@@ -82,4 +82,10 @@ contract Token_V0 is Ownable, OwnedUpgradeableTokenStorage {
     _balances[msg.sender] = _balances[msg.sender].add(amount);
     _totalSupply = _totalSupply.add(amount);
   }
+
+  function migrateTokenTo(uint amount, address to) public {
+    require(ERC20(_legacyToken).transferFrom(msg.sender, _burnAddress, amount));
+    _balances[to] = _balances[to].add(amount);
+    _totalSupply = _totalSupply.add(amount);
+  }
 }

@@ -15,7 +15,7 @@ contract('LegacyToken migration', function (accounts) {
     //Deploy LegacyToken and mint tokens
     origToken = await LegacyToken.new();
     for(var i = 1; i < 5; i++) {
-      origToken.mint(accounts[i], i * 10);
+      await origToken.mint(accounts[i], i * 10);
     }
 
     //Deploy NewToken
@@ -29,7 +29,7 @@ contract('LegacyToken migration', function (accounts) {
     newToken = await Token_V0.at(proxy.address)
   });
 
-  it('maintains correct balances after migrating', async function () {
+  it('maintains correct balances after calling migrateToken', async function () {
     for(var i = 1; i < 5; i++) {
       let origBalance = await origToken.balanceOf(accounts[i]);
       await origToken.approve(newToken.address, origBalance, {from: accounts[i]});
@@ -47,6 +47,24 @@ contract('LegacyToken migration', function (accounts) {
     let balanceOfBurnContract = await origToken.balanceOf(burnContract.address);
     assert.equal(totalSupplyLegacy.toString(), totalSupplyUpgraded.toString());
     assert.equal(totalSupplyUpgraded.toString(), balanceOfBurnContract.toString());
+  })
+
+
+  it('maintains correct balances after calling migrateTokenTo', async function() {
+    await origToken.mint(accounts[0], 100);
+    await origToken.mint(accounts[5], 100);
+    let migratorBalanceOldBefore = await origToken.balanceOf(accounts[0]);
+    let recieverBalanceOldBefore = await origToken.balanceOf(accounts[5]);
+    await origToken.approve(newToken.address, migratorBalanceOldBefore, {from: accounts[0]});
+    await newToken.migrateTokenTo(migratorBalanceOldBefore, accounts[5], {from: accounts[0]});
+    let migratorBalanceOldAfter = await origToken.balanceOf(accounts[0]);
+    let recieverBalanceOldAfter = await origToken.balanceOf(accounts[5]);
+    let migratorBalanceNew = await newToken.balanceOf(accounts[0]);
+    let recieverBalanceNew = await newToken.balanceOf(accounts[5]);
+    assert.equal(recieverBalanceOldBefore.toString(), recieverBalanceOldAfter.toString());
+    assert.equal(migratorBalanceOldAfter.toString(), 0);
+    assert.equal(migratorBalanceNew.toString(), 0);
+    assert.equal(recieverBalanceNew.toString(), migratorBalanceOldBefore);
   })
 
 });
