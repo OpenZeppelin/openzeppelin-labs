@@ -6,6 +6,7 @@ do
   if [ -f package.json ]; then
     echo "Running tests from $D"
     npm test
+    [[ $? -ne 0 ]] && exit
   fi
   cd ..
 done
