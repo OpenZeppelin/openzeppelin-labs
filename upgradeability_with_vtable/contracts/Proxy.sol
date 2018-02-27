@@ -1,24 +1,28 @@
 pragma solidity ^0.4.18;
 
-import './IRegistry.sol';
-import './Proxied.sol';
+/**
+ * @title Proxy
+ * @dev Gives the possibility to delegate any call to a foreign implementation.
+ */
+contract Proxy {
 
-contract Proxy is Proxied {
-  function Proxy(string _version) public {
-    registry = IRegistry(msg.sender);
-    version = _version;
-  }
+  /**
+  * @dev Tells the address of the implementation where every call will be delegated.
+  * @return address of the implementation to which it will be delegated
+  */
+  function implementation(bytes4 func) public view returns (address);
 
-  function upgradeTo(string _version) public {
-    version = _version;
-  }
-
+  /**
+  * @dev Fallback function allowing to perform a delegatecall to the given implementation.
+  * This function will return whatever the implementation call returns
+  */
   function () payable public {
+    address _impl = implementation(msg.sig);
+    require(_impl != address(0));
     bytes memory data = msg.data;
-    address impl = registry.getImplementation(version, msg.sig);
 
     assembly {
-      let result := delegatecall(gas, impl, add(data, 0x20), mload(data), 0, 0)
+      let result := delegatecall(gas, _impl, add(data, 0x20), mload(data), 0, 0)
       let size := returndatasize
 
       let ptr := mload(0x40)

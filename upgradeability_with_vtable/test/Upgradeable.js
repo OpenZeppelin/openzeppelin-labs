@@ -1,75 +1,136 @@
-const TokenV1_Init = artifacts.require('TokenV1_Init')
-const TokenV1_Balance = artifacts.require('TokenV1_Balance')
-const TokenV1_Transfer= artifacts.require('TokenV1_Transfer')
+const signature = require('./helpers/signature')
+const assertRevert = require('./helpers/assertRevert')
+const TokenV0_Init = artifacts.require('TokenV0_Init')
+const TokenV0_Balance = artifacts.require('TokenV0_Balance')
+const TokenV0_Transfer= artifacts.require('TokenV0_Transfer')
+const TokenV0_Mint = artifacts.require('TokenV0_Mint')
+const TokenV0_Interface = artifacts.require('TokenV0_Interface')
 const TokenV1_Mint = artifacts.require('TokenV1_Mint')
-const TokenV1_Interface = artifacts.require('TokenV1_Interface')
+const TokenV1_Transfer = artifacts.require('TokenV1_Transfer')
 
-const TokenV1_1_Mint = artifacts.require('TokenV1_1_Mint')
-
-const Registry = artifacts.require('Registry')
 const Proxy = artifacts.require('Proxy')
+const Registry = artifacts.require('Registry')
+const UpgradeabilityProxy = artifacts.require('UpgradeabilityProxy')
 
-contract('Upgradeable', function ([sender, receiver]) {
-
-  let impl_v1_init,
-      impl_v1_balance,
+contract('Upgradeable', function ([_, sender, receiver]) {
+  let impl_v0_init,
+      impl_v0_balance,
+      impl_v0_transfer,
       impl_v1_transfer,
+      impl_v0_mint,
       impl_v1_mint,
-      registry
+      registry,
+      proxy,
+      token
 
   beforeEach(async function() {
-    impl_v1_init = await TokenV1_Init.new()
-    impl_v1_balance = await TokenV1_Balance.new()
+    // Deploy functions implementations
+    impl_v0_init = await TokenV0_Init.new()
+    impl_v0_balance = await TokenV0_Balance.new()
+    impl_v0_transfer = await TokenV0_Transfer.new()
+    impl_v0_mint = await TokenV0_Mint.new()
     impl_v1_transfer = await TokenV1_Transfer.new()
     impl_v1_mint = await TokenV1_Mint.new()
-    
     registry = await Registry.new()
     
-    await registry.addImplementationFromName("1", "initialize(address)", impl_v1_init.address)
-    await registry.addImplementationFromName("1", "balanceOf(address)", impl_v1_balance.address)
-    await registry.addImplementationFromName("1", "transfer(address,uint256)", impl_v1_transfer.address)
-    await registry.addImplementationFromName("1", "mint(address,uint256)", impl_v1_mint.address)
+    // Register V0 implementations
+    await registry.addVersionFromName('0', 'initialize(address)', impl_v0_init.address)
+    await registry.addVersionFromName('0', 'balanceOf(address)', impl_v0_balance.address)
+    await registry.addVersionFromName('0', 'transfer(address,uint256)', impl_v0_transfer.address)
+    await registry.addVersionFromName('0', 'mint(address,uint256)', impl_v0_mint.address)
+
+    // Register V1 implementations
+    await registry.addVersionFromName('1', 'transfer(address,uint256)', impl_v1_transfer.address)
+    await registry.addVersionFromName('1', 'mint(address,uint256)', impl_v1_mint.address)
+
+    // Create proxy
+    const initializeID = signature('initialize', ['address'])
+    const mintID = signature('mint', ['address', 'uint256'])
+    const { logs } = await registry.createProxy('0', [initializeID, mintID], { from: sender })
+    const proxyAddress = logs.find(l => l.event === 'ProxyCreated').args.proxy
+    proxy = await UpgradeabilityProxy.at(proxyAddress)
+    token = await TokenV0_Interface.at(proxyAddress)
   })
 
-  it('should delegate call to implementation', async function () {
-    const {logs} = await registry.create("1")
-    const {proxy} = logs.find(l => l.event === 'Created').args
-    const token = TokenV1_Interface.at(proxy)
-    
-    const transferTx = await token.transfer(receiver, 10, { from: sender })
-    console.log("Transfer TX gas cost using vtable proxy", transferTx.receipt.gasUsed);
+  describe('initialization', function () {
+    describe('when a called function was not upgraded to the initial version yet', function () {
+      it('reverts', async function () {
+        await assertRevert(token.balanceOf(sender))
+      })
+    })
 
-    const balance = await token.balanceOf(sender)
-    assert(balance.eq(9990))
+    describe('when a called function was upgraded to the initial version', function () {
+      beforeEach(async function () {
+        await proxy.upgradeTo('0', signature('balanceOf', ['address']))
+      })
+
+      it('delegates that call to the upgraded implementation', async function () {
+        const balance = await token.balanceOf(sender)
+        assert(balance.eq(10000))
+      })
+    })
   })
 
-  it('should upgrade single function', async function () {
-    const {logs} = await registry.create("1")
-    const {proxy} = logs.find(l => l.event === 'Created').args
-    const token = TokenV1_Interface.at(proxy)
+  describe('upgradeability', function () {
+    beforeEach(async function () {
+      await proxy.upgradeTo('0', signature('balanceOf', ['address']))
+      await proxy.upgradeTo('0', signature('transfer', ['address', 'uint256']))
+    })
 
-    // Mint and verify that no events are emitted
-    const {logs: mintLogs} = await token.mint(sender, 100)
-    assert(mintLogs.length == 0);
+    it('can upgrade a single function', async function () {
+      const { logs: transfer_v0_logs } = await token.transfer(receiver, 100, { from: sender })
+      assert.equal(transfer_v0_logs.length, 0)
 
-    // Upload v11 version where mint does emit a transfer event
-    const impl_v1_1_mint = await TokenV1_1_Mint.new()
-    await registry.addImplementationFromName("1.1", "initialize(address)", impl_v1_init.address)
-    await registry.addImplementationFromName("1.1", "balanceOf(address)", impl_v1_balance.address)
-    await registry.addImplementationFromName("1.1", "transfer(address,uint256)", impl_v1_transfer.address)
-    await registry.addImplementationFromName("1.1", "mint(address,uint256)", impl_v1_1_mint.address)
+      const { logs: mint_v0_logs } = await token.mint(sender, 200)
+      assert.equal(mint_v0_logs.length, 0)
 
-    // Upgrade the token to that version
-    await Proxy.at(token.address).upgradeTo("1.1")
+      await proxy.upgradeTo('1', signature('transfer', ['address', 'uint256']))
 
-    // Mint and check that now there is a transfer event
-    const {logs: mintLogsv11} = await token.mint(sender, 100)
-    assert(mintLogsv11.length == 1);
-    assert(mintLogsv11[0].event == 'Transfer')
+      const { logs: transfer_v1_logs } = await token.transfer(receiver, 100, { from: sender })
+      assert.equal(transfer_v1_logs.length, 1)
+      assert.equal(transfer_v1_logs[0].event, 'Transfer')
+      assert.equal(transfer_v1_logs[0].args.from, sender)
+      assert.equal(transfer_v1_logs[0].args.to, receiver)
+      assert.equal(transfer_v1_logs[0].args.value, 100)
 
-    // Verify state was properly held
-    const balance = await token.balanceOf(sender)
-    assert(balance.eq(10200))
+      const { logs: mint_v1_logs } = await token.mint(sender, 200)
+      assert.equal(mint_v1_logs.length, 0)
+
+      const senderBalance = await token.balanceOf(sender)
+      assert(senderBalance.eq(10200))
+
+      const receiverBalance = await token.balanceOf(receiver)
+      assert(receiverBalance.eq(200))
+    })
+
+    it('can upgrade a single function', async function () {
+      const { logs: transfer_v0_logs } = await token.transfer(receiver, 100, { from: sender })
+      assert.equal(transfer_v0_logs.length, 0)
+
+      const { logs: mint_v0_logs } = await token.mint(sender, 200)
+      assert.equal(mint_v0_logs.length, 0)
+
+      await proxy.upgradeTo('1', signature('transfer', ['address', 'uint256']))
+      await proxy.upgradeTo('1', signature('mint', ['address', 'uint256']))
+
+      const { logs: transfer_v1_logs } = await token.transfer(receiver, 100, { from: sender })
+      assert.equal(transfer_v1_logs.length, 1)
+      assert.equal(transfer_v1_logs[0].event, 'Transfer')
+      assert.equal(transfer_v1_logs[0].args.from, sender)
+      assert.equal(transfer_v1_logs[0].args.to, receiver)
+      assert.equal(transfer_v1_logs[0].args.value, 100)
+
+      const { logs: mint_v1_logs } = await token.mint(sender, 200)
+      assert.equal(mint_v1_logs[0].event, 'Transfer')
+      assert.equal(mint_v1_logs[0].args.from, 0x0)
+      assert.equal(mint_v1_logs[0].args.to, sender)
+      assert.equal(mint_v1_logs[0].args.value, 200)
+
+      const senderBalance = await token.balanceOf(sender)
+      assert(senderBalance.eq(10200))
+
+      const receiverBalance = await token.balanceOf(receiver)
+      assert(receiverBalance.eq(200))
+    })
   })
-
 })

@@ -1,33 +1,57 @@
 pragma solidity ^0.4.18;
 
 import './IRegistry.sol';
-import './Proxy.sol';
 import './Upgradeable.sol';
+import './UpgradeabilityProxy.sol';
 
+/**
+ * @title Registry
+ * @dev This contract works as a registry of versions, it holds the implementations for the registered versions.
+ */
 contract Registry is IRegistry {
-  mapping (string => mapping (bytes4 => address)) implementations;
+  // Mapping of versions to implementations of different functions
+  mapping (string => mapping (bytes4 => address)) internal versions;
 
-  function addImplementationFromName(string version, string func, address impl) public {
-    return addImplementation(version, bytes4(keccak256(func)), impl);
+  /**
+  * @dev Registers a new version of a function with its implementation address
+  * @param version representing the version name of the new function implementation to be registered
+  * @param func representing the name of the function to be registered
+  * @param implementation representing the address of the new function implementation to be registered
+  */
+  function addVersionFromName(string version, string func, address implementation) public {
+    return addVersion(version, bytes4(keccak256(func)), implementation);
   }
 
-  function addImplementation(string version, bytes4 func, address impl) public {
-    require(implementations[version][func] == 0x0);
-    implementations[version][func] = impl;
-    ImplementationAdded(version, func, impl);
+  /**
+  * @dev Registers a new version of a function with its implementation address
+  * @param version representing the version name of the new function implementation to be registered
+  * @param func representing the signature of the function to be registered
+  * @param implementation representing the address of the new function implementation to be registered
+  */
+  function addVersion(string version, bytes4 func, address implementation) public {
+    require(versions[version][func] == address(0));
+    versions[version][func] = implementation;
+    VersionAdded(version, func, implementation);
   }
 
-  function getImplementation(string version, bytes4 func) public view returns (address) {
-    return implementations[version][func];
+  /**
+  * @dev Tells the address of the function implementation for a given version
+  * @param version representing the version of the function implementation to be queried
+  * @param func representing the signature of the function to be queried
+  * @return address of the function implementation registered for the given version
+  */
+  function getVersion(string version, bytes4 func) public view returns (address) {
+    return versions[version][func];
   }
 
-  function create(string version) public payable returns (Proxy) {
-    Proxy proxy = new Proxy(version);
-
+  /**
+  * @dev Creates an upgradeable proxy
+  * @return address of the new proxy created
+  */
+  function createProxy(string version, bytes4[] funcs) public payable returns (UpgradeabilityProxy) {
+    UpgradeabilityProxy proxy = new UpgradeabilityProxy(version, funcs);
     Upgradeable(proxy).initialize.value(msg.value)(msg.sender);
-
-    Created(proxy);
-
+    ProxyCreated(proxy);
     return proxy;
   }
 }
