@@ -14,9 +14,9 @@ contract('Upgradeable', function ([sender, receiver]) {
     await registry.addVersion("1.0", impl_v1_0.address)
     await registry.addVersion("1.1", impl_v1_1.address)
 
-    const {logs} = await registry.create("1.0")
+    const {logs} = await registry.createProxy("1.0")
 
-    const {proxy} = logs.find(l => l.event === 'Created').args
+    const {proxy} = logs.find(l => l.event === 'ProxyCreated').args
 
     await TokenV1_0.at(proxy).mint(sender, 100)
 
