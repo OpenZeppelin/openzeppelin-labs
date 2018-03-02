@@ -49,14 +49,19 @@ contract TokenV0_Mint is TokenV0_Storage {
 }
 
 
-
 // **************************************
 // ****    V1 of a token behavior    ****
 // **************************************
-// We are only adding a Transfer event emission to the transfer and mint functions
+// We are adding a Transfer event emission to the transfer and mint functions, plus a burn function
+// We also rename transfer to safeTransfer (event though it is not)
+
+contract TokenV1_Interface is TokenV0_Interface {
+  function burn(address from, uint256 value) public;
+  function safeTransfer(address to, uint256 value) public;
+}
 
 contract TokenV1_Transfer is TokenV0_Storage {
-  function transfer(address to, uint256 value) public {
+  function safeTransfer(address to, uint256 value) public {
     require(balances[msg.sender] >= value);
     balances[msg.sender] -= value;
     balances[to] += value;
@@ -68,5 +73,25 @@ contract TokenV1_Mint is TokenV0_Storage {
   function mint(address to, uint256 value) public {
     balances[to] += value;
     Transfer(0x0, to, value);
+  }
+}
+
+contract TokenV1_Burn is TokenV0_Storage {
+  function burn(address from, uint256 value) public {
+    require(balances[from] >= value);
+    balances[from] -= value;
+    Transfer(from, 0x0, value);
+  }
+}
+
+
+// **************************************
+// ****    V2 of a token behavior    ****
+// **************************************
+// We are adding a fallback function
+
+contract TokenV2_Fallback is TokenV0_Storage {
+  function() payable public {
+    (TokenV1_Interface(this)).mint(msg.sender, msg.value);
   }
 }

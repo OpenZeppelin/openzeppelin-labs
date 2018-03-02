@@ -11,21 +11,53 @@ import './UpgradeabilityStorage.sol';
 contract UpgradeabilityProxy is Proxy, UpgradeabilityStorage {
 
   /**
-  * @dev Constructor function
-  */
-  function UpgradeabilityProxy(string version, bytes4[] funcs) public {
+   * @dev Constructor function
+   */
+  function UpgradeabilityProxy(string _version) public {
     registry = IRegistry(msg.sender);
-    for(uint256 i = 0; i < funcs.length; i++) {
-      upgradeTo(version, funcs[i]);
-    }
+    version_ = _version;
+    loadVersion();
   }
 
   /**
-  * @dev Upgrades the implementation of a given function to the requested version
-  * @param version representing the version name of the new implementation to be set
-  * @param func representing the signature of the function to be set
-  */
-  function upgradeTo(string version, bytes4 func) public {
-    _implementations[func] = registry.getVersion(version, func);
+   * @dev Upgrades the implementation of a given function to the requested version
+   * @param targetVersion representing the version name of the new implementation to be set
+   */
+  function upgradeTo(string targetVersion) public {
+    clearVersion();
+    version_ = targetVersion;
+    loadVersion();
+  }
+
+  /**
+   * @dev Clears from the implementation cache all functions from the current version
+   */
+  function clearVersion() internal {
+    bytes4 func;
+    address impl;
+    uint256 i;
+
+    for (i = 0; i < registry.getFunctionCount(version_); i++) {
+      (func, impl) = registry.getFunctionByIndex(version_, i);
+      implementations_[func] = 0;
+    }
+
+    fallback_ = address(0);
+  }
+
+  /**
+   * @dev Adds to the implementation cache all functions from the current version
+   */
+  function loadVersion() internal {
+    bytes4 func;
+    address impl;
+    uint256 i;
+
+    for (i = 0; i < registry.getFunctionCount(version_); i++) {
+      (func, impl) = registry.getFunctionByIndex(version_, i);
+      implementations_[func] = impl;
+    }
+    
+    fallback_ = registry.getFallback(version_);
   }
 }

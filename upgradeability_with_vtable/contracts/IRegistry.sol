@@ -20,6 +20,13 @@ interface IRegistry {
   event VersionAdded(string version, bytes4 func, address implementation);
 
   /**
+  * @dev This event will be emitted every time a new implementation of a fallback function is registered
+  * @param version representing the version name of the registered implementation
+  * @param implementation representing the address of the registered implementation
+  */
+  event FallbackAdded(string version, address implementation);
+
+  /**
   * @dev Registers a new version of a function with its implementation address
   * @param version representing the version name of the new function implementation to be registered
   * @param func representing the name of the function to be registered
@@ -41,5 +48,20 @@ interface IRegistry {
   * @param func representing the signature of the function to be queried
   * @return address of the function implementation registered for the given version
   */
-  function getVersion(string version, bytes4 func) public view returns (address);
+  function getFunction(string version, bytes4 func) public view returns (address);
+
+  /**
+   * @dev Returns a function name and implementation for a given version, given its index
+   */
+  function getFunctionByIndex(string version, uint256 index) public view returns (bytes4, address);
+
+  /**
+   * @dev Returns the number of functions (excluding the fallback function) registered for a specific version
+   */
+  function getFunctionCount(string version) public view returns (uint256);
+
+  /**
+   * @dev Returns the the fallback function for a specific version, if registered
+   */
+  function getFallback(string version) public view returns (address);
 }
