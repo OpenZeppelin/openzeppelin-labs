@@ -1,0 +1,14 @@
+{
+  "name": "kernel",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Facundo Spagnuolo <facundo@zeppelin.solutions>",
+  "license": "MIT",
+  "scripts": {
+    "test": "truffle test"
+  },
+  "devDependencies": {
+    "truffle": "^4.0.4",
+    "zeppelin-solidity": "^1.5.0"
+  }
+}
