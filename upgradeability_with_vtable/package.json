@@ -8,6 +8,7 @@
     "test": "truffle test"
   },
   "devDependencies": {
-    "truffle": "^4.0.4"
+    "ethereumjs-abi": "^0.6.5",
+    "truffle": "^4.1.0"
   }
 }
