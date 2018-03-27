@@ -1,12 +1,11 @@
-const ZepCore = artifacts.require('ZepCore');
-const ZepToken = artifacts.require('ZepToken');
-const KernelRegistry = artifacts.require('KernelRegistry');
+import EVMRevert from './helpers/EVMRevert';
 const KernelInstance = artifacts.require('KernelInstance');
 
+require('chai')
+  .use(require('chai-as-promised'))
+  .should();
 
-// TODO: Add integration tests
-
-contract('KernelInstance', ([developer, implementation_address_1]) => {
+contract('KernelInstance', ([developer, implementation_address_1, implementation_address_2]) => {
   const name = "Test";
   const version = "0.0";
 
@@ -39,6 +38,7 @@ contract('KernelInstance', ([developer, implementation_address_1]) => {
 
   describe('adding implementations', async function () {
     const contract_name = "TestContract";
+    const contract_name_2 = "AnotherContract";
     var receipt;
     beforeEach(async function () {
         receipt = await this.kernelInstance.addImplementation(contract_name, implementation_address_1);
@@ -53,6 +53,11 @@ contract('KernelInstance', ([developer, implementation_address_1]) => {
     it('returns correct address', async function () {
         const instance_implementation_1 = await this.kernelInstance.getImplementation(contract_name);
         assert.equal(instance_implementation_1, implementation_address_1);
+    });
+
+    it('should fail if frozen', async function () {
+        await this.kernelInstance.freeze();
+        await this.kernelInstance.addImplementation(contract_name_2, implementation_address_2).should.be.rejectedWith(EVMRevert);
     });
   });
 });
