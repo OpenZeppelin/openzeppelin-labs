@@ -43,8 +43,8 @@ contract KernelInstance is Ownable {
   function getImplementation(string contractName) public view returns(address) {
     address implementation = implementations[contractName];
     if(implementation != address(0)) return implementation;
-    require(parent != address(0));
-    return parent.getImplementation(contractName);
+    else if(parent != address(0)) return parent.getImplementation(contractName); 
+          else return 0;
   }
 
   function freeze() onlyOwner notFrozen public {
