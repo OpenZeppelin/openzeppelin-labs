@@ -1,4 +1,4 @@
-import EVMRevert from './helpers/EVMRevert';
+import assertRevert from './helpers/assertRevert';
 const KernelInstance = artifacts.require('KernelInstance');
 
 require('chai')
@@ -7,13 +7,13 @@ require('chai')
 
 contract('KernelInstance', ([developer, implementation_address_1, implementation_address_2]) => {
   const name = "Test";
-  const version = "0.0";
+  const version_0 = "0.0";
   const contract_name = "TestContract";
-  const contract_name_2 = "AnotherContract";
+  const another_contract_name = "AnotherContract";
     
 
   beforeEach(async function () {
-    this.kernelInstance = await KernelInstance.new(name, version, 0);
+    this.kernelInstance = await KernelInstance.new(name, version_0, 0);
   });
 
   it('is initialized with correct parameters', async function () {
@@ -22,7 +22,7 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
     const instance_developer = await this.kernelInstance.developer();
         
     assert.equal(instance_name, name);
-    assert.equal(instance_version, version);
+    assert.equal(instance_version, version_0);
     assert.equal(instance_developer, developer);
   });
 
@@ -34,7 +34,7 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
 
   it('returns correct hash', async function () {
     const instance_hash = await this.kernelInstance.getHash();
-    const hash = web3.sha3(name.concat(version));
+    const hash = web3.sha3(name.concat(version_0));
 
     assert.equal(instance_hash, hash);
   });
@@ -52,6 +52,7 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
     });
 
     it('emits correct event', async function () {
+      assert.equal(receipt.logs.length, 1); //Make sure there is a single event
       const event = receipt.logs.find(e => e.event === 'ImplementationAdded');
       assert.equal(event.args.contractName, contract_name);
       assert.equal(event.args.implementation, implementation_address_1);
@@ -63,27 +64,27 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
     });
 
     it('should not add implementation for same contract twice', async function () {
-      await this.kernelInstance.addImplementation(contract_name, implementation_address_2).should.be.rejectedWith(EVMRevert);
+      await assertRevert(this.kernelInstance.addImplementation(contract_name, implementation_address_2));
     });
 
     it('should fail if frozen', async function () {
       await this.kernelInstance.freeze();
-      await this.kernelInstance.addImplementation(contract_name_2, implementation_address_2).should.be.rejectedWith(EVMRevert);
+      await assertRevert(this.kernelInstance.addImplementation(another_contract_name, implementation_address_2));
     });
 
     it('should not have offspring if not yet frozen', async function () {
-      const version2 = "0.1";
-      await KernelInstance.new(name, version2, this.kernelInstance.address).should.be.rejectedWith(EVMRevert);
+      const version_1 = "0.1";
+      await assertRevert(KernelInstance.new(name, version_1, this.kernelInstance.address));
     });
   });
 
   describe('initializing with parent', async function () {
-    const version2 = "0.1";
+    const version_1 = "0.1";
 
     beforeEach(async function () {
       this.kernelInstance.addImplementation(contract_name, implementation_address_1);
       await this.kernelInstance.freeze();
-      this.kernelInstance2 = await KernelInstance.new(name, version2, this.kernelInstance.address);
+      this.kernelInstance2 = await KernelInstance.new(name, version_1, this.kernelInstance.address);
     });
 
     it('is initialized with correct parameters', async function () {
@@ -93,7 +94,7 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
       const instance_parent = await this.kernelInstance2.parent();
 
       assert.equal(instance_name, name);
-      assert.equal(instance_version, version2);
+      assert.equal(instance_version, version_1);
       assert.equal(instance_developer, developer);
       assert.equal(instance_parent, this.kernelInstance.address);
     });
