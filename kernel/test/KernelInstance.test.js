@@ -39,6 +39,11 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
     assert.equal(instance_hash, hash);
   });
 
+  it('should return 0 if no implementation', async function () {
+    const instance_implementation_1 = await this.kernelInstance.getImplementation(contract_name);
+    assert.equal(instance_implementation_1, 0);
+  })
+
   describe('adding implementations', async function () {
     var receipt;
     
