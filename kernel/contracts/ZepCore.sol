@@ -8,8 +8,8 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 contract ZepCore {
   using SafeMath for uint256;
 
-  event Staked(address indexed user, uint256 amount, uint256 total, bytes data);
-  event Unstaked(address indexed user, uint256 amount, uint256 total, bytes data);
+  event Staked(address indexed user, KernelInstance instance, uint256 amount, uint256 total, bytes data);
+  event Unstaked(address indexed user, KernelInstance instance, uint256 amount, uint256 total, bytes data);
 
   uint256 public newVersionCost;
   uint256 public developerFraction;
@@ -44,27 +44,27 @@ contract ZepCore {
     token().transferFrom(msg.sender, this, amount);
     uint256 developerPayout = amount.div(developerFraction);
     require(developerPayout > 0);
-    token().transfer(instance.developer(), developerPayout);
     // TODO: check how we can manage remainders in a better way
 
     uint256 stakedAmount = amount.sub(developerPayout);
     _totalStaked = totalStaked().add(stakedAmount);
     _instanceVouches[instance] = totalStakedFor(instance).add(stakedAmount);
     _userVouches[msg.sender][instance] = _userVouches[msg.sender][instance].add(stakedAmount);
+    token().transfer(instance.developer(), developerPayout);
 
-    Staked(msg.sender, stakedAmount, totalStakedFor(instance), data);
+    Staked(msg.sender, instance, stakedAmount, totalStakedFor(instance), data);
   }
 
   function unstake(KernelInstance instance, uint256 amount, bytes data) public {
     uint256 currentStake = _userVouches[msg.sender][instance];
     require(currentStake >= amount);
 
-    token().transfer(msg.sender, amount);
     _totalStaked = totalStaked().sub(amount);
     _instanceVouches[instance] = totalStakedFor(instance).sub(amount);
     _userVouches[msg.sender][instance] = currentStake.sub(amount);
-
-    Unstaked(msg.sender, amount, totalStakedFor(instance), data);
+    token().transfer(msg.sender, amount);
+    
+    Unstaked(msg.sender, instance, amount, totalStakedFor(instance), data);
   }
 
   function totalStakedFor(KernelInstance instance) public view returns (uint256) {
