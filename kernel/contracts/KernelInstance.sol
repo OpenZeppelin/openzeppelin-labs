@@ -7,11 +7,17 @@ contract KernelInstance is Ownable {
   string public version;
   address public developer;
   KernelInstance public parent;
-
-  // TODO: we should add a frozen state to ensure an instance is not modifiable after certain point
-
+  
+  // Provides freezing behavior to prevent implementations defined in parent to be overwritten
+  bool public frozen;
+  
   // Mapping from a contract name to its implementation address
   mapping(string => address) private implementations;
+
+  modifier notFrozen() {
+    require(!frozen);
+    _;
+  }
 
   function KernelInstance(string _name, string _version, KernelInstance _parent) public {
     name = _name;
@@ -24,7 +30,7 @@ contract KernelInstance is Ownable {
     return keccak256(name, version);
   }
 
-  function addImplementation(string contractName, address implementation) onlyOwner public {
+  function addImplementation(string contractName, address implementation) onlyOwner notFrozen public {
     require(implementation != address(0));
     require(implementations[contractName] == address(0));
     implementations[contractName] = implementation;
@@ -35,5 +41,9 @@ contract KernelInstance is Ownable {
     if(implementation != address(0)) return implementation;
     require(parent != address(0));
     return parent.getImplementation(contractName);
+  }
+
+  function freeze() onlyOwner notFrozen public {
+    frozen = true;
   }
 }
