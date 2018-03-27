@@ -22,6 +22,7 @@ contract KernelInstance is Ownable {
   }
 
   function KernelInstance(string _name, string _version, KernelInstance _parent) public {
+    if(_parent != address(0)) { require(_parent.frozen()); }
     name = _name;
     version = _version;
     parent = _parent;
