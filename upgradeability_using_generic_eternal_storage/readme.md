@@ -16,35 +16,35 @@ going on. This is the proposed model:
         -------      =======================     ============================      =========================
        | Proxy |    ║ UpgradeabilityStorage ║   ║ UpgradeabilityOwnerStorage ║    ║      EternalStorage     ║
         -------      =======================     ============================      =========================
-             ↑              ↑            ↑        ↑    ↑                           ↑        ↑
-           ---------------------         |_______ | __ ==============================       |
-          | UpgradeabilityProxy |                └|┘  ║  OwnedUpgradeabilityStorage  ║      |
-           ---------------------                  |    ==============================       | 
-                   ↑                              |           ↑              ↑              |
-                  -------------------------- _____|           |              |              |
-                 | OwnedUpgradeabilityProxy |            ----------      ----------         |
-                  --------------------------            | Token_V0 |    | Token_V1 |        | 
-                             ↑                           ----------      ----------         |         
-                         ---------------------  ____________________________________________|
+             ↑              ↑            ↑        ↑                                 ↑         ↑
+           ---------------------         |_______ |                                 |         |
+          | UpgradeabilityProxy |                └|                                 |     ----------
+           ---------------------                  |                                 |    | Token_V0 |
+                   ↑                              |                                 |     ----------
+                  -------------------------- _____|                                 |         ↑
+                 | OwnedUpgradeabilityProxy |                                       |         |
+                  --------------------------                                        |     ----------
+                             ↑                                                      |    | Token_V1 |
+                         ---------------------  ____________________________________|     ----------
                         | EternalStorageProxy |
                          ---------------------
 
 `Proxy`, `UpgradeabilityProxy` and `UpgradeabilityStorage` are generic contracts that can be used to implement
 upgradeability through proxies. In this example we use all these contracts to implement an upgradeable ERC20 token. 
 
-The `UpgradeabilityStorage` contract holds data needed for upgradeability, while the `UpgradeabilityOwnerStorage` 
-provides the required state variables to track upgradeability ownership. `EternalStorage` defines the generic storage 
-structure, which in this example will be used to store token specific data. The `OwnedUpgradeabilityStorage` contract 
-combines all the mentioned storage contracts, which every implementation of the upgradeable behavior needs.
+The `UpgradeabilityStorage` contract holds data needed for upgradeability, while the `UpgradeabilityOwnerStorage`
+provides the required state variables to track upgradeability ownership. `EternalStorage` defines the generic storage
+structure, which in this example will be used to store token specific data.
 
 The `OwnedUpgradeabilityProxy` combines proxy, upgradeability and ownable functionalities restricting version upgrade
 functions to be accessible just from the declared proxy owner.
 
-`EternalStorageProxy` is the contract that will delegate calls to specific implementations of the ERC20 token behavior. 
-These behaviors are the code that can be upgraded by the token developer (e.g. `Token_V0` and `Token_V1`). 
-`EternalStorageProxy` extends from `OwnedUpgradeabilityProxy` (which in turn extends from `UpgradeabilityStorage` and 
-`UpgradeabilityOwnerStorage`), and then from the `EternalStorage` contract. Notice that inheritance order needs to be 
-the same as the one in `OwnedUpgradeabilityStorage`, to respect storage structure (given we are using `delegatecall`).
+`EternalStorageProxy` is the contract that will delegate calls to specific implementations of the ERC20 token behavior.
+These behaviors are the code that can be upgraded by the token developer (e.g. `Token_V0` and `Token_V1`).
+`EternalStorageProxy` extends from the `EternalStorage` contract, and then from `OwnedUpgradeabilityProxy` (which in
+turn extends from `UpgradeabilityStorage` and `UpgradeabilityOwnerStorage`). Notice that `EternalStorageProxy` must
+inherit from `EternalStorage` first to ensure that the storage structure lines up with contracts only inheriting from
+`EternalStorage`.
 
 In addition, we are not defining any new state variables in the token behavior implementation contracts, we are just
 using the generic storage structure. This is a requirement of the proposed approach to ensure the proxy storage 
