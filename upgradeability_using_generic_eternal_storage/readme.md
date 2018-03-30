@@ -13,21 +13,21 @@ Since we have two really different kinds of data, one related to the upgradeabil
 strictly related to the token contract domain, naming was really important here to expressed correctly what's
 going on. This is the proposed model:
 
-        -------      =======================     ============================      =========================
-       | Proxy |    ║ UpgradeabilityStorage ║   ║ UpgradeabilityOwnerStorage ║    ║      EternalStorage     ║
-        -------      =======================     ============================      =========================
-             ↑              ↑            ↑        ↑                                 ↑         ↑
-           ---------------------         |_______ |                                 |         |
-          | UpgradeabilityProxy |                └|                                 |     ----------
-           ---------------------                  |                                 |    | Token_V0 |
-                   ↑                              |                                 |     ----------
-                  -------------------------- _____|                                 |         ↑
-                 | OwnedUpgradeabilityProxy |                                       |         |
-                  --------------------------                                        |     ----------
-                             ↑                                                      |    | Token_V1 |
-                         ---------------------  ____________________________________|     ----------
-                        | EternalStorageProxy |
-                         ---------------------
+   =========================       ============================     -------     =======================
+  ║      EternalStorage     ║     ║ UpgradeabilityOwnerStorage ║   | Proxy |   ║ UpgradeabilityStorage ║
+   =========================       ============================     -------     =======================
+            ↑          ↑                              ↑              ↑              ↑
+            |          |                              |            ---------------------
+        ----------     |                              |           | UpgradeabilityProxy |
+       | Token_V0 |    |                              |            ---------------------
+        ----------     |                              |               ↑
+            ↑          |                        --------------------------
+            |          |                       | OwnedUpgradeabilityProxy |
+        ----------     |                        --------------------------
+       | Token_V1 |    |                            ↑
+        ----------     |__________ ---------------------
+                                  | EternalStorageProxy |
+                                   ---------------------
 
 `Proxy`, `UpgradeabilityProxy` and `UpgradeabilityStorage` are generic contracts that can be used to implement
 upgradeability through proxies. In this example we use all these contracts to implement an upgradeable ERC20 token. 
