@@ -1,18 +1,23 @@
 pragma solidity ^0.4.18;
 
 import '../ownership/Ownable.sol';
-import '../OwnedUpgradeableTokenStorage.sol';
+import '../OwnedUpgradeabilityStorage.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 /**
  * @title Token_V0
  * @dev Version 0 of a token to show upgradeability.
  */
-contract Token_V0 is Ownable, OwnedUpgradeableTokenStorage {
+contract Token_V0 is OwnedUpgradeabilityStorage, Ownable {
   using SafeMath for uint256;
 
   event Transfer(address indexed from, address indexed to, uint256 value);
   event Approval(address indexed owner, address indexed spender, uint256 value);
+
+  bool internal _initialized;
+  uint256 internal _totalSupply;
+  mapping (address => uint256) internal _balances;
+  mapping (address => mapping (address => uint256)) internal _allowances;
 
   function initialize(address owner) public {
     require(!_initialized);

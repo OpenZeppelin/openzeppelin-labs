@@ -1,4 +1,4 @@
-# Upgradeability using generic Eternal Storage
+# Upgradeability using Eternal Storage
 
 The idea of this approach is to allow us to upgrade a contract's behavior, using the same generic storage structure 
 for any contract. This is a set of mappings for each type variable which could be accessed or modified inside the 
