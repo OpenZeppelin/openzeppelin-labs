@@ -13,19 +13,19 @@ Since we have two really different kinds of data, one related to the upgradeabil
 strictly related to the token contract domain, naming was really important here to expressed correctly what's
 going on. This is the proposed model:
 
-   =========================       ============================     -------     =======================
-  ║      EternalStorage     ║     ║ UpgradeabilityOwnerStorage ║   | Proxy |   ║ UpgradeabilityStorage ║
-   =========================       ============================     -------     =======================
-            ↑          ↑                              ↑              ↑              ↑
-            |          |                              |            ---------------------
-        ----------     |                              |           | UpgradeabilityProxy |
-       | Token_V0 |    |                              |            ---------------------
-        ----------     |                              |               ↑
-            ↑          |                        --------------------------
-            |          |                       | OwnedUpgradeabilityProxy |
-        ----------     |                        --------------------------
-       | Token_V1 |    |                            ↑
-        ----------     |__________ ---------------------
+     =========================     ============================     -------     =======================
+    ║      EternalStorage     ║   ║ UpgradeabilityOwnerStorage ║   | Proxy |   ║ UpgradeabilityStorage ║
+     =========================     ============================     -------     =======================
+              ↑          ↑                            ↑                ↑            ↑
+              |          |                            |            ---------------------
+          ----------     |                            |           | UpgradeabilityProxy |
+         | Token_V0 |    |                            |            ---------------------
+          ----------     |                            |               ↑
+              ↑          |                       --------------------------
+              |          |                      | OwnedUpgradeabilityProxy |
+          ----------     |                       --------------------------
+         | Token_V1 |    |                          ↑
+          ----------     |________ ---------------------
                                   | EternalStorageProxy |
                                    ---------------------
 
