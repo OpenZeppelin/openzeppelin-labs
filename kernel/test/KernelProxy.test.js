@@ -13,7 +13,7 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
   const version = '1.8.0';
   const distribution = 'Zeppelin';
   const contractName = 'ERC721Token';
-
+  
   beforeEach(async function () {
     // deploy kernel instance
     const erc721 = await ERC721Token.new();
@@ -38,9 +38,9 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
 
     // deploy another instance of the testing contract
     const { logs: logs2 }  = await factory.createProxy(distribution, version, contractName);
-    const proxyAddress2 = logs2.find(l => l.event === 'ProxyCreated').args.proxy;
-    this.mock2 = await PickACard.new(proxyAddress2);
-
+    this.proxyAddress2 = logs2.find(l => l.event === 'ProxyCreated').args.proxy;
+    this.mock2 = await PickACard.new(this.proxyAddress2);
+    
   });
 
   it('uses the selected zos kernel instance', async function () {
@@ -67,6 +67,16 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
   it('should allow picking the same number twice from independent instances', async function () {
     await this.mock.pick(5, { from: someone });
     await this.mock2.pick(5, { from: anotherone }).should.be.fulfilled;
+  });
+
+  it('storage takes place in KernelProxy', async function () {
+    //fetch the owner of token 5, in `mapping (uint256 => address) internal tokenOwner;`
+    var ind = '0000000000000000000000000000000000000000000000000000000000000002' // tokenOwner position in storage
+    var key =  '0000000000000000000000000000000000000000000000000000000000000007' // tokenId
+    var newkey =  web3.sha3(key + ind, {"encoding":"hex"})
+    await this.mock2.pick(7, { from: someone });
+    var storage = await web3.eth.getStorageAt(this.proxyAddress2, newkey);
+    assert.equal(storage, someone);
   });
 
 });
