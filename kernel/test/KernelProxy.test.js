@@ -5,13 +5,10 @@ const ERC721Token = artifacts.require('ERC721Token');
 const KernelInstance = artifacts.require('KernelInstance');
 const KernelProxyFactory = artifacts.require('KernelProxyFactory');
 
-<<<<<<< e213960a54155a7b9238ce096e9e57fbdcd57fe7
 const should = require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-=======
->>>>>>> Test kernel use case
 contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
   const version = '1.8.0';
   const distribution = 'Zeppelin';
@@ -36,7 +33,6 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
     // deploy a testing contract that uses zos
     const factory = await KernelProxyFactory.new(zepCore.address);
     const { logs } = await factory.createProxy(distribution, version, contractName);
-<<<<<<< e213960a54155a7b9238ce096e9e57fbdcd57fe7
     const proxyAddress = logs.find(l => l.event === 'ProxyCreated').args.proxy;
     this.mock = await PickACard.new(proxyAddress);
 
@@ -45,10 +41,6 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
     const proxyAddress2 = logs2.find(l => l.event === 'ProxyCreated').args.proxy;
     this.mock2 = await PickACard.new(proxyAddress2);
 
-=======
-    const proxyAddress = logs.find(l => l.event === 'ProxyCreated').args.proxy
-    this.mock = await PickACard.new(proxyAddress);
->>>>>>> Test kernel use case
   });
 
   it('uses the selected zos kernel instance', async function () {
@@ -60,7 +52,6 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
 
     assert.equal(owner, anotherone);
   });
-<<<<<<< e213960a54155a7b9238ce096e9e57fbdcd57fe7
 
   it('should not allow picking the same number twice', async function () {
     await this.mock.pick(5, { from: someone });
@@ -78,6 +69,4 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
     await this.mock2.pick(5, { from: anotherone }).should.be.fulfilled;
   });
 
-=======
->>>>>>> Test kernel use case
 });
