@@ -6,7 +6,7 @@ pragma solidity ^0.4.21;
  */
 contract UpgradeabilityStorage {
   // Storage position of the address of the current implementation
-  bytes32 private constant implementationPosition = keccak256("zeppelin_os.proxy.implementation");
+  bytes32 private constant implementationPosition = keccak256("org.zeppelinos.proxy.implementation");
 
   /**
    * @dev Constructor function
@@ -33,14 +33,5 @@ contract UpgradeabilityStorage {
     assembly {
       sstore(position, newImplementation)
     }
-  }
-
-  /**
-   * @dev Sets the address of the current implementation
-   * @param newImplementation address representing the new implementation to be set
-   */
-  function validateNonUsedImplementation(address newImplementation) internal {
-    address currentImplementation = implementation();
-    require(currentImplementation != newImplementation);
   }
 }

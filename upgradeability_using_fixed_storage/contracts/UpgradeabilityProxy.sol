@@ -16,11 +16,12 @@ contract UpgradeabilityProxy is Proxy, UpgradeabilityStorage {
 
   /**
   * @dev Upgrades the implementation address
-  * @param implementation representing the address of the new implementation to be set
+  * @param _implementation representing the address of the new implementation to be set
   */
-  function _upgradeTo(address implementation) internal {
-    validateNonUsedImplementation(implementation);
-    setImplementation(implementation);
-    emit Upgraded(implementation);
+  function _upgradeTo(address _implementation) internal {
+    address currentImplementation = implementation();
+    require(currentImplementation != _implementation);
+    setImplementation(_implementation);
+    emit Upgraded(_implementation);
   }
 }
