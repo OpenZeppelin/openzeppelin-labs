@@ -5,6 +5,10 @@ const ERC721Token = artifacts.require('ERC721Token');
 const KernelInstance = artifacts.require('KernelInstance');
 const KernelProxyFactory = artifacts.require('KernelProxyFactory');
 
+const should = require('chai')
+  .use(require('chai-as-promised'))
+  .should();
+
 contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
   const version = '1.8.0';
   const distribution = 'Zeppelin';
@@ -29,8 +33,14 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
     // deploy a testing contract that uses zos
     const factory = await KernelProxyFactory.new(zepCore.address);
     const { logs } = await factory.createProxy(distribution, version, contractName);
-    const proxyAddress = logs.find(l => l.event === 'ProxyCreated').args.proxy
+    const proxyAddress = logs.find(l => l.event === 'ProxyCreated').args.proxy;
     this.mock = await PickACard.new(proxyAddress);
+
+    // deploy another instance of the testing contract
+    const { logs: logs2 }  = await factory.createProxy(distribution, version, contractName);
+    const proxyAddress2 = logs2.find(l => l.event === 'ProxyCreated').args.proxy;
+    this.mock2 = await PickACard.new(proxyAddress2);
+
   });
 
   it('uses the selected zos kernel instance', async function () {
@@ -42,4 +52,21 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
 
     assert.equal(owner, anotherone);
   });
+
+  it('should not allow picking the same number twice', async function () {
+    await this.mock.pick(5, { from: someone });
+    await this.mock.pick(5, { from: anotherone }).should.be.rejected;
+    });
+  
+  it('creates different instances of the proxy', async function () {
+    const erc721 = ERC721Token.at(await this.mock.erc721())
+    const erc721_2 = ERC721Token.at(await this.mock2.erc721())
+    assert.notEqual(erc721.address, erc721_2.address);
+  });
+
+  it('should allow picking the same number twice from independent instances', async function () {
+    await this.mock.pick(5, { from: someone });
+    await this.mock2.pick(5, { from: anotherone }).should.be.fulfilled;
+  });
+
 });
