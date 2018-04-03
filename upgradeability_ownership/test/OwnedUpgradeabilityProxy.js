@@ -1,23 +1,19 @@
-const abi = require('ethereumjs-abi')
-const assertRevert = require('./helpers/assertRevert')
 const Token_V0 = artifacts.require('Token_V0')
 const Token_V1 = artifacts.require('Token_V1')
-const TokenProxy = artifacts.require('TokenProxy')
-const UpgradeabilityStorage = artifacts.require('UpgradeabilityStorage')
+const encodeCall = require('./helpers/encodeCall')
+const assertRevert = require('./helpers/assertRevert')
+const OwnedUpgradeabilityProxy = artifacts.require('OwnedUpgradeabilityProxy')
 
-contract('TokenProxy with custom Eternal Storage', ([_, proxyOwner, tokenOwner, anotherAccount]) => {
+contract('OwnedUpgradeabilityProxy', ([_, proxyOwner, tokenOwner, anotherAccount]) => {
   let proxy
   let impl_v0
   let impl_v1
   let token_v0
   let token_v1
-
-  const methodId = abi.methodID('initialize', ['address']).toString('hex');
-  const params = abi.rawEncode(['address'], [tokenOwner]).toString('hex');
-  const initializeData = '0x' + methodId + params;
+  const initializeData = encodeCall('initialize', ['address'], [tokenOwner]);
 
   beforeEach(async function () {
-    proxy = await TokenProxy.new({ from: proxyOwner })
+    proxy = await OwnedUpgradeabilityProxy.new({ from: proxyOwner })
     impl_v0 = await Token_V0.new()
     impl_v1 = await Token_V1.new()
     token_v0 = Token_V0.at(proxy.address)

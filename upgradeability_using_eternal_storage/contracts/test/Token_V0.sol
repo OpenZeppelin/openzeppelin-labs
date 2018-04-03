@@ -1,13 +1,13 @@
 pragma solidity ^0.4.18;
 
-import '../OwnedUpgradeabilityStorage.sol';
+import '../EternalStorage.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 /**
  * @title Token_V0
  * @dev Version 0 of a token to show upgradeability.
  */
-contract Token_V0 is OwnedUpgradeabilityStorage {
+contract Token_V0 is EternalStorage {
   using SafeMath for uint256;
 
   event Transfer(address indexed from, address indexed to, uint256 value);

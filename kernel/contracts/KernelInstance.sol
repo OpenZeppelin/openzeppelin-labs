@@ -14,12 +14,15 @@ contract KernelInstance is Ownable {
   // Mapping from a contract name to its implementation address
   mapping(string => address) private implementations;
 
+  event ImplementationAdded(string contractName, address implementation);
+
   modifier notFrozen() {
     require(!frozen);
     _;
   }
 
   function KernelInstance(string _name, string _version, KernelInstance _parent) public {
+    if(_parent != address(0)) { require(_parent.frozen()); }
     name = _name;
     version = _version;
     parent = _parent;
@@ -34,13 +37,14 @@ contract KernelInstance is Ownable {
     require(implementation != address(0));
     require(implementations[contractName] == address(0));
     implementations[contractName] = implementation;
+    ImplementationAdded(contractName, implementation);
   }
 
-  function getImplementation(string contractName) public returns(address) {
+  function getImplementation(string contractName) public view returns(address) {
     address implementation = implementations[contractName];
     if(implementation != address(0)) return implementation;
-    require(parent != address(0));
-    return parent.getImplementation(contractName);
+    else if(parent != address(0)) return parent.getImplementation(contractName); 
+          else return 0;
   }
 
   function freeze() onlyOwner notFrozen public {
