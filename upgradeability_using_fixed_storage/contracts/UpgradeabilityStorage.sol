@@ -6,7 +6,7 @@ pragma solidity ^0.4.21;
  */
 contract UpgradeabilityStorage {
   // Storage position of the address of the current implementation
-  bytes32 private constant implementationPosition = keccak256("implementation");
+  bytes32 private constant implementationPosition = keccak256("zeppelin_os.proxy.implementation");
 
   /**
    * @dev Constructor function

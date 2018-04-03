@@ -7,7 +7,7 @@ pragma solidity ^0.4.21;
  */
 contract OwnedUpgradeabilityStorage {
   // Storage position of the owner of the contract
-  bytes32 private constant upgradeabilityOwnerPosition = keccak256("upgradeabilityOwner");
+  bytes32 private constant upgradeabilityOwnerPosition = keccak256("zeppelin_os.proxy.owner");
 
   /**
    * @dev Constructor function
