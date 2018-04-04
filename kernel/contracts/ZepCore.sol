@@ -23,6 +23,7 @@ contract ZepCore {
   function ZepCore(uint256 _newVersionCost, uint256 _developerFraction) public {
     _token = new ZepToken();
     _registry = new KernelRegistry();
+    _token.transferOwnership(msg.sender);
     developerFraction = _developerFraction;
     newVersionCost = _newVersionCost;
     // TODO: we need to think how we are going to manage variable costs to propose new versions
