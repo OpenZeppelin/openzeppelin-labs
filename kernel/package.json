@@ -5,7 +5,8 @@
   "author": "Facundo Spagnuolo <facundo@zeppelin.solutions>",
   "license": "MIT",
   "scripts": {
-    "test": "truffle test"
+    "test": "truffle test",
+    "deploy-ropsten": "truffle exec scripts/deploy.js --network ropsten"
   },
   "devDependencies": {
     "babel": "^6.23.0",
