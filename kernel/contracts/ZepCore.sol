@@ -36,9 +36,28 @@ contract ZepCore {
     // TODO: should we build a burnFrom or sth like that?
   }
 
+
+  // @dev Implementation independent of stake and unstake to avoid tokens going back and forth. 
   function transferStake(KernelInstance from, KernelInstance to, uint256 amount, bytes data) public {
-    // TODO: an unstake followed by a stake call won't work
-    require(false);
+    require(to != from);
+    uint256 currentStake = _userVouches[msg.sender][from];
+    require(currentStake >= amount);
+
+    //unstake
+    _instanceVouches[from] = totalStakedFor(from).sub(amount);
+    _userVouches[msg.sender][from] = currentStake.sub(amount);
+    Unstaked(msg.sender, from, amount, totalStakedFor(from), data);
+
+    //stake
+    uint256 developerPayout = amount.div(developerFraction);
+    require(developerPayout > 0);
+    uint256 remainingAmount = amount.sub(developerPayout);
+    token().transfer(to.developer(), developerPayout);
+    _instanceVouches[to] = totalStakedFor(to).add(remainingAmount);
+    _userVouches[msg.sender][to] = _userVouches[msg.sender][to].add(remainingAmount);
+    Staked(msg.sender, to, remainingAmount, totalStakedFor(to), data);
+
+    _totalStaked = totalStaked().sub(developerPayout); 
   }
 
   function stake(KernelInstance instance, uint256 amount, bytes data) public {
