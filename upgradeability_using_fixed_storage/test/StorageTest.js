@@ -6,9 +6,7 @@ const Token_V0 = artifacts.require('Token_V0')
 contract('OwnedUpgradeabilityProxy', ([_, proxyOwner, tokenOwner, anotherAccount]) => {
   let proxy
   let impl_v0
-  let impl_v1
   let token_v0
-  let token_v1
   const initializeData = encodeCall('initialize', ['address'], [tokenOwner]);
 
   beforeEach(async function () {
@@ -20,8 +18,8 @@ contract('OwnedUpgradeabilityProxy', ([_, proxyOwner, tokenOwner, anotherAccount
   });
 
   it('should store implementation in specified location', async function () {
-    var position = web3.sha3("org.zeppelinos.proxy.implementation");
-    var storage = await web3.eth.getStorageAt(proxy.address, position);
+    const position = web3.sha3("org.zeppelinos.proxy.implementation");
+    const storage = await web3.eth.getStorageAt(proxy.address, position);
     assert.equal(storage, impl_v0.address);
   });
   
