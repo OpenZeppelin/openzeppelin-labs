@@ -38,8 +38,8 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
 
     // deploy another instance of the testing contract
     const { logs: logs2 }  = await factory.createProxy(distribution, version, contractName);
-    this.proxyAddress2 = logs2.find(l => l.event === 'ProxyCreated').args.proxy;
-    this.mock2 = await PickACard.new(this.proxyAddress2);
+    this.anotherProxyAddress = logs2.find(l => l.event === 'ProxyCreated').args.proxy;
+    this.anotherMock = await PickACard.new(this.anotherProxyAddress);
     
   });
 
@@ -60,22 +60,22 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
   
   it('creates different instances of the proxy', async function () {
     const erc721 = ERC721Token.at(await this.mock.erc721())
-    const erc721_2 = ERC721Token.at(await this.mock2.erc721())
+    const erc721_2 = ERC721Token.at(await this.anotherMock.erc721())
     assert.notEqual(erc721.address, erc721_2.address);
   });
 
   it('should allow picking the same number twice from independent instances', async function () {
     await this.mock.pick(5, { from: someone });
-    await this.mock2.pick(5, { from: anotherone }).should.be.fulfilled;
+    await this.anotherMock.pick(5, { from: anotherone }).should.be.fulfilled;
   });
 
   it('storage takes place in KernelProxy', async function () {
     //fetch the owner of token 5, in `mapping (uint256 => address) internal tokenOwner;`
-    var ind = '0000000000000000000000000000000000000000000000000000000000000002' // tokenOwner position in storage
-    var key =  '0000000000000000000000000000000000000000000000000000000000000007' // tokenId
-    var newkey =  web3.sha3(key + ind, {"encoding":"hex"})
-    await this.mock2.pick(7, { from: someone });
-    var storage = await web3.eth.getStorageAt(this.proxyAddress2, newkey);
+    const ind = '0000000000000000000000000000000000000000000000000000000000000002' // tokenOwner position in storage
+    const key =  '0000000000000000000000000000000000000000000000000000000000000007' // tokenId
+    const newkey =  web3.sha3(key + ind, {"encoding":"hex"})
+    await this.anotherMock.pick(7, { from: someone });
+    const storage = await web3.eth.getStorageAt(this.anotherProxyAddress, newkey);
     assert.equal(storage, someone);
   });
 
