@@ -56,7 +56,7 @@ contract('zeppelin_os', ([_, zeppelin, developer, someone, anotherone]) => {
   it('should not allow picking the same number twice', async function () {
     await this.mock.pick(5, { from: someone });
     await this.mock.pick(5, { from: anotherone }).should.be.rejected;
-    });
+  });
   
   it('creates different instances of the proxy', async function () {
     const erc721 = ERC721Token.at(await this.mock.erc721())
