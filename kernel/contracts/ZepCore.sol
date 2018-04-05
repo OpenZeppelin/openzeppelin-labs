@@ -41,22 +41,17 @@ contract ZepCore {
 
   function stake(KernelInstance instance, uint256 amount, bytes data) public {
     _token.transferFrom(msg.sender, this, amount);
-    uint256 developerPayout = amount.div(developerFraction);
-    require(developerPayout > 0);
-    // TODO: Think how we can manage remainders in a better way
-
-    uint256 stakedAmount = amount.sub(developerPayout);
-    _stakes.stake(msg.sender, instance, stakedAmount, data);
-    _token.transfer(instance.developer(), developerPayout);
+    _payoutAndStake(msg.sender, instance, amount, data);
   }
 
   function unstake(KernelInstance instance, uint256 amount, bytes data) public {
     _stakes.unstake(msg.sender, instance, amount, data);
-    _token.transfer(msg.sender, amount);    
+    _token.transfer(msg.sender, amount);
   }
 
   function transferStake(KernelInstance from, KernelInstance to, uint256 amount, bytes data) public {
-    _stakes.transferStake(msg.sender, from, to, amount, data);
+    _stakes.unstake(msg.sender, instance, amount, data);
+    _payoutAndStake(msg.sender, instance, amount, data);
   }
 
   function token() public view returns (ZepToken) {
@@ -69,5 +64,15 @@ contract ZepCore {
 
   function stakes() public view returns (KernelStakes) {
     return _stakes;
+  }
+
+  function _payoutAndStake(address staker, KernelInstance instance, uint256 amount, bytes data) private {
+    uint256 developerPayout = amount.div(developerFraction);
+    require(developerPayout > 0);
+    // TODO: Think how we can manage remainders in a better way
+
+    uint256 stakedAmount = amount.sub(developerPayout);
+    _stakes.stake(staker, instance, stakedAmount, data);
+    _token.transfer(instance.developer(), developerPayout);
   }
 }
