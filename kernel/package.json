@@ -16,8 +16,10 @@
     "babel-preset-stage-2": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
     "babel-register": "^6.26.0",
+    "bignumber.js": "^6.0.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
     "truffle": "^4.0.4",
     "zeppelin-solidity": "^1.8.0"
   }

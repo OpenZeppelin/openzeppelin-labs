@@ -2,11 +2,13 @@ const ZepCore = artifacts.require('ZepCore');
 const ZepToken = artifacts.require('ZepToken');
 const KernelInstance = artifacts.require('KernelInstance');
 
+const BigNumber = web3.BigNumber;
+
 const should = require('chai')
   .use(require('chai-as-promised'))
+  .use(require('chai-bignumber')(BigNumber))
   .should();
-// TODO: Add integration tests
-
+  
 contract('ZepCore', ([_, owner, developer, user, anotherDeveloper]) => {
   const newVersionCost = 2;
   const developerFraction = 10;
@@ -45,10 +47,10 @@ contract('ZepCore', ([_, owner, developer, user, anotherDeveloper]) => {
     await this.token.approve(this.zepCore.address, stakeValue, {from: user});
     await this.zepCore.stake(this.kernelInstance.address, stakeValue, 0, {from: user});
     
-    const { c: staked } = await this.zepCore.totalStakedFor.call(this.kernelInstance.address);
-    assert.equal(Number(staked), effectiveStake);
-    const { c: totalStaked } = await this.zepCore.totalStaked.call();
-    assert.equal(Number(totalStaked), effectiveStake);
+    const staked = await this.zepCore.totalStakedFor.call(this.kernelInstance.address);
+    staked.should.be.bignumber.equal(effectiveStake);
+    const totalStaked = await this.zepCore.totalStaked.call();
+    totalStaked.should.be.bignumber.equal(effectiveStake);
   });
 
   it('should accept unstakes', async function () {
@@ -59,13 +61,13 @@ contract('ZepCore', ([_, owner, developer, user, anotherDeveloper]) => {
     await this.zepCore.stake(this.kernelInstance.address, stakeValue, 0, {from: user});
     await this.zepCore.unstake(this.kernelInstance.address, unstakeValue, 0, {from: user});
     
-    const { c: staked } = await this.zepCore.totalStakedFor.call(this.kernelInstance.address);
-    assert.equal(Number(staked), effectiveStake);
-    const { c: totalStaked } = await this.zepCore.totalStaked.call();
-    assert.equal(Number(totalStaked), effectiveStake);
+    const staked = await this.zepCore.totalStakedFor.call(this.kernelInstance.address);
+    staked.should.be.bignumber.equal(effectiveStake);
+    const totalStaked = await this.zepCore.totalStaked.call();
+    totalStaked.should.be.bignumber.equal(effectiveStake);
   });
 
-  it.only('should transfer stakes', async function () {
+  it('should transfer stakes', async function () {
     const stakeValue = 420;
     const transferValue = 20;
     const effectiveStakeFirst = stakeValue-Math.floor(stakeValue/developerFraction)-transferValue;
@@ -76,14 +78,14 @@ contract('ZepCore', ([_, owner, developer, user, anotherDeveloper]) => {
     await this.zepCore.stake(this.kernelInstance.address, stakeValue, 0, {from: user});
     await this.zepCore.transferStake(this.kernelInstance.address, this.anotherKernelInstance.address, transferValue, 0, {from: user});
     
-    const { c: stakedToFirst } = await this.zepCore.totalStakedFor.call(this.kernelInstance.address);
-    assert.equal(Number(stakedToFirst), effectiveStakeFirst);
+    const stakedToFirst = await this.zepCore.totalStakedFor.call(this.kernelInstance.address);
+    stakedToFirst.should.be.bignumber.equal(effectiveStakeFirst);
 
-    const { c: stakedToSecond } = await this.zepCore.totalStakedFor.call(this.anotherKernelInstance.address);
-    assert.equal(Number(stakedToSecond), effectiveStakeSecond);
+    const stakedToSecond = await this.zepCore.totalStakedFor.call(this.anotherKernelInstance.address);
+    stakedToSecond.should.be.bignumber.equal(effectiveStakeSecond);
 
-    const { c: totalStaked } = await this.zepCore.totalStaked.call();
-    assert.equal(Number(totalStaked), totalEffectivelyStaked);
+    const totalStaked = await this.zepCore.totalStaked.call();
+    totalStaked.should.be.bignumber.equal(totalEffectivelyStaked);
   });
 
 
