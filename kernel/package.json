@@ -19,6 +19,8 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "truffle": "^4.0.4",
-    "zeppelin-solidity": "^1.8.0"
+    "web3": "^0.18.4",
+    "zeppelin-solidity": "^1.8.0",
+    "zos-core": "git://github.com/zeppelinos/core.git#d1dfa817430ee5811160d9ca5a84e438e902edbf"
   }
 }
