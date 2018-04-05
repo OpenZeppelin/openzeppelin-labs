@@ -5,19 +5,19 @@ required for upgradeability purpose. The idea here is to use fixed storage slots
 upgradeability purpose, this is the upgradeability owner and the implementation address.
 
 We are using inline assembly to store and access mentioned variables in fixed storage positions indexing them
-with custom keys using `keccak256`. Please take a look at the implementation provided in `UpgradeabilityStorage` 
-and `OwnedUpgradeabilityStorage`.
+with custom keys using `keccak256`. Please take a look at the implementation provided in `UpgradeabilityProxy` 
+and `OwnedUpgradeabilityProxy`.
 
 This is the proposed model:
 
-        -------             =======================                   ----------     ----------
-       | Proxy |           ║ UpgradeabilityStorage ║                 | Token_V0 | ← | Token_V1 |
-        -------             =======================                   ----------     ----------
-              ↑              ↑            
-           ---------------------     ============================ 
-          | UpgradeabilityProxy |   ║ OwnedUpgradeabilityStorage ║
-           ---------------------     ============================
-                   ↑                      ↑
-                  -------------------------- 
-                 | OwnedUpgradeabilityProxy |            
-                  --------------------------        
+        -------                      ----------     ----------
+       | Proxy |                    | Token_V0 | ← | Token_V1 |
+        -------                      ----------     ----------
+          ↑              
+        --------------------- 
+       | UpgradeabilityProxy |
+        ---------------------    
+          ↑                      
+        -------------------------- 
+       | OwnedUpgradeabilityProxy |            
+        --------------------------        
