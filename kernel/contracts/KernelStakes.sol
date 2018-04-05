@@ -15,7 +15,7 @@ contract KernelStakes is  Ownable {
   mapping(address => uint256) private _instanceVouches;
   mapping(address => mapping (address => uint256)) private _userVouches;
 
-  function KernelStakes() { }
+  function KernelStakes() public { }
 
   function stake(address staker, address instance, uint256 amount, bytes data) public onlyOwner {
     _totalStaked = _totalStaked.add(amount);
@@ -34,11 +34,6 @@ contract KernelStakes is  Ownable {
     _userVouches[staker][instance] = currentStake.sub(amount);
     
     Unstaked(staker, instance, amount, _instanceVouches[instance], data);
-  }
-
-  function transferStake(address staker, address from, address to, uint256 amount, bytes data) public onlyOwner {
-    unstake(staker, from, amount, data);
-    stake(staker, to, amount, data);
   }
 
   function stakedFor(address staker, address instance) public view returns (uint256) {

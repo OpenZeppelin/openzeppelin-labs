@@ -50,8 +50,8 @@ contract ZepCore {
   }
 
   function transferStake(KernelInstance from, KernelInstance to, uint256 amount, bytes data) public {
-    _stakes.unstake(msg.sender, instance, amount, data);
-    _payoutAndStake(msg.sender, instance, amount, data);
+    _stakes.unstake(msg.sender, from, amount, data);
+    _payoutAndStake(msg.sender, to, amount, data);
   }
 
   function token() public view returns (ZepToken) {
