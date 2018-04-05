@@ -2,15 +2,15 @@ pragma solidity ^0.4.18;
 
 import "./ERC721Basic.sol";
 import "./ERC721Receiver.sol";
-import "../../proxy/KernelProxyStorage.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/AddressUtils.sol";
+import "zos-core/contracts/upgradeability/OwnedUpgradeabilityStorage.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721BasicToken is ERC721Basic, KernelProxyStorage {
+contract ERC721BasicToken is ERC721Basic, OwnedUpgradeabilityStorage {
   using SafeMath for uint256;
   using AddressUtils for address;
 

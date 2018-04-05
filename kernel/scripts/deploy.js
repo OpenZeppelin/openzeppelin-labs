@@ -5,7 +5,8 @@ const ZepCore = artifacts.require('ZepCore');
 const ZepToken = artifacts.require('ZepToken');
 const ERC721Token = artifacts.require('ERC721Token');
 const KernelInstance = artifacts.require('KernelInstance');
-const KernelProxyFactory = artifacts.require('KernelProxyFactory');
+const KernelProxyController = artifacts.require('KernelProxyController');
+const UpgradeabilityProxyFactory = artifacts.require('UpgradeabilityProxyFactory');
 
 const version = '1.8.0';
 const distribution = 'Zeppelin';
@@ -19,14 +20,15 @@ async function deploy() {
   console.log("Address: ", zeppelin);
   console.log();
 
-  // deploy new kernel registry and proxy factory
+  // deploy new kernel registry and proxy controller
   console.log("Deploying...");
   const newVersionCost = 2;
   const developerFraction = 10;
   const zepCore = await ZepCore.new(newVersionCost, developerFraction, { from: zeppelin });
   console.log(" ZepCore: ", zepCore.address);
-  const factory = await KernelProxyFactory.new(zepCore.address);
-  console.log(" Factory: ", factory.address);
+  const factory = await UpgradeabilityProxyFactory.new();
+  const controller = await KernelProxyController.new(zepCore.address, factory.address);
+  console.log(" Controller: ", controller.address);
 
   // mint zeptokens for the developer
   const zepTokenAddress = await zepCore.token();
@@ -49,11 +51,11 @@ async function deploy() {
   console.log("Deployment complete");
   console.log(" ZepCore: ", zepCore.address);
   console.log(" ZepToken:", zepToken.address);
-  console.log(" Factory: ", factory.address);
+  console.log(" Controller: ", controller.address);
   console.log();
   console.log("Request an ERC721 instance by running:");
-  console.log(` KernelProxyFactory.at('${factory.address}').createProxy('${distribution}', '${version}', '${contractName}').then(t => t.logs[0].args);`);
-};
+  console.log(` KernelProxyController.at('${controller.address}').create('${distribution}', '${version}', '${contractName}').then(t => t.logs[0].args);`);
+}
 
 module.exports = function(cb) {
   deploy().then(cb).catch(cb);
