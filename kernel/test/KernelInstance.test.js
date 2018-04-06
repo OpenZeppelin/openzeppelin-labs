@@ -8,9 +8,8 @@ require('chai')
 contract('KernelInstance', ([developer, implementation_address_1, implementation_address_2]) => {
   const name = "Test";
   const version_0 = "0.0";
-  const contract_name = "TestContract";
-  const another_contract_name = "AnotherContract";
-    
+  const contractName = "TestContract";
+  const anotherContractName = "AnotherContract";
 
   beforeEach(async function () {
     this.kernelInstance = await KernelInstance.new(name, version_0, 0);
@@ -40,7 +39,7 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
   });
 
   it('should return 0 if no implementation', async function () {
-    const instance_implementation_1 = await this.kernelInstance.getImplementation(contract_name);
+    const instance_implementation_1 = await this.kernelInstance.getImplementation(contractName);
     assert.equal(instance_implementation_1, 0);
   })
 
@@ -48,28 +47,28 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
     var receipt;
     
     beforeEach(async function () {
-      receipt = await this.kernelInstance.addImplementation(contract_name, implementation_address_1);
+      receipt = await this.kernelInstance.addImplementation(contractName, implementation_address_1);
     });
 
     it('emits correct event', async function () {
       assert.equal(receipt.logs.length, 1); //Make sure there is a single event
       const event = receipt.logs.find(e => e.event === 'ImplementationAdded');
-      assert.equal(event.args.contractName, contract_name);
+      assert.equal(event.args.contractName, contractName);
       assert.equal(event.args.implementation, implementation_address_1);
     });
 
     it('returns correct address', async function () {
-      const instance_implementation_1 = await this.kernelInstance.getImplementation(contract_name);
+      const instance_implementation_1 = await this.kernelInstance.getImplementation(contractName);
       assert.equal(instance_implementation_1, implementation_address_1);
     });
 
     it('should not add implementation for same contract twice', async function () {
-      await assertRevert(this.kernelInstance.addImplementation(contract_name, implementation_address_2));
+      await assertRevert(this.kernelInstance.addImplementation(contractName, implementation_address_2));
     });
 
     it('should fail if frozen', async function () {
       await this.kernelInstance.freeze();
-      await assertRevert(this.kernelInstance.addImplementation(another_contract_name, implementation_address_2));
+      await assertRevert(this.kernelInstance.addImplementation(anotherContractName, implementation_address_2));
     });
 
     it('should not have offspring if not yet frozen', async function () {
@@ -82,7 +81,7 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
     const version_1 = "0.1";
 
     beforeEach(async function () {
-      this.kernelInstance.addImplementation(contract_name, implementation_address_1);
+      this.kernelInstance.addImplementation(contractName, implementation_address_1);
       await this.kernelInstance.freeze();
       this.kernelInstance2 = await KernelInstance.new(name, version_1, this.kernelInstance.address);
     });
@@ -100,12 +99,12 @@ contract('KernelInstance', ([developer, implementation_address_1, implementation
     });
   
     it('should return parent implementation', async function () {
-      const instance_implementation = await this.kernelInstance2.getImplementation(contract_name);
+      const instance_implementation = await this.kernelInstance2.getImplementation(contractName);
       assert.equal(instance_implementation, implementation_address_1);
     });
 
     it('WILL OVERRIDE a parent implementation, use freeze functionality to prevent this', async function () {
-      await this.kernelInstance2.addImplementation(contract_name, implementation_address_2).should.be.fulfilled;
+      await this.kernelInstance2.addImplementation(contractName, implementation_address_2).should.be.fulfilled;
     });
 
   });

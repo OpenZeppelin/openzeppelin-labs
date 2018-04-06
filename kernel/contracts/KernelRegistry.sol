@@ -10,7 +10,7 @@ contract KernelRegistry is Ownable {
 
   function KernelRegistry() public {}
 
-  function getInstance(string name, string version) public view returns(KernelInstance) {
+  function getInstance(string name, string version) public view returns (KernelInstance) {
     bytes32 hash = keccak256(name, version);
     return KernelInstance(instances[hash]);
   }
