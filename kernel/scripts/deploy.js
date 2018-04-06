@@ -3,14 +3,16 @@
 
 const ZepCore = artifacts.require('ZepCore');
 const ZepToken = artifacts.require('ZepToken');
+const Registry = artifacts.require('Registry');
 const ERC721Token = artifacts.require('ERC721Token');
 const KernelInstance = artifacts.require('KernelInstance');
-const KernelProxyController = artifacts.require('KernelProxyController');
+const ProjectController = artifacts.require('ProjectController');
 const UpgradeabilityProxyFactory = artifacts.require('UpgradeabilityProxyFactory');
 
 const version = '1.8.0';
 const distribution = 'Zeppelin';
 const contractName = 'ERC721Token';
+const projectName = 'My Project';
 
 async function deploy() {
   // addresses to use
@@ -26,8 +28,9 @@ async function deploy() {
   const developerFraction = 10;
   const zepCore = await ZepCore.new(newVersionCost, developerFraction, { from: zeppelin });
   console.log(" ZepCore: ", zepCore.address);
+  const registry = await Registry.new({ from: zeppelin });
   const factory = await UpgradeabilityProxyFactory.new();
-  const controller = await KernelProxyController.new(zepCore.address, factory.address);
+  const controller = await ProjectController.new(projectName, registry.address, factory.address, zepCore.address, { from: zeppelin });
   console.log(" Controller: ", controller.address);
 
   // mint zeptokens for the developer
@@ -54,7 +57,10 @@ async function deploy() {
   console.log(" Controller: ", controller.address);
   console.log();
   console.log("Request an ERC721 instance by running:");
-  console.log(` KernelProxyController.at('${controller.address}').create('${distribution}', '${version}', '${contractName}').then(t => t.logs[0].args);`);
+  console.log(` ProjectController.at('${controller.address}').create('${distribution}', '${version}', '${contractName}').then(t => t.logs[0].args);`);
+  console.log();
+  console.log("Request an instance of your registry by running:");
+  console.log(` ProjectController.at('${controller.address}').create('${projectName}', 'version_X', 'MyContract').then(t => t.logs[0].args);`);
 }
 
 module.exports = function(cb) {

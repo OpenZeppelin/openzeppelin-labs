@@ -4,7 +4,7 @@ import "./ZepToken.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
-contract KernelStakes is  Ownable {
+contract KernelStakes is Ownable {
   using SafeMath for uint256;
 
   event Staked(address indexed user, address instance, uint256 amount, uint256 total, bytes data);

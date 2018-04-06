@@ -1,10 +1,11 @@
 import decodeLogs from './helpers/decodeLogs';
 const ZepCore = artifacts.require('ZepCore');
+const Registry = artifacts.require('zos-core/contracts/Registry.sol');
 const ZepToken = artifacts.require('ZepToken');
 const PickACard = artifacts.require('PickACard');
 const ERC721Token = artifacts.require('ERC721Token');
 const KernelInstance = artifacts.require('KernelInstance');
-const KernelProxyController = artifacts.require('KernelProxyController');
+const ProjectController = artifacts.require('ProjectController');
 const UpgradeabilityProxyFactory = artifacts.require('UpgradeabilityProxyFactory');
 
 const should = require('chai')
@@ -34,7 +35,8 @@ contract('KernelProxy', ([_, zeppelin, developer, someone, anotherone]) => {
 
     // deploy a testing contract that uses zos
     this.factory = await UpgradeabilityProxyFactory.new();
-    this.controller = await KernelProxyController.new(this.zepCore.address, this.factory.address);
+    this.registry = await Registry.new({ from: zeppelin })
+    this.controller = await ProjectController.new('My Project', this.registry.address, this.factory.address, this.zepCore.address);
     const { receipt } = await this.controller.create(distribution, version, contractName);
     const logs = decodeLogs([receipt.logs[0]], UpgradeabilityProxyFactory, this.factory.address);
     const proxyAddress = logs.find(l => l.event === 'ProxyCreated').args.proxy;
@@ -78,9 +80,9 @@ contract('KernelProxy', ([_, zeppelin, developer, someone, anotherone]) => {
 
     it('storage takes place in KernelProxy', async function () {
       //fetch the owner of token 5, in `mapping (uint256 => address) internal tokenOwner;`
-      const ind = '0000000000000000000000000000000000000000000000000000000000000002' // tokenOwner position in storage
-      const key =  '0000000000000000000000000000000000000000000000000000000000000007' // tokenId
-      const newkey =  web3.sha3(key + ind, {"encoding":"hex"})
+      const ind = '0000000000000000000000000000000000000000000000000000000000000000' // tokenOwner position in storage
+      const key = '0000000000000000000000000000000000000000000000000000000000000007' // tokenId
+      const newkey = web3.sha3(key + ind, { encoding: "hex" })
 
       await this.anotherMock.pick(7, { from: someone });
       const storage = await web3.eth.getStorageAt(this.anotherProxyAddress, newkey);
