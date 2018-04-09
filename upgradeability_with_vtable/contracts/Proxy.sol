@@ -5,7 +5,6 @@ pragma solidity ^0.4.18;
  * @dev Gives the possibility to delegate any call to a foreign implementation.
  */
 contract Proxy {
-
   /**
   * @dev Tells the address of the implementation where every call will be delegated.
   * @return address of the implementation to which it will be delegated
@@ -19,13 +18,12 @@ contract Proxy {
   function () payable public {
     address _impl = implementation(msg.sig);
     require(_impl != address(0));
-    bytes memory data = msg.data;
 
     assembly {
-      let result := delegatecall(gas, _impl, add(data, 0x20), mload(data), 0, 0)
-      let size := returndatasize
-
       let ptr := mload(0x40)
+      calldatacopy(ptr, 0, calldatasize)
+      let result := delegatecall(gas, _impl, ptr, calldatasize, 0, 0)
+      let size := returndatasize
       returndatacopy(ptr, 0, size)
 
       switch result
