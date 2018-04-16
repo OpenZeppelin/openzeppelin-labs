@@ -1,4 +1,4 @@
-# Upgradeability using fixed storage
+# Upgradeability using unstructured storage
 
 This idea builds on _upgradeability using inherited storage_ but redefining the storage structure of the contracts
 required for upgradeability purpose. The idea here is to use fixed storage slots to store the required data for
