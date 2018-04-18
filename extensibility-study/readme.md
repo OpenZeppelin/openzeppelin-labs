@@ -13,3 +13,11 @@ The steps for usage are:
 4) For calling the contract (both from other contracts and externally), simply wrap `BFacade` in `B`.
 
 This scheme exempts us from redeploying `A`, although we do need to deploy its storage `AStor` (through the inheritance in `BFacade`). Finally, note that the user contracts that call `BFacade` will need to import `B` instead of `BFacade`, we need to check whether there's gas savings in this case.
+
+## Upgradeability
+
+### Parent upgradeability
+This scheme allows for partial upgradeability of parent contracts. It transparently allows for internal changes in methods, while it allows for a change in interface if the derived class is rewrapped with the expected derived interface. This is expected in any upgradeability protocol, if the proxied interface changes, we will need to update our contracts accordingly.
+
+Storage is subtler in this regard. While an upgradeability protocol (like the one in zeppelin_os) might transparently allow for internal changes in storage, this extensibility protocol does not. If the storage structure changes, even if not directly accessed by derived contracts, we will need to redeploy with `AStor` accordingly updated.
+
