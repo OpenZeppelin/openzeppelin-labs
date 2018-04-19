@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 import "./A_v2.sol";
 
-contract B_v2 is A_v2 {
+contract B_Av2 is A_v2 {
   uint256 public y;
   
   function sety(uint256 _y) public {

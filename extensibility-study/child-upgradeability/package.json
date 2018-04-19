@@ -1,0 +1,17 @@
+{
+  "name": "extensibility-study",
+  "version": "0.1.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "author": "Alejo Salles",
+  "license": "MIT",
+  "dependencies": {
+    "ethereumjs-abi": "^0.6.5"
+  }
+}

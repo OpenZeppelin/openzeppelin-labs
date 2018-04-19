@@ -1,8 +1,8 @@
 pragma solidity ^0.4.21;
 import "./AStor.sol";
-import "./OwnedUpgradeabilityProxy.sol";
+import "./upgradeability/OwnedUpgradeabilityProxy.sol";
 
-contract BFacade is AStor, OwnedUpgradeabilityProxy {
+contract B_v2Facade is AStor, OwnedUpgradeabilityProxy {
   uint256 public y;
   
   function sety(uint256 _y) public {
@@ -11,5 +11,9 @@ contract BFacade is AStor, OwnedUpgradeabilityProxy {
   
   function sum() public view returns(uint256) {
     return x+y;
+  }
+  
+  function mult() public view returns(uint256) {
+    return x*y;
   }
 }
