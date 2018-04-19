@@ -4,7 +4,7 @@ const abi = require('ethereumjs-abi');
 
 var LegacyToken = artifacts.require('./LegacyToken.sol')
 const BurnContract = artifacts.require('./BurnContract.sol')
-const MigrationToken = artifacts.require('MigrationToken')
+const OptInMigrationToken = artifacts.require('OptInMigrationToken')
 const OwnedUpgradeabilityProxy = artifacts.require('zos-upgradeability/contracts/upgradeability/OwnedUpgradeabilityProxy.sol')
 
 
@@ -22,7 +22,7 @@ contract('LegacyToken migration', function (accounts) {
 
     //Deploy new upgradeable token
     const proxy = await OwnedUpgradeabilityProxy.new();
-    const migration = await MigrationToken.new()
+    const migration = await OptInMigrationToken.new()
     const methodId = abi.methodID('initialize', ['address', 'address']).toString('hex')
     const params = abi.rawEncode(['address', 'address'],
       [legacyToken.address, burnContract.address])
@@ -30,7 +30,7 @@ contract('LegacyToken migration', function (accounts) {
     const initializeData = '0x' + methodId + params
     await proxy.upgradeToAndCall(migration.address, initializeData)
 
-    newToken = await MigrationToken.at(proxy.address)
+    newToken = await OptInMigrationToken.at(proxy.address)
   });
 
   it('maintains correct balances after calling migrateToken', async function () {
