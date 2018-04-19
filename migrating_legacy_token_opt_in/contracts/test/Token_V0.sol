@@ -4,10 +4,10 @@ import 'zeppelin-solidity/contracts/token/ERC20/MintableToken.sol';
 import 'zeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 
 /**
- * @title Token_V0
- * @dev Version 0 of a token to show upgradeability.
+ * @title MigrationToken
+ * @dev migration version of the token, used for migrating balances
  */
-contract Token_V0 is MintableToken {
+contract MigrationToken is MintableToken {
 
   // Tells whether the token has been initialized or not
   bool internal _initialized;
