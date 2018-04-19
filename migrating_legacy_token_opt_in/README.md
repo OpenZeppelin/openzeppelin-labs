@@ -1,6 +1,6 @@
 # Migrating legacy (non-upgradeable) token to upgradeability with opt-in strategy
 
-This idea builds on _upgradeability using unstructured storage_, and shows how one would migrate an existing non-upgradeable token into zOS for upgradeability support. This approach uses the opt-in strategy.
+This idea builds on _upgradeability using unstructured storage_, and shows how one would migrate an existing non-upgradeable token into zOS for upgradeability support. This approach uses the opt-in strategy. For an alternative approach, see the `migrating_legacy_token_managed/` folder.
 
 With the opt-in strategy, the migration of the token balances is optional and performed and paid for by the token holders. The new token contract starts with no initial supply and no balances. The only way to "mint" the new tokens is for users to "turn in" their old ones. This is done by first approving the amount they want to migrate via `OldERC20.approve(newTokenAddress, amountToMigrate)` and then calling a function in the new token called `migrateTokens`. The old tokens are sent to a burn address, and the holder receives an equal amount in the new contract.
 
