@@ -1,6 +1,7 @@
 pragma solidity ^0.4.18;
 
 import './Token_V0.sol';
+import 'zeppelin-solidity/contracts/token/ERC20/BurnableToken.sol';
 
 /**
  * @title Token_V1
@@ -8,13 +9,5 @@ import './Token_V0.sol';
  * The idea here is to extend a token behaviour providing burnable functionalities
  * in addition to what's provided in version 0
  */
-contract Token_V1 is Token_V0 {
-  event Burn(address indexed burner, uint256 value);
-
-  function burn(uint256 value) public {
-    require(balanceOf(msg.sender) >= value);
-    _balances[msg.sender] = _balances[msg.sender].sub(value);
-    _totalSupply = _totalSupply.sub(value);
-    Burn(msg.sender, value);
-  }
+contract Token_V1 is Token_V0, BurnableToken {
 }
