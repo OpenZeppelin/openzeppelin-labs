@@ -1,5 +1,5 @@
 {
-  "name": "token-upgradeability-using-custom-eternal-storage",
+  "name": "migrating_legacy_token",
   "version": "0.1.0",
   "private": true,
   "author": "Facu Spagnuolo <facu@zeppelin.solutions>",
@@ -9,7 +9,8 @@
   },
   "devDependencies": {
     "ethereumjs-abi": "^0.6.5",
-    "truffle": "^4.0.4",
-    "zeppelin-solidity": "^1.6.0"
+    "truffle": "^4.1.5",
+    "zeppelin-solidity": "^1.8.0",
+    "zos-upgradeability": "git://github.com/zeppelinos/upgradeability-lib.git#68cd61fb48d0e4eec7142241448efa40c395bf33"
   }
 }

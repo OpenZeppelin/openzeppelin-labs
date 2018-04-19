@@ -1,7 +1,5 @@
 pragma solidity ^0.4.18;
 
-import '../ownership/Ownable.sol';
-import '../OwnedUpgradeableTokenStorage.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 
@@ -9,18 +7,35 @@ import 'zeppelin-solidity/contracts/token/ERC20/ERC20.sol';
  * @title Token_V0
  * @dev Version 0 of a token to show upgradeability.
  */
-contract Token_V0 is Ownable, OwnedUpgradeableTokenStorage {
+contract Token_V0  {
   using SafeMath for uint256;
+
+  // Tells whether the token has been initialized or not
+  bool internal _initialized;
+
+  // Total amount of tokens
+  uint256 internal _totalSupply;
+
+  //Address of old legacyToken contract
+  address internal _legacyToken;
+
+  //Address to send old tokens
+  address internal _burnAddress;
+
+  // Mapping from owner addresses to their balance amount
+  mapping (address => uint256) internal _balances;
+
+  // Mapping from owner addresses to a mapping of allowed amounts per owner addresses
+  mapping (address => mapping (address => uint256)) internal _allowances;
 
   event Transfer(address indexed from, address indexed to, uint256 value);
   event Approval(address indexed owner, address indexed spender, uint256 value);
 
-  function initialize(address owner, address legacyToken, address burnAddress) public {
+  function initialize(address legacyToken, address burnAddress) public {
     require(!_initialized);
-    setOwner(owner);
     _initialized = true;
     _legacyToken = legacyToken;
-    _burnAddress = burnAddress;
+    _burnAddress = burnAddress; 
   }
 
   function totalSupply() public view returns (uint256) {
