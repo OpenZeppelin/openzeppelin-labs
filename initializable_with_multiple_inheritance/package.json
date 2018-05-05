@@ -1,0 +1,13 @@
+{
+  "name": "initializable-with-multiple-inheritance",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Santiago Palladino <santiago@zeppelin.solutions>",
+  "license": "MIT",
+  "scripts": {
+    "test": "truffle test"
+  },
+  "devDependencies": {
+    "truffle": "^4.1.8"
+  }
+}
