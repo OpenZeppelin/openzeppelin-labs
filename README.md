@@ -1,4 +1,4 @@
-# ZeppelinOS labs
+# ZeppelinOS Labs
 
 ## Description
 
