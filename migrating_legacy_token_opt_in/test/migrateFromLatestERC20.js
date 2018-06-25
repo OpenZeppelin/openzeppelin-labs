@@ -2,21 +2,20 @@
 
 const abi = require('ethereumjs-abi');
 
-var LegacyToken = artifacts.require('./LegacyToken.sol')
-const BurnContract = artifacts.require('./BurnContract.sol')
+const LegacyToken = artifacts.require('LegacyToken')
+const BurnContract = artifacts.require('BurnContract')
 const OptInMigrationToken = artifacts.require('OptInMigrationToken')
-const OwnedUpgradeabilityProxy = artifacts.require('zos-upgradeability/contracts/upgradeability/OwnedUpgradeabilityProxy.sol')
+const OwnedUpgradeabilityProxy = artifacts.require('OwnedUpgradeabilityProxy')
 
 
 contract('LegacyToken migration', function (accounts) {
-  var legacyToken, newToken, burnContract;
-
+  let legacyToken, newToken, burnContract;
 
   before(async function () {
     burnContract = await BurnContract.new();
     //Deploy LegacyToken and mint tokens
     legacyToken = await LegacyToken.new();
-    for(var i = 1; i < 5; i++) {
+    for(let i = 1; i < 5; i++) {
       await legacyToken.mint(accounts[i], i * 10);
     }
 
@@ -34,7 +33,7 @@ contract('LegacyToken migration', function (accounts) {
   });
 
   it('maintains correct balances after calling migrateToken', async function () {
-    for(var i = 1; i < 5; i++) {
+    for(let i = 1; i < 5; i++) {
       let origBalance = await legacyToken.balanceOf(accounts[i]);
       await legacyToken.approve(newToken.address, origBalance, {from: accounts[i]});
       await newToken.migrateToken(origBalance, {from: accounts[i]});
