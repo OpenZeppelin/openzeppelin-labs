@@ -37,10 +37,10 @@ contract MyToken_V1 is MintableToken {
 
   function migrateTokenTo(uint _amount, address _to) public {
     legacyToken.transferFrom(msg.sender, burnAddress, _amount);
-    this.mint(_to, _amount);
+    require(this.mint(_to, _amount));
   }
 
-  // this methods are just for testing purposes
+  // these methods are just for testing purposes
   function safeApprove(address _spender, uint256 _value) public {
     require(super.approve(_spender, _value));
   }
