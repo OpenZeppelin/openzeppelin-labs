@@ -65,6 +65,10 @@ code.
 
 ## First proof of concept
 
+```
+$ npx buidler run scripts/poc-1.js
+```
+
 For this proof of concept we took the bytecode that results from compilation,
 a.k.a. the contract creation code, and deployed it, not in the usual way, but
 such that the entirety of it is on-chain, and not only the contract body. This
