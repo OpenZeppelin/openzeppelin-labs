@@ -1,0 +1,10 @@
+{
+  "name": "initializer_contracts",
+  "private": true,
+  "author": "Francisco Giordano <frangio.1@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "buidler": "^0.1.4",
+    "openzeppelin-solidity": "^1.11.0-rc.1"
+  }
+}
