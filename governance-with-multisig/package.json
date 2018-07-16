@@ -1,0 +1,17 @@
+{
+  "name": "governance-with-multisig",
+  "version": "1.0.0",
+  "description": "Sample zOS-powered project with upgrade privileges managed from a multisig",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Santiago Palladino <spalladino@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "zos": "1.1.0"
+  },
+  "dependencies": {
+    "zos-lib": "1.3.0"
+  }
+}
