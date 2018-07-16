@@ -10,7 +10,7 @@ global.web3 = web3;
 
 async function submitUpgrade(networkName, contractName, multisigAddress) {
   if (!contractName) {
-    throw Error("Contract name of the proxy to change ownership is required");
+    throw Error("Contract name of the proxy to change ownership of is required");
   }
   
   const networkInfo = JSON.parse(fs.readFileSync(`zos.${networkName}.json`));

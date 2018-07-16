@@ -1,2 +1,2 @@
 mkdir -p ganache
-ganache-cli -l 6000000 -e 1000 -i 8888 --db ganache -p 9545 -d
+ganache-cli --gasLimit 6000000 --defaultBalanceEther 1000 --networkId 8888 --db ganache --port 9545 --deterministic
