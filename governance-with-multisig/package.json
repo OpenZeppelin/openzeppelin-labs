@@ -9,9 +9,9 @@
   "author": "Santiago Palladino <spalladino@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "zos": "file:../../cli"
+    "zos": "1.1.0"
   },
   "dependencies": {
-    "zos-lib": "file:../../lib"
+    "zos-lib": "1.3.0"
   }
 }
