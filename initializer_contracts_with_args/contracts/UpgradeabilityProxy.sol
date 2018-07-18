@@ -27,12 +27,40 @@ contract UpgradeabilityProxy is Proxy {
    * @dev Contract constructor.
    * @param _implementation Address of the initial implementation.
    */
-  constructor(address _constructor, address _implementation) public {
+  constructor(address _constructor, address _implementation, bytes _args) public {
     assert(IMPLEMENTATION_SLOT == keccak256("org.zeppelinos.proxy.implementation"));
 
-    require(_constructor.delegatecall());
+    _runConstructor(_constructor, _args);
 
     _setImplementation(_implementation);
+  }
+
+  function _runConstructor(address _constructor, bytes _args) private {
+    address _constructorWithArgs;
+
+    uint256 args_size = _args.length;
+
+    assembly {
+      let args := add(_args, 0x20)
+
+      let ctor_size := extcodesize(_constructor)
+      let size := add(ctor_size, args_size)
+
+      let ctor := mload(0x40)
+      mstore(0x40, add(ctor, size))
+
+      extcodecopy(_constructor, ctor, 0, ctor_size)
+
+      let ctor_args := add(ctor, ctor_size)
+
+      for { let i := 0 } lt(i, args_size) { i := add(i, 0x20) } {
+        mstore(add(ctor_args, i), mload(add(args, i)))
+      }
+
+      _constructorWithArgs := create(0, ctor, size)
+    }
+
+    require(_constructorWithArgs.delegatecall());
   }
 
   /**

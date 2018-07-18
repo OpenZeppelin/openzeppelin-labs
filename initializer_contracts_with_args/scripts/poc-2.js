@@ -43,7 +43,15 @@ async function deploy(bytecode) {
 // codecopy  | 0x39       | 0xIS
 // push1 00  | 0x60 0x00  | 0xIS 0x00
 // return    | 0xf3
-const ASM_RETURN_REST = '0x600d80380380916000396000f3';
+const ASM_RETURN_REST = '600d80380380916000396000f3';
+
+function prepareConstructor(bytecode) {
+  return bytecode.replace('0x', `0x${ASM_RETURN_REST}${ASM_RETURN_REST}`);
+}
+
+function getArgs(contract, args) {
+  return web3.eth.contract(contract.abi).new.getData(...args, { data: '0x' });
+}
 
 async function main() {
   await run('compile');
@@ -52,10 +60,12 @@ async function main() {
   const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 
   const implementation = await deploy(Greeter.bytecode);
-  const constructor = await deploy(Greeter.bytecode.replace('0x', ASM_RETURN_REST));
+  const constructor = await deploy(prepareConstructor(Greeter.bytecode));
+
+  const args = getArgs(Greeter, ["Hello world!"]);
 
   const admin = (await pweb3.eth.getAccounts())[1];
-  const proxy = await AdminUpgradeabilityProxy.new(constructor, implementation, { from: admin });
+  const proxy = await AdminUpgradeabilityProxy.new(constructor, implementation, args, { from: admin });
 
   const greeter = new Greeter(proxy.address);
 

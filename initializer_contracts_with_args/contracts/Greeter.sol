@@ -5,8 +5,8 @@ contract Greeter {
   string public greeting;
   uint256 public created;
 
-  constructor() public {
-    greeting = "Hello world!";
+  constructor(string _greeting) public {
+    greeting = _greeting;
     created = block.number;
   }
 
