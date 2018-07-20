@@ -3,12 +3,13 @@ pragma solidity ^0.4.18;
 import './IRegistry.sol';
 import './Upgradeable.sol';
 import './UpgradeabilityProxy.sol';
+import './ownership/Ownable.sol';
 
 /**
  * @title Registry
  * @dev This contract works as a registry of versions, it holds the implementations for the registered versions.
  */
-contract Registry is IRegistry {
+contract Registry is IRegistry, Ownable {
   // Mapping of versions to implementations of different functions
   mapping (string => address) internal versions;
 
@@ -42,5 +43,14 @@ contract Registry is IRegistry {
     Upgradeable(proxy).initialize.value(msg.value)(msg.sender);
     ProxyCreated(proxy);
     return proxy;
+  }
+
+  /**
+ * @dev Creates an upgradeable proxy
+ * @param proxy value returned from createProxy
+ * @param newowner proxy contract's new owner
+ */
+  function transferProxyOwnership(address proxy, address newowner) onlyOwner public payable {
+    Ownable(proxy).transferOwnership(newowner);
   }
 }

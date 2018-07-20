@@ -22,7 +22,7 @@ contract UpgradeabilityProxy is Proxy, UpgradeabilityStorage {
   * @dev Upgrades the implementation to the requested version
   * @param _version representing the version name of the new implementation to be set
   */
-  function upgradeTo(string _version) public {
+  function upgradeTo(string _version) public onlyOwner {
     _implementation = registry.getVersion(_version);
   }
 
