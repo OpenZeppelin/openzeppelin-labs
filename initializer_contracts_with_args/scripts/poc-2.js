@@ -17,7 +17,7 @@ async function getTransactionReceipt(txid) {
 async function deploy(bytecode) {
   const tx = await pweb3.eth.sendTransaction({
     from: (await pweb3.eth.getAccounts())[0],
-    to: 0,
+    to: null,
     value: 0,
     data: bytecode,
     gas: (await pweb3.eth.getBlock('latest')).gasLimit,
