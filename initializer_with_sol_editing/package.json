@@ -1,0 +1,23 @@
+{
+  "name": "initializer_with_sol_editing",
+  "version": "0.0.1",
+  "description": "Experiments on initializers by editing Solidity source code",
+  "main": "index.js",
+  "scripts": {
+    "compile": "truffle compile",
+    "ganache": "ganache-cli -l 6000000",
+    "test": "truffle test"
+  },
+  "author": "spalladino@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "ganache-cli": "^6.1.6",
+    "mocha": "^5.2.0",
+    "truffle": "^4.1.13"
+  },
+  "dependencies": {
+    "lodash": "^4.17.10",
+    "openzeppelin-solidity": "^1.11.0"
+  }
+}
