@@ -23,7 +23,6 @@ deployed code.
 
 The simplest approach, and one that doesn't involve modifying code, is to redeploy the initializer
 contract every time it needs to be used, concatenated with the arguments specific to the instance
-that is being created. Before the reader finishes rolling their eyes in disbelief, let us say that
-this is cheaper than deploying the entire contract.
+that is being created.
 
 This is implemented in [`scripts/poc-2.js`](/scripts/poc-2.js).
