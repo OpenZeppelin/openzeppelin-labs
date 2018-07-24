@@ -27,10 +27,10 @@ contract UpgradeabilityProxy is Proxy {
    * @dev Contract constructor.
    * @param _implementation Address of the initial implementation.
    */
-  constructor(address _constructor, address _implementation) public {
+  constructor(address _constructor, address _implementation, bytes _args) public {
     assert(IMPLEMENTATION_SLOT == keccak256("org.zeppelinos.proxy.implementation"));
 
-    require(_constructor.delegatecall());
+    require(_constructor.delegatecall(_args));
 
     _setImplementation(_implementation);
   }
