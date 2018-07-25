@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "truffle compile",
     "ganache": "ganache-cli -l 6000000",
-    "test": "truffle test"
+    "test": "truffle test",
+    "transform": "node ./index.js"
   },
   "author": "spalladino@gmail.com",
   "license": "MIT",

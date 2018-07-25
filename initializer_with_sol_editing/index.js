@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { execSync } = require('child_process');
 const _ = require('lodash');
+const process = require('process');
 
 function getSrcIndices(node) {
   return node.src.split(':').map(_.unary(parseInt)).slice(0, 2);
@@ -52,8 +53,8 @@ function compile() {
 }
 
 function main(contractName) {
+  console.log("Processing", contractName);
   generateZosContractsFor(contractName);
-  compile();
 }
 
-main('MyContract');
+main(process.argv[2]);

@@ -1,40 +1,50 @@
-const MyContract_original = artifacts.require('MyContract');
-const MyContract_initializer = artifacts.require('MyContract_initializer');
-const MyContract_implementation = artifacts.require('MyContract_implementation');
 const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 
 require('chai').should();
 
 const log = function (text) {
-  //console.log(text);
+  console.log('        ' + text);
 };
 
-contract('MyContract', function ([owner, user]) {
+function getGas(contract) {
+  return web3.eth.getTransactionReceipt(contract.transactionHash).gasUsed;
+}
 
-  describe('without zOS', function () {
-    it('should initialize the contract', async function () {
-      log('Deploying original contract...')
-      const instance = await MyContract_original.new(42);
-      log('Calling value() at instance...')
-      const actualValue = await instance.value();
-      actualValue.toNumber().should.eq(42);
+contract('Contracts', function ([owner, user]) {
+  const shouldDeploy = function(contractName) {
+    describe(contractName, function () {
+      beforeEach(function () {
+        this.Original = artifacts.require(contractName);
+        this.Initializer = artifacts.require(contractName + '_initializer');
+        this.Implementation = artifacts.require(contractName + '_implementation');
+      })
+
+      describe('without zOS', function () {
+        it('should initialize the contract', async function () {
+          log('Deploying original contract...')
+          const instance = await this.Original.new(100, 'FooToken', 'FOO', 8);
+          log('  Gas used: ' + getGas(instance))
+        });
+      });
+  
+      describe('via zOS', function () {
+        it('should initialize the contract', async function () {
+          log('Deploying initializer version...')
+          const initializer = await this.Initializer.new();
+          log('  Gas used: ' + getGas(initializer));
+          log('Deploying implementation...')
+          const implementation = await this.Implementation.new();
+          log('  Gas used: ' + getGas(implementation));
+          const initData = initializer.initializer.request(100, 'FooToken', 'FOO', 8).params[0].data;
+          log('Deploying proxy...')
+          const proxy = await AdminUpgradeabilityProxy.new(initializer.address, implementation.address, initData);
+          log('  Gas used: ' + getGas(proxy));
+          const instance = this.Original.at(proxy.address);
+        });
+      });
     });
-  });
+  };
 
-  describe('via zOS', function () {
-    it('should initialize the contract', async function () {
-      log('Deploying initializer version...')
-      const initializer = await MyContract_initializer.new();
-      log('Deploying implementation...')
-      const implementation = await MyContract_implementation.new();
-      const initData = initializer.initializer.request(42).params[0].data;
-      log('Deploying proxy...')
-      const proxy = await AdminUpgradeabilityProxy.new(initializer.address, implementation.address, initData);
-      const instance = MyContract_original.at(proxy.address);
-      log('Calling value() at instance...')
-      const actualValue = await instance.value({ from: user });
-      actualValue.toNumber().should.eq(42);
-    });
-  });
-
+  shouldDeploy('MyToken');
+  shouldDeploy('MyNFT');
 });
