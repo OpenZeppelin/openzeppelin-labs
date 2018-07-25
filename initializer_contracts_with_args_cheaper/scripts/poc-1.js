@@ -24,7 +24,7 @@ async function deploy(bytecode) {
   });
 
   const receipt = await getTransactionReceipt(tx);
-
+  console.log("Deploy cost", receipt.gasUsed);
   return {
     address: receipt.contractAddress,
     tx: receipt.transactionHash,
@@ -77,7 +77,13 @@ function prepareBytecode(bytecode) {
     //  <61 00 00>               push2 0000
     //   83                      dup4
     //  <37>                     calldatacopy
-    .replace('6040516102e73803806102e78339', '6040516100003603806100008337');
+    
+    // Handle different contract sizes
+    .replace(/60405161([0-9a-fA-F]{4})38038061(\1)8339/, '6040516100003603806100008337')
+    .replace(/60405162([0-9a-fA-F]{6})38038062(\1)8339/, '60405162000000360380620000008337')
+
+    // Optimize by removing everything after the ctor, including the codecopy that loads the runtime code into memory
+    .replace(/6000396000f300.+/, '00')
 }
 
 async function gasUsedByTx(txHash) {
@@ -87,28 +93,25 @@ async function gasUsedByTx(txHash) {
 async function main() {
   await run('compile');
 
-  const Greeter = artifacts.require('Greeter');
+  const Contract = artifacts.require('MyToken');
   const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 
   const bytecode = {
-    implementation: Greeter.bytecode,
-    constructor: prepareBytecode(Greeter.bytecode),
+    implementation: Contract.bytecode,
+    constructor: prepareBytecode(Contract.bytecode),
   }
 
   const implementation = await deploy(bytecode.implementation);
   const constructor = await deploy(bytecode.constructor);
-  console.log(`Gas used by constructor: ${await gasUsedByTx(constructor.tx)}`);
 
-  const args = getArgs(Greeter, ["Hello world!"]);
+  const args = getArgs(Contract, [100, "FooToken", "FOO", 8]);
 
   const admin = (await pweb3.eth.getAccounts())[1];
   const proxy = await AdminUpgradeabilityProxy.new(constructor.address, implementation.address, args, { from: admin });
   console.log(`Gas used by proxy: ${await gasUsedByTx(proxy.transactionHash)}`);
 
-  const greeter = new Greeter(proxy.address);
-
-  console.log(`Greeting: ${ await greeter.greeting() }`);
-  console.log(`Block Nr: ${ (await greeter.created()).toString() }`);
+  const token = new Contract(proxy.address);
+  console.log(`Name: ${ await token.name() }`);
 }
 
 main().catch(console.error);

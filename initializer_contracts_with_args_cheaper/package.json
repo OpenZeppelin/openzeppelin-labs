@@ -5,6 +5,6 @@
   "license": "MIT",
   "dependencies": {
     "buidler": "^0.1.4",
-    "openzeppelin-solidity": "^1.11.0-rc.1"
+    "openzeppelin-solidity": "^1.11.0"
   }
 }
