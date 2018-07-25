@@ -25,7 +25,10 @@ async function deploy(bytecode) {
 
   const receipt = await getTransactionReceipt(tx);
 
-  return receipt.contractAddress;
+  return {
+    address: receipt.contractAddress,
+    tx: receipt.transactionHash,
+  };
 }
 
 // This is EVM assembly that, when used at the beginning of a contract, will
@@ -77,6 +80,10 @@ function prepareBytecode(bytecode) {
     .replace('6040516102e73803806102e78339', '6040516100003603806100008337');
 }
 
+async function gasUsedByTx(txHash) {
+  return (await pweb3.eth.getTransactionReceipt(txHash)).gasUsed;
+}
+
 async function main() {
   await run('compile');
 
@@ -90,11 +97,13 @@ async function main() {
 
   const implementation = await deploy(bytecode.implementation);
   const constructor = await deploy(bytecode.constructor);
+  console.log(`Gas used by constructor: ${await gasUsedByTx(constructor.tx)}`);
 
   const args = getArgs(Greeter, ["Hello world!"]);
 
   const admin = (await pweb3.eth.getAccounts())[1];
-  const proxy = await AdminUpgradeabilityProxy.new(constructor, implementation, args, { from: admin });
+  const proxy = await AdminUpgradeabilityProxy.new(constructor.address, implementation.address, args, { from: admin });
+  console.log(`Gas used by proxy: ${await gasUsedByTx(proxy.transactionHash)}`);
 
   const greeter = new Greeter(proxy.address);
 
