@@ -12,13 +12,13 @@ You'll find two test contracts in this project: `EthBox` and `EthBoxV2`. The fir
 
 This guide will take you through the following steps:
 
-1- Set up a new ZeppelinOS project
-2- Register a contract and deploy it to a network
-3- Create a new upgradeable instance of your contract
-4- Create a multisig wallet and transfer upgradeability rights of the new contract instance to it
-5- Register a new version of your logic contract and deploy it
-6- Submit a request to the multisig wallet to upgrade the contract instance
-7- Confirm the request and check the contract was upgraded
+1. Set up a new ZeppelinOS project
+2. Register a contract and deploy it to a network
+3. Create a new upgradeable instance of your contract
+4. Create a multisig wallet and transfer upgradeability rights of the new contract instance to it
+5. Register a new version of your logic contract and deploy it
+6. Submit a request to the multisig wallet to upgrade the contract instance
+7. Confirm the request and check the contract was upgraded
 
 ## Step by step
 
