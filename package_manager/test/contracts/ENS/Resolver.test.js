@@ -27,6 +27,7 @@ contract('Resolver', ([_, resolverCreator, registryOwner, anotherAddress]) => {
       ERC165_ID: '0x01ffc9a7',
       ERC137_ID: '0x3b3b57de',
       ERC181_ID: '0x691f3431',
+      CONTENT_ID: '0xd8389dc5',
     }
 
     Object.keys(interfaces).forEach(id => {
@@ -93,7 +94,7 @@ contract('Resolver', ([_, resolverCreator, registryOwner, anotherAddress]) => {
       describe('when the sender is the owner of the requested node', function () {
         const from = registryOwner
 
-        it('sets a name for the requested node', async function () {
+        it('sets an address for the requested node', async function () {
           await this.resolver.setAddr(node, addr, { from })
 
           assert.equal(await this.resolver.addr(node), addr)
@@ -114,6 +115,47 @@ contract('Resolver', ([_, resolverCreator, registryOwner, anotherAddress]) => {
 
         it('reverts', async function () {
           await assertRevert(this.resolver.setAddr(node, addr, { from }))
+        })
+      })
+    })
+  })
+
+  describe('content', function () {
+    const node = ROOT_NODE
+
+    describe('when the content for the requested node was not set yet', function () {
+      it('returns zero', async function () {
+        assert.equal(await this.resolver.content(node), 0)
+      })
+    })
+
+    describe('while setting an address for the requested node', function () {
+      const content = '0x' + soliditySHA3(['bytes32'], ['my content']).toString('hex')
+
+      describe('when the sender is the owner of the requested node', function () {
+        const from = registryOwner
+
+        it('sets a content hash for the requested node', async function () {
+          await this.resolver.setContent(node, content, { from })
+
+          assert.equal(await this.resolver.content(node), content)
+        })
+
+        it('emits an event', async function () {
+          const { logs } = await this.resolver.setContent(node, content, { from })
+
+          assert.equal(logs.length, 1)
+          assert.equal(logs[0].event, 'ContentChanged')
+          assert.equal(logs[0].args.node, node)
+          assert.equal(logs[0].args.hash, content)
+        })
+      })
+
+      describe('when the sender is not the owner of the requested node', function () {
+        const from = anotherAddress
+
+        it('reverts', async function () {
+          await assertRevert(this.resolver.setContent(node, content, { from }))
         })
       })
     })

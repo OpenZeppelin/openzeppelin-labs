@@ -3,20 +3,27 @@ pragma solidity ^0.4.24;
 import './ERC137/ERC137Registry.sol';
 import './ERC137/ERC137Resolver.sol';
 import './ERC181/ERC181Resolver.sol';
+import './unstandardized_resolvers/ContentResolver.sol';
 
 /**
  * @title Resolver
  * @dev This contract provides an implementation of the ENS Resolver standard ERC137 & ERC181
  * This implementation was derived from Aragon's ENS resolver implementation, but only considering ERC137 and ERC181
  * see https://github.com/aragon/aragonOS/blob/dev/contracts/lib/ens/PublicResolver.sol
+ *
+ * WARN: There are some other resolver flavors this implementation is not convering. Some of the most known
+ * are ABI (EIP634), public key (unstandardize) and text (unstandardize) resolvers. Those may be part of our interest
+ * in a short future, even more if we are willing to provide an standard solution. In the meantime, these resolvers are
+ * not a MUST right now for ZeppelinOS, but maybe nice to haves.
  */
-contract Resolver is ERC137Resolver, ERC181Resolver {
+contract Resolver is ERC137Resolver, ERC181Resolver, ContentResolver {
 
   /*
-   * @dev ENS resolver record compound of an address and a name.
+   * @dev ENS resolver record.
    */
   struct Record {
     address addr;
+    bytes32 content;
     string name;
   }
 
@@ -53,7 +60,8 @@ contract Resolver is ERC137Resolver, ERC181Resolver {
   function supportsInterface(bytes4 _interfaceID) public pure returns (bool) {
     return _interfaceID == ERC165.INTERFACE_ID ||
     _interfaceID == ERC137Resolver.INTERFACE_ID ||
-    _interfaceID == ERC181Resolver.INTERFACE_ID;
+    _interfaceID == ERC181Resolver.INTERFACE_ID ||
+    _interfaceID == ContentResolver.INTERFACE_ID;
   }
 
   /**
@@ -66,12 +74,21 @@ contract Resolver is ERC137Resolver, ERC181Resolver {
   }
 
   /**
-   * @dev Returns the name associated with an ENS node, for reverse records.
+   * @dev Returns the name associated with an ENS node.
    * @param _node The ENS node to query.
    * @return The associated name.
    */
   function name(bytes32 _node) public view returns (string) {
     return records[_node].name;
+  }
+
+  /**
+   * @dev Returns the content hash associated with an ENS node.
+   * @param _node The ENS node to query.
+   * @return The associated content hash.
+   */
+  function content(bytes32 _node) public view returns (bytes32) {
+    return records[_node].content;
   }
 
   /**
@@ -94,6 +111,17 @@ contract Resolver is ERC137Resolver, ERC181Resolver {
   function setName(bytes32 _node, string _name) public onlyOwner(_node) {
     records[_node].name = _name;
     emit NameChanged(_node, _name);
+  }
+
+  /**
+   * @dev Sets the content hash associated with an ENS node.
+   * May only be called by the owner of that node in the ENS registry.
+   * @param _node The node to update.
+   * @param _hash The content hash to set
+   */
+  function setContent(bytes32 _node, bytes32 _hash) public onlyOwner(_node) {
+    records[_node].content = _hash;
+    emit ContentChanged(_node, _hash);
   }
 
   /**
