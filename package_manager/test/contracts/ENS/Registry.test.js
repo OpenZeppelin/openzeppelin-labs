@@ -1,4 +1,4 @@
-import { soliditySHA3 } from 'ethereumjs-abi'
+import ENSNodeID from '../../helpers/ENSNodeID'
 import assertRevert from '../../helpers/assertRevert'
 
 const Registry = artifacts.require('Registry')
@@ -62,7 +62,7 @@ contract('Registry', ([_, owner, anotherAddress, resolverAddress]) => {
 
   describe('creating subnodes', function () {
     const SUBNODE_LABEL = web3.sha3('SUBNODE')
-    const SUBNODE = '0x' + soliditySHA3(['bytes32', 'bytes32'], [ROOT_NODE, SUBNODE_LABEL]).toString('hex')
+    const SUBNODE = ENSNodeID(ROOT_NODE, SUBNODE_LABEL)
 
     describe('when the subnode was not registered yet', function () {
       it('has no owner', async function () {

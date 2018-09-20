@@ -10,6 +10,7 @@ import './ERC137/ERC137Registry.sol';
  * see https://github.com/aragon/aragonOS/blob/dev/contracts/lib/ens/ENS.sol
  */
 contract Registry is ERC137Registry {
+  bytes32 constant public ENS_ROOT = bytes32(0);
 
   /**
    * @dev ENS registry record compound of an owner, a resolver and a TTL.
@@ -37,8 +38,7 @@ contract Registry is ERC137Registry {
    * @dev Constructs a new ENS registry.
    */
   constructor() public {
-    bytes32 rootID = bytes32(0);
-    Record storage root = records[rootID];
+    Record storage root = records[ENS_ROOT];
     root.owner = msg.sender;
   }
 

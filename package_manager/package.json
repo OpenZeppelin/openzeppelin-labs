@@ -42,5 +42,9 @@
     "ethereumjs-abi": "^0.6.5",
     "truffle": "^4.1.13",
     "web3": "^0.18.4"
+  },
+  "dependencies": {
+    "eth-ens-namehash": "^2.0.8",
+    "openzeppelin-solidity": "^1.12.0"
   }
 }
