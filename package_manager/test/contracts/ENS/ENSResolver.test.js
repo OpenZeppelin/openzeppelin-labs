@@ -2,16 +2,16 @@ import { soliditySHA3 } from 'ethereumjs-abi'
 import assertThrow from '../../helpers/assertThrow'
 import assertRevert from '../../helpers/assertRevert'
 
-const Registry = artifacts.require('Registry')
-const Resolver = artifacts.require('Resolver')
+const ENSRegistry = artifacts.require('ENSRegistry')
+const ENSResolver = artifacts.require('ENSResolver')
 
-contract('Resolver', ([_, resolverCreator, registryOwner, anotherAddress]) => {
+contract('ENSResolver', ([_, resolverCreator, registryOwner, anotherAddress]) => {
   const ROOT_NODE = 0
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
   beforeEach('deploy a new registry and resolver instances', async function () {
-    this.registry = await Registry.new({ from: registryOwner })
-    this.resolver = await Resolver.new(this.registry.address, { from: resolverCreator })
+    this.registry = await ENSRegistry.new({ from: registryOwner })
+    this.resolver = await ENSResolver.new(this.registry.address, { from: resolverCreator })
   })
 
   it('sets the given registry as the ENS registry of the resolver', async function () {

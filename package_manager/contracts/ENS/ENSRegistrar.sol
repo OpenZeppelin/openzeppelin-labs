@@ -1,12 +1,12 @@
 pragma solidity ^0.4.24;
 
-import './Resolver.sol';
+import './ENSResolver.sol';
 import './ERC137/ERC137Resolver.sol';
 import './ERC137/ERC137Registry.sol';
 import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
 /**
- * @title Registrar
+ * @title ENSRegistrar
  * @dev Registrars are responsible for allocating domain names to users of the system, and are the only entities
  * capable of updating the ENS; the owner of a node in the ENS registry is its registrar. Registrars may be contracts
  * or externally owned accounts, though it is expected that the root and top-level registrars, at a minimum, will be
@@ -15,7 +15,7 @@ import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
  * This implementation was derived from Aragon's ENS registrar implementation
  * see https://github.com/aragon/aragonOS/blob/dev/contracts/ens/ENSSubdomainRegistrar.sol
  */
-contract Registrar is Ownable {
+contract ENSRegistrar is Ownable {
   bytes32 constant public ENS_ROOT = bytes32(0);
   bytes32 constant public ETH_TLD_LABEL = keccak256("eth");
   bytes32 constant public ETH_TLD_NODE = keccak256(abi.encodePacked(ENS_ROOT, ETH_TLD_LABEL));
@@ -68,8 +68,8 @@ contract Registrar is Ownable {
     emit Unregistered(node, _label);
   }
 
-  function resolver() internal view returns (Resolver) {
-    return Resolver(getAddr(PUBLIC_RESOLVER_NODE));
+  function resolver() internal view returns (ENSResolver) {
+    return ENSResolver(getAddr(PUBLIC_RESOLVER_NODE));
   }
 
   function getAddr(bytes32 node) internal view returns (address) {

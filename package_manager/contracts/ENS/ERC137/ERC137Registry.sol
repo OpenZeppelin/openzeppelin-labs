@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 
 /**
- * @title Registry
+ * @title ERC137Registry
  * @dev The registry is a single contract that provides a mapping from any registered name to the resolver responsible
  * for it, and permits the owner of a name to set the resolver address, and to create subdomains, potentially with
  * different owners to the parent domain.

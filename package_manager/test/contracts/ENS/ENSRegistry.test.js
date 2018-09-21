@@ -1,14 +1,14 @@
 import ENSNodeID from '../../helpers/ENSNodeID'
 import assertRevert from '../../helpers/assertRevert'
 
-const Registry = artifacts.require('Registry')
+const ENSRegistry = artifacts.require('ENSRegistry')
 
-contract('Registry', ([_, owner, anotherAddress, resolverAddress]) => {
+contract('ENSRegistry', ([_, owner, anotherAddress, resolverAddress]) => {
   const ROOT_NODE = 0
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
   beforeEach('deploy a new registry instance', async function () {
-    this.registry = await Registry.new({ from: owner })
+    this.registry = await ENSRegistry.new({ from: owner })
   })
 
   it('sets the sender as the owner of the root node', async function () {

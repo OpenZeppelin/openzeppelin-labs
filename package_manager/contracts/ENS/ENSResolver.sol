@@ -6,7 +6,7 @@ import './ERC181/ERC181Resolver.sol';
 import './unstandardized_resolvers/ContentResolver.sol';
 
 /**
- * @title Resolver
+ * @title ENSResolver
  * @dev This contract provides an implementation of the ENS Resolver standard ERC137 & ERC181
  * This implementation was derived from Aragon's ENS resolver implementation, but only considering ERC137 and ERC181
  * see https://github.com/aragon/aragonOS/blob/dev/contracts/lib/ens/PublicResolver.sol
@@ -16,7 +16,7 @@ import './unstandardized_resolvers/ContentResolver.sol';
  * in a short future, even more if we are willing to provide an standard solution. In the meantime, these resolvers are
  * not a MUST right now for ZeppelinOS, but maybe nice to haves.
  */
-contract Resolver is ERC137Resolver, ERC181Resolver, ContentResolver {
+contract ENSResolver is ERC137Resolver, ERC181Resolver, ContentResolver {
 
   /*
    * @dev ENS resolver record.

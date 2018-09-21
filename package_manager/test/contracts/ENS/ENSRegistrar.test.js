@@ -1,11 +1,11 @@
 import { hash as namehash } from 'eth-ens-namehash'
 import assertRevert from '../../helpers/assertRevert'
 
-const Registry = artifacts.require('Registry')
-const Resolver = artifacts.require('Resolver')
-const Registrar = artifacts.require('Registrar')
+const ENSRegistry = artifacts.require('ENSRegistry')
+const ENSResolver = artifacts.require('ENSResolver')
+const ENSRegistrar = artifacts.require('ENSRegistrar')
 
-contract('Registrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resolverNodeOwner, zeppelinNodeOwner, openZeppelinNodeOwner, anotherAddress]) => {
+contract('ENSRegistrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resolverNodeOwner, zeppelinNodeOwner, openZeppelinNodeOwner, anotherAddress]) => {
   const ROOT_NODE = 0
   const TLD_NODE = namehash('eth')
   const TLD_LABEL = web3.sha3('eth')
@@ -18,8 +18,8 @@ contract('Registrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resolver
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
   beforeEach('deploy a new registry and resolver instances', async function () {
-    this.registry = await Registry.new({ from: registryOwner })
-    this.resolver = await Resolver.new(this.registry.address)
+    this.registry = await ENSRegistry.new({ from: registryOwner })
+    this.resolver = await ENSResolver.new(this.registry.address)
   })
 
   beforeEach('register TLD and resolver nodes', async function () {
@@ -30,7 +30,7 @@ contract('Registrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resolver
   })
 
   beforeEach('deploy Zeppelin registrar and register Zeppelin nodes', async function () {
-    this.registrar = await Registrar.new(this.registry.address, ZEPPELIN_NODE, { from: registrarOwner })
+    this.registrar = await ENSRegistrar.new(this.registry.address, ZEPPELIN_NODE, { from: registrarOwner })
     await this.registry.setSubnodeOwner(TLD_NODE, ZEPPELIN_LABEL, zeppelinNodeOwner, { from: TLDNodeOwner })
     await this.registry.setOwner(ZEPPELIN_NODE, this.registrar.address, { from: zeppelinNodeOwner })
   })
@@ -41,7 +41,7 @@ contract('Registrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resolver
   })
 
   xit('fails if initializing without rootnode ownership', async () => {
-    return assertRevert(Registrar.new(this.registry.address, TLD_NODE, { from: registrarOwner }))
+    return assertRevert(ENSRegistrar.new(this.registry.address, TLD_NODE, { from: registrarOwner }))
   })
 
   describe('register', function () {

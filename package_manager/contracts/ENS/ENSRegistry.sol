@@ -4,12 +4,12 @@ pragma solidity ^0.4.24;
 import './ERC137/ERC137Registry.sol';
 
 /**
- * @title Registry
+ * @title ENSRegistry
  * @dev This contract provides an implementation of the ENS Registry standard EIP-137
  * This implementation was derived from Aragon's ENS registry implementation
  * see https://github.com/aragon/aragonOS/blob/dev/contracts/lib/ens/ENS.sol
  */
-contract Registry is ERC137Registry {
+contract ENSRegistry is ERC137Registry {
   bytes32 constant public ENS_ROOT = bytes32(0);
 
   /**
