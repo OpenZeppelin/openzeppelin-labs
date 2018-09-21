@@ -1,11 +1,12 @@
 import { hash as namehash } from 'eth-ens-namehash'
-import assertRevert from '../../helpers/assertRevert'
+import encodeCall from '../../../helpers/encodeCall'
+import assertRevert from '../../../helpers/assertRevert'
 
 const ENSRegistry = artifacts.require('ENSRegistry')
 const ENSResolver = artifacts.require('ENSResolver')
-const ENSRegistrar = artifacts.require('ENSRegistrar')
+const ZeppelinRegistrar = artifacts.require('ZeppelinRegistrar')
 
-contract('ENSRegistrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resolverNodeOwner, zeppelinNodeOwner, openZeppelinNodeOwner, anotherAddress]) => {
+contract('ZeppelinRegistrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resolverNodeOwner, zeppelinNodeOwner, openZeppelinNodeOwner, anotherAddress]) => {
   const ROOT_NODE = 0
   const TLD_NODE = namehash('eth')
   const TLD_LABEL = web3.sha3('eth')
@@ -30,18 +31,25 @@ contract('ENSRegistrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resol
   })
 
   beforeEach('deploy Zeppelin registrar and register Zeppelin nodes', async function () {
-    this.registrar = await ENSRegistrar.new(this.registry.address, ZEPPELIN_NODE, { from: registrarOwner })
+    this.registrar = await ZeppelinRegistrar.new()
     await this.registry.setSubnodeOwner(TLD_NODE, ZEPPELIN_LABEL, zeppelinNodeOwner, { from: TLDNodeOwner })
     await this.registry.setOwner(ZEPPELIN_NODE, this.registrar.address, { from: zeppelinNodeOwner })
+
+    // we need a low level call cause Truffle cannot handle multiple functions with the same name
+    const data = encodeCall('initialize', ['address', 'bytes32'], [this.registry.address, ZEPPELIN_NODE])
+    await this.registrar.sendTransaction({ data, from: registrarOwner })
   })
 
-  it('has a root node and an ENS registry', async function () {
+  it('has a root node, an ENS registry and an owner', async function () {
+    assert.equal(await this.registrar.owner(), registrarOwner)
     assert.equal(await this.registrar.rootNode(), ZEPPELIN_NODE)
     assert.equal(await this.registrar.registry(), this.registry.address)
   })
 
-  xit('fails if initializing without rootnode ownership', async () => {
-    return assertRevert(ENSRegistrar.new(this.registry.address, TLD_NODE, { from: registrarOwner }))
+  it('fails if initializing without rootnode ownership', async function () {
+    const registrar = await ZeppelinRegistrar.new()
+    const data = encodeCall('initialize', ['address', 'bytes32'], [this.registry.address, TLD_NODE])
+    await assertRevert(registrar.sendTransaction({ data, from: registrarOwner }))
   })
 
   describe('register', function () {
@@ -49,15 +57,15 @@ contract('ENSRegistrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resol
       const from = registrarOwner
 
       it('registers a new name', async function () {
-        await this.registrar.register(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from })
+        await this.registrar.createName(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from })
 
         const owner = await this.registry.owner(OPENZEPPELIN_NODE)
         assert.equal(owner, openZeppelinNodeOwner)
       })
 
       it('fails if registering the same name twice', async function () {
-        await this.registrar.register(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from })
-        await assertRevert(this.registrar.register(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from }))
+        await this.registrar.createName(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from })
+        await assertRevert(this.registrar.createName(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from }))
       })
     })
 
@@ -65,29 +73,29 @@ contract('ENSRegistrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resol
       const from = anotherAddress
 
       it('reverts', async function () {
-        await assertRevert(this.registrar.register(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from }))
+        await assertRevert(this.registrar.createName(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from }))
       })
     })
   })
 
   describe('unregister', function () {
     beforeEach('register openzeppelin name', async function () {
-      await this.registrar.register(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from: registrarOwner })
+      await this.registrar.createName(OPENZEPPELIN_LABEL, openZeppelinNodeOwner, { from: registrarOwner })
     })
 
     describe('when the sender is the owner of the registrar', function () {
       const from = registrarOwner
 
       it('can delete names', async function () {
-        await this.registrar.unregister(OPENZEPPELIN_LABEL, { from })
+        await this.registrar.deleteName(OPENZEPPELIN_LABEL, { from })
 
         const owner = await this.registry.owner(OPENZEPPELIN_NODE)
         assert.equal(owner, ZERO_ADDRESS)
       })
 
       it('fails when deleting a name that does not exist', async function () {
-        await this.registrar.unregister(OPENZEPPELIN_LABEL, { from })
-        await assertRevert(this.registrar.unregister(OPENZEPPELIN_LABEL, { from }))
+        await this.registrar.deleteName(OPENZEPPELIN_LABEL, { from })
+        await assertRevert(this.registrar.deleteName(OPENZEPPELIN_LABEL, { from }))
       })
     })
 
@@ -95,7 +103,7 @@ contract('ENSRegistrar', ([_, registryOwner, registrarOwner, TLDNodeOwner, resol
       const from = anotherAddress
 
       it('reverts', async function () {
-        await assertRevert(this.registrar.unregister(OPENZEPPELIN_LABEL, { from }))
+        await assertRevert(this.registrar.deleteName(OPENZEPPELIN_LABEL, { from }))
       })
     })
   })
