@@ -12,11 +12,11 @@ contract ZeppelinRegistrar is Ownable, Registrar {
   }
 
   function createName(bytes32 _label, address _owner) public onlyOwner returns (bytes32) {
-    super.createName(_label, _owner);
+    return super.createName(_label, _owner);
   }
 
   function createNameAndPoint(bytes32 _label, address _target) public onlyOwner returns (bytes32) {
-    super.createNameAndPoint(_label, _target);
+    return super.createNameAndPoint(_label, _target);
   }
 
   function pointRootNode(address _target) public onlyOwner {

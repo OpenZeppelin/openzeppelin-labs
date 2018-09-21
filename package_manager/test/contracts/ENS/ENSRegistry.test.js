@@ -51,7 +51,7 @@ contract('ENSRegistry', ([_, owner, anotherAddress, resolverAddress]) => {
       })
     })
 
-    describe('when the sender is not the owner of the contract', function () {
+    describe('when the sender is not the owner of the requested node', function () {
       const from = anotherAddress
 
       it('reverts', async function () {

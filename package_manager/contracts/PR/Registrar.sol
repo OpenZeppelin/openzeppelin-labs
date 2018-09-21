@@ -66,17 +66,14 @@ contract Registrar {
   }
 
   function _pointToResolverAndResolve(bytes32 _node, address _target) internal {
-    registry.setResolver(_node, address(resolver()));
-    resolver().setAddr(_node, _target);
-  }
-
-  function resolver() internal view returns (ENSResolver) {
-    return ENSResolver(getAddr(PUBLIC_RESOLVER_NODE));
+    address resolver = getAddr(PUBLIC_RESOLVER_NODE);
+    registry.setResolver(_node, resolver);
+    ENSResolver(resolver).setAddr(_node, _target);
   }
 
   function getAddr(bytes32 node) internal view returns (address) {
-    address nodeResolver = ERC137Resolver(registry.resolver(node));
-    return ERC137Resolver(nodeResolver).addr(node);
+    ERC137Resolver nodeResolver = ERC137Resolver(registry.resolver(node));
+    return nodeResolver.addr(node);
   }
 
   function getNodeID(bytes32 _label) internal view returns (bytes32) {

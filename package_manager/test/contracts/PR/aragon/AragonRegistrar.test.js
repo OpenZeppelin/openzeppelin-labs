@@ -2,12 +2,11 @@ import { hash as namehash } from 'eth-ens-namehash'
 import assertRevert from '../../../helpers/assertRevert'
 
 const keccak256 = require('js-sha3').keccak_256
+
 const AragonRegistrar = artifacts.require('AragonRegistrar')
-// const AragonRegistrar = artifacts.require('ENSSubdomainRegistrar')
 
 const ENS = artifacts.require('ENS')
 const ENSFactory = artifacts.require('ENSFactory')
-const PublicResolver = artifacts.require('PublicResolver')
 const Kernel = artifacts.require('Kernel')
 const ACL = artifacts.require('ACL')
 const APMRegistry = artifacts.require('APMRegistry')
