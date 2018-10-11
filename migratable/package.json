@@ -1,0 +1,13 @@
+{
+  "name": "migratable",
+  "scripts": {
+    "test": "npx truffle test"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-bignumber": "^2.0.2",
+    "truffle": "^4.1.14",
+    "zos-lib": "^1.4.1"
+  }
+}
