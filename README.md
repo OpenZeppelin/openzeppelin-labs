@@ -12,7 +12,5 @@ Chat with the team and community on our [Slack channel](https://slack.openzeppel
 
 ## Structure
 
-This repository holds many strategies, approaches and study cases that we are investigating and developing in favor of ZeppelinOS.
-
-Each experiment should be a project itself so we can make sure their contracts and configurations don't conflict between each other.
+This repository holds many strategies, approaches and study cases that we are investigating and developing in favor of ZeppelinOS. Each experiment should be a project itself so we can make sure their contracts and configurations don't conflict between each other.
  
