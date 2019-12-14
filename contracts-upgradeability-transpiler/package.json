@@ -1,0 +1,18 @@
+{
+  "name": "contracts-upgradeability-transpiler",
+  "version": "0.0.1",
+  "description": "Contracts upgradeability using transpiler",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "oz compile"
+  },
+  "author": "Igor Yalovoy <igor@openzeppelin.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^2.4.0"
+  },
+  "devDependencies": {
+    "@openzeppelin/cli": "^2.6.0"
+  }
+}
