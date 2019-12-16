@@ -10,7 +10,8 @@
   "author": "Igor Yalovoy <igor@openzeppelin.com>",
   "license": "MIT",
   "dependencies": {
-    "@openzeppelin/contracts": "^2.4.0"
+    "@openzeppelin/contracts": "^2.4.0",
+    "lodash.find": "^4.6.0"
   },
   "devDependencies": {
     "@openzeppelin/cli": "^2.6.0"
