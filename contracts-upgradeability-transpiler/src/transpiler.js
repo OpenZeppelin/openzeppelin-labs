@@ -1,24 +1,26 @@
 function transpile(source, transformations) {
-  let cursor = Number.NEGATIVE_INFINITY;
+  let cursor = 0;
 
-  let transpiledCode = transformations
-    .sort((a, b) => {
-      return a.start - b.start;
-    })
-    .reduce((output, trans) => {
-      const { start, end, text } = trans;
+  const sorted = transformations.sort((a, b) => {
+    return a.start - b.start;
+  });
 
-      if (cursor > start) {
-        throw new Error(
-          `Transpile failed due to overlapping transformations at range ${start}:${end}`
-        );
-      }
+  for (let i = 0; i < sorted.length - 1; i++) {
+    if (sorted[i].end > sorted[i + 1].start)
+      throw new Error(
+        `Transformations ${sorted[i]} and ${
+          sorted[i + 1]
+        } overlap over the source file`
+      );
+  }
 
-      output += source.slice(cursor, start);
-      output += text;
-      cursor = end;
-      return output;
-    }, "");
+  let transpiledCode = sorted.reduce((output, trans) => {
+    const { start, end, text } = trans;
+    output += source.slice(cursor, start);
+    output += text;
+    cursor = end;
+    return output;
+  }, "");
 
   transpiledCode += source.slice(cursor);
   return transpiledCode;
