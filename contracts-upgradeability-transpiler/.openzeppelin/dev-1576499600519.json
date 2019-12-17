@@ -1,0 +1,60 @@
+{
+  "contracts": {
+    "SimpleUpgradable": {
+      "address": "0x723ea1b477C182123b08036bE9A3D791a569d256",
+      "constructorCode": "6080604052610234600155348015601557600080fd5b506097806100246000396000f3fe",
+      "bodyBytecodeHash": "8beb6647aee9a7bde80751b8b7286294a0883004c83af17985ecde5702b6ed8d",
+      "localBytecodeHash": "ec754786fdc0e421e77d1b87febdb0f7810ecfd7de4d6f128deb485431907480",
+      "deployedBytecodeHash": "ec754786fdc0e421e77d1b87febdb0f7810ecfd7de4d6f128deb485431907480",
+      "types": {
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        }
+      },
+      "storage": [
+        {
+          "contract": "SimpleUpgradable",
+          "path": "contracts/SimpleUpgradable.sol",
+          "label": "count",
+          "astId": 793,
+          "type": "t_uint256",
+          "src": "55:21:7"
+        },
+        {
+          "contract": "SimpleUpgradable",
+          "path": "contracts/SimpleUpgradable.sol",
+          "label": "local",
+          "astId": 796,
+          "type": "t_uint256",
+          "src": "80:27:7"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": true,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "app/SimpleUpgradable": [
+      {
+        "address": "0xa23702F0B8C67Be6877f7656922089DFD5208b1E",
+        "version": "0.0.1",
+        "implementation": "0x723ea1b477C182123b08036bE9A3D791a569d256",
+        "admin": "0x6eF33478CF828fE09835787ed3e89CcFF1494Ea8",
+        "kind": "Upgradeable"
+      }
+    ]
+  },
+  "manifestVersion": "2.2",
+  "version": "0.0.1",
+  "proxyAdmin": {
+    "address": "0x6eF33478CF828fE09835787ed3e89CcFF1494Ea8"
+  }
+}
