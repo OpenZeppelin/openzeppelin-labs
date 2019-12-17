@@ -7,29 +7,20 @@ const util = require("util");
 const astNodeSchema = require("./schemas/ast-node");
 
 let nodeSchemaValidator = new Ajv({ allErrors: true });
-let sourceCodeText = "";
-
-// For internal use. Throws if is passed an invalid AST node, else does nothing.
-function throwIfInvalidNode(node) {
-  if (!exports.isASTNode(node)) {
-    throw new Error(util.inspect(node) + " is not a valid AST node.");
-  }
-}
-
-/**
- * Initialization method - provide all the necessary information astUtils functions could require in order to work
- * @param {String} sourceCode The source code being linted
- */
-exports.init = function(sourceCode) {
-  sourceCodeText = sourceCode;
-};
 
 /**
  * Check if given argument is an AST Node
  * @param {Object} possibleObject Argument to check for validity
  * @returns {Boolean} isAValidASTNode true if given argument is an AST node, false otherwise
  */
-exports.isASTNode = nodeSchemaValidator.compile(astNodeSchema);
+const isASTNode = nodeSchemaValidator.compile(astNodeSchema);
+
+// For internal use. Throws if is passed an invalid AST node, else does nothing.
+function throwIfInvalidNode(node) {
+  if (!isASTNode(node)) {
+    throw new Error(util.inspect(node) + " is not a valid AST node.");
+  }
+}
 
 /**
  * @param {Object} node The node to check
@@ -45,69 +36,69 @@ function isNodeType(node, name) {
  * @param {Object} node The node to check
  * @returns {Boolean} true if the given node is an BlockStatement
  */
-exports.isBlockStatement = function(node) {
+function isBlockStatement(node) {
   return isNodeType(node, "BlockStatement");
-};
+}
 
 /**
  * @param {Object} node The node to check
  * @returns {Boolean} true if the given node is an BreakStatement
  */
-exports.isBreakStatement = function(node) {
+function isBreakStatement(node) {
   return isNodeType(node, "BreakStatement");
-};
+}
 
 /**
  * @param {Object} node The node to check
  * @returns {Boolean} true if the given node is an ExpressionStatement
  */
-exports.isExpression = function(node) {
+function isExpression(node) {
   return isNodeType(node, "ExpressionStatement");
-};
+}
 
 /**
  * @param {Object} node The node to check
  * @returns {Boolean} true if the given node is an AssignmentStatement
  */
-exports.isAssignment = function(node) {
+function isAssignment(node) {
   return isNodeType(node, "AssignmentExpression");
-};
+}
 
 /**
  * @param {Object} node The node to check
  * @returns {Boolean} true if the given node is an UpdateExpression
  */
-exports.isUpdate = function(node) {
+function isUpdate(node) {
   return isNodeType(node, "UpdateExpression");
-};
+}
 
 /**
  * @param {Object} node The node to check
  * @returns {Boolean} true if the given node is an MemberExpression
  */
-exports.isMember = function(node) {
+function isMember(node) {
   return isNodeType(node, "MemberExpression");
-};
+}
 
 /**
  * @param {Object} node The node to check
  * @returns {Boolean} true if the given node is an IfStatement
  */
-exports.isIfStatement = function(node) {
+function isIfStatement(node) {
   return isNodeType(node, "IfStatement");
-};
+}
 
 /**
  * @param {Object} node The node to check
  * @returns {Boolean} true if the given node is a type of loop statement
  */
-exports.isLoopStatement = function(node) {
+function isLoopStatement(node) {
   return (
     ["ForStatement", "WhileStatement", "DoWhileStatement"].indexOf(
       node["type"]
     ) >= 0
   );
-};
+}
 
 /**
  * Determine whether a given node is a child of another given node
@@ -115,7 +106,7 @@ exports.isLoopStatement = function(node) {
  * @param {Object} potentialParent AST Node to be tested for parent
  * @returns {Bool} true if potentialChild is indeed a child of potentialParent, false otherwise
  */
-exports.isAChildOf = (potentialChild, potentialParent) => {
+function isAChildOf(potentialChild, potentialParent) {
   throwIfInvalidNode(potentialChild);
   throwIfInvalidNode(potentialParen);
 
@@ -125,65 +116,65 @@ exports.isAChildOf = (potentialChild, potentialParent) => {
     potentialChild.start > potentialParent.start &&
     potentialChild.end < potentialParent.end
   );
-};
+}
 
 /**
  * Search for the node to satisfy a specified predicate
  * @param {Object} node The AST Node to start search from
  * @returns {Object} nodeResult Result of the search
  */
-exports.getNode = function(node, predicate) {
+function getNode(node, predicate) {
   throwIfInvalidNode(node);
   return find(node.nodes, predicate);
-};
+}
 
 /**
  * Search for the constructor node
  * @param {Object} node The AST Node to start search from
  * @returns {Object} nodeResult Result of the search
  */
-exports.getConstructor = function(node) {
-  return exports.getNode(node, ["kind", "constructor"]);
-};
+function getConstructor(node) {
+  return getNode(node, ["kind", "constructor"]);
+}
 
 /**
  * Search for the contract node by name
  * @param {Object} node The AST Node to start search from
  * @returns {Object} nodeResult Result of the search
  */
-exports.getContract = function(node, contractName) {
-  return exports.getNode(node, ["name", contractName]);
-};
+function getContract(node, contractName) {
+  return getNode(node, ["name", contractName]);
+}
 
 /**
  * Get the parent node of the specified node
  * @param {Object} node The AST Node to retrieve the parent of
  * @returns {Object} nodeParent Parent node of the given node
  */
-exports.getParent = function(node) {
+function getParent(node) {
   throwIfInvalidNode(node);
   return node.parent;
-};
+}
 
 /**
  * Retrieve the line number on which the code for provided node STARTS
  * @param {Object} node The AST Node to retrieve the line number of
  * @returns {Integer} lineNumber Line number of code of the specified node. (LINES BEGIN FROM 1)
  */
-exports.getLine = function(node) {
+function getLine(node, sourceCodeText) {
   throwIfInvalidNode(node, "getLine");
 
   let newLineCharsBefore = sourceCodeText.slice(0, node.start).match(/\n/g);
 
   return (newLineCharsBefore ? newLineCharsBefore.length : 0) + 1;
-};
+}
 
 /**
  * Retrieve the column number of the first character of the given node
  * @param {Object} node The AST Node to retrieve the column number of
  * @returns {Integer} columnNumber Column number of code of the specified node (COLUMNS BEGIN FROM 0)
  */
-exports.getColumn = function(node) {
+function getColumn(node, sourceCodeText) {
   throwIfInvalidNode(node);
 
   //start looking from sourceCodeText [node.start] and stop upon encountering the first linebreak character
@@ -194,27 +185,27 @@ exports.getColumn = function(node) {
   }
 
   return node.start;
-};
+}
 
 /**
  * Retrieve the line number on which the code for provided node ENDS
  * @param {Object} node The AST Node to retrieve the line number of
  * @returns {int} lineNumber Line number of code ending of the specified node. (LINES BEGIN FROM 1)
  */
-exports.getEndingLine = function(node) {
+function getEndingLine(node, sourceCodeText) {
   throwIfInvalidNode(node);
 
   let newLineCharsBefore = sourceCodeText.slice(0, node.end).match(/\n/g);
 
   return (newLineCharsBefore ? newLineCharsBefore.length : 0) + 1;
-};
+}
 
 /**
  * Retrieve the column number of the last character that is part of the given node
  * @param {Object} node The AST Node to retrieve the ending column number of
  * @returns {Integer} columnNumber Column number of last char of the specified node (COLUMNS BEGIN FROM 0)
  */
-exports.getEndingColumn = function(node) {
+function getEndingColumn(node, sourceCodeText) {
   throwIfInvalidNode(node);
 
   //start looking from 1 character before node.start and stop upon encountering the first linebreak character
@@ -225,4 +216,11 @@ exports.getEndingColumn = function(node) {
   }
 
   return node.end - 1;
+}
+
+module.exports = {
+  isASTNode,
+  getNode,
+  getConstructor,
+  getContract
 };
