@@ -1,7 +1,6 @@
 const fs = require("fs");
-const find = require("lodash.find");
 
-const { getNode } = require("./src/ast-utils");
+const { getNode, getContract, getConstructor } = require("./src/ast-utils");
 
 function getSrcIndices(node) {
   return node.src
@@ -24,8 +23,8 @@ function constructorToInitializer(sourceCode, constructorNode) {
   return sourceCode.replace(constructorSource, initializerSource);
 }
 
-function renameContract(sourceCode, contractName, nodes, appendToName) {
-  const contractNode = find(nodes, ["name", contractName]);
+function renameContract(sourceCode, contractName, node, appendToName) {
+  const contractNode = getContract(node, contractName);
   const contractSource = extractNodeSource(sourceCode, contractNode);
   const renamedContractSource = contractSource.replace(
     contractName,
@@ -39,13 +38,18 @@ function transpileConstructor(contractName) {
     fs.readFileSync(`./build/contracts/${contractName}.json`)
   );
 
-  const contractNode = getNode(contractData.ast, ["name", contractName]);
-  const constructorNode = getNode(contractNode, ["kind", "constructor"]);
+  const contractNode = getContract(contractData.ast, contractName);
+  const constructorNode = getConstructor(contractNode);
+
+  const newSourceCode = constructorToInitializer(
+    contractData.source,
+    constructorNode
+  );
 
   const contractWithInitializer = renameContract(
-    constructorToInitializer(contractData.source, constructorNode),
+    newSourceCode,
     contractName,
-    contractData.ast.nodes,
+    contractData.ast,
     "Upgradable"
   );
 

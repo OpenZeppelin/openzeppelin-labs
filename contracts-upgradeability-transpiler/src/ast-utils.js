@@ -138,6 +138,24 @@ exports.getNode = function(node, predicate) {
 };
 
 /**
+ * Search for the constructor node
+ * @param {Object} node The AST Node to start search from
+ * @returns {Object} nodeResult Result of the search
+ */
+exports.getConstructor = function(node) {
+  return exports.getNode(node, ["kind", "constructor"]);
+};
+
+/**
+ * Search for the contract node by name
+ * @param {Object} node The AST Node to start search from
+ * @returns {Object} nodeResult Result of the search
+ */
+exports.getContract = function(node, contractName) {
+  return exports.getNode(node, ["name", contractName]);
+};
+
+/**
  * Get the parent node of the specified node
  * @param {Object} node The AST Node to retrieve the parent of
  * @returns {Object} nodeParent Parent node of the given node
