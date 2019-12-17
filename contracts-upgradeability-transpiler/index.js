@@ -1,16 +1,19 @@
 const fs = require("fs");
 
-const { getNode, getContract, getConstructor } = require("./src/ast-utils");
+const {
+  getSourceIndices,
+  getContract,
+  getConstructor
+} = require("./src/ast-utils");
 
-function getSrcIndices(node) {
-  return node.src
-    .split(":")
-    .map(val => parseInt(val))
-    .slice(0, 2);
-}
+const { transpile } = require("./src/transpiler");
+const {
+  transformConstructor,
+  transformContractName
+} = require("./src/transformations");
 
 function extractNodeSource(source, node) {
-  const [sourceStart, sourceLen] = getSrcIndices(node);
+  const [sourceStart, sourceLen] = getSourceIndices(node);
   return source.slice(sourceStart, sourceStart + sourceLen);
 }
 
@@ -38,13 +41,12 @@ function transpileConstructor(contractName) {
     fs.readFileSync(`./build/contracts/${contractName}.json`)
   );
 
+  const source = contractData.source;
+
   const contractNode = getContract(contractData.ast, contractName);
   const constructorNode = getConstructor(contractNode);
 
-  const newSourceCode = constructorToInitializer(
-    contractData.source,
-    constructorNode
-  );
+  const newSourceCode = constructorToInitializer(source, constructorNode);
 
   const contractWithInitializer = renameContract(
     newSourceCode,
@@ -52,6 +54,12 @@ function transpileConstructor(contractName) {
     contractData.ast,
     "Upgradable"
   );
+
+  const finalCode = transpile(source, [
+    transformConstructor(constructorNode, source),
+    transformContractName(contractNode, source, `${contractName}Upgradable`)
+  ]);
+  console.log(finalCode);
 
   fs.writeFileSync(
     `./contracts/${contractName}Upgradable.sol`,

@@ -118,6 +118,18 @@ function isAChildOf(potentialChild, potentialParent) {
   );
 }
 
+function getSourceIndices(node) {
+  return node.src
+    .split(":")
+    .map(val => parseInt(val))
+    .slice(0, 2);
+}
+
+function getNodeSources(node, source) {
+  const [start, len] = getSourceIndices(node);
+  return [start, len, source.slice(start, start + len)];
+}
+
 /**
  * Search for the node to satisfy a specified predicate
  * @param {Object} node The AST Node to start search from
@@ -222,5 +234,7 @@ module.exports = {
   isASTNode,
   getNode,
   getConstructor,
-  getContract
+  getContract,
+  getSourceIndices,
+  getNodeSources
 };
