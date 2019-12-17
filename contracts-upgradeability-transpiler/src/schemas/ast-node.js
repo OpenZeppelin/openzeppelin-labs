@@ -9,9 +9,7 @@
 // A fully qualified, minimal object for this Schema is:
 /*
 {
-	"type": "Literal",
-	"start": 13,
-	"end": 25
+	"nodeType": "Literal",
 }
 */
 
@@ -26,9 +24,7 @@ let Schema = {
   type: "object",
 
   properties: {
-    type: { type: "string", minLength: 1 },
-    start: { type: "integer", minimum: 0 },
-    end: { type: "integer", minimum: 0 }
+    nodeType: { type: "string", minLength: 1 }
   },
 
   patternProperties: {
@@ -37,7 +33,7 @@ let Schema = {
     }
   },
 
-  required: ["type", "start", "end"],
+  required: ["nodeType"],
   additionalProperties: false
 };
 

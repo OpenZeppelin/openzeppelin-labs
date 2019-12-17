@@ -39,8 +39,8 @@ function transpileConstructor(contractName) {
     fs.readFileSync(`./build/contracts/${contractName}.json`)
   );
 
-  const contractNode = find(contractData.ast.nodes, ["name", contractName]);
-  const constructorNode = find(contractNode.nodes, ["kind", "constructor"]);
+  const contractNode = getNode(contractData.ast, ["name", contractName]);
+  const constructorNode = getNode(contractNode, ["kind", "constructor"]);
 
   const contractWithInitializer = renameContract(
     constructorToInitializer(contractData.source, constructorNode),

@@ -1,7 +1,7 @@
 /*
  * @fileoverview Utility functions to help efficiently explore the Abstract Syntax Tree
  */
-
+const find = require("lodash.find");
 const Ajv = require("ajv");
 const util = require("util");
 const astNodeSchema = require("./schemas/ast-node");
@@ -129,8 +129,8 @@ exports.isAChildOf = (potentialChild, potentialParent) => {
 
 /**
  * Search for the node to satisfy a specified predicate
- * @param {Object} node The AST Node to retrieve the parent of
- * @returns {Object} nodeResult Result of a search
+ * @param {Object} node The AST Node to start search from
+ * @returns {Object} nodeResult Result of the search
  */
 exports.getNode = function(node, predicate) {
   throwIfInvalidNode(node);
