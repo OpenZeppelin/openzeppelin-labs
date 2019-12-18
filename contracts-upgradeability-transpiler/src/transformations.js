@@ -1,4 +1,14 @@
-const { getSourceIndices, getNodeSources } = require("./ast-utils");
+const { getImportDirectives, getNodeSources } = require("./ast-utils");
+
+function insertDirective(node, directive) {
+  const imports = getImportDirectives(node);
+  console.log(imports);
+  return {
+    start: 0,
+    end: 0,
+    text: directive
+  };
+}
 
 function transformContractName(contractNode, source, newName) {
   const [start, len, nodeSource] = getNodeSources(contractNode, source);
@@ -32,5 +42,6 @@ function transformConstructor(constructorNode, source) {
 
 module.exports = {
   transformConstructor,
-  transformContractName
+  transformContractName,
+  insertDirective
 };

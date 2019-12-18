@@ -29,7 +29,15 @@ function throwIfInvalidNode(node) {
  */
 function isNodeType(node, name) {
   throwIfInvalidNode(node);
-  return node["type"] === name;
+  return node["nodeType"] === name;
+}
+
+function isImportDirective(node) {
+  return isNodeType(node, "ImportDirective");
+}
+
+function isPragmaDirective(node) {
+  return isNodeType(node, "PragmaDirective");
 }
 
 /**
@@ -140,6 +148,15 @@ function getNode(node, predicate) {
   return find(node.nodes, predicate);
 }
 
+function getNodes(node, predicate) {
+  throwIfInvalidNode(node);
+  return node.nodes.filter(predicate);
+}
+
+function getImportDirectives(node) {
+  return getNodes(node, isImportDirective);
+}
+
 /**
  * Search for the constructor node
  * @param {Object} node The AST Node to start search from
@@ -236,5 +253,8 @@ module.exports = {
   getConstructor,
   getContract,
   getSourceIndices,
-  getNodeSources
+  getNodeSources,
+  isPragmaDirective,
+  isImportDirective,
+  getImportDirectives
 };

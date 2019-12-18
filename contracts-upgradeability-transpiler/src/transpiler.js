@@ -8,8 +8,10 @@ function transpile(source, transformations) {
   for (let i = 0; i < sorted.length - 1; i++) {
     if (sorted[i].end > sorted[i + 1].start)
       throw new Error(
-        `Transformations ${sorted[i]} and ${
-          sorted[i + 1]
+        `Transformations ${sorted[i].start}:${sorted[i].end}:${
+          sorted[i].text
+        } and ${sorted[i + 1].start}:${sorted[i + 1].end}:${
+          sorted[i + 1].text
         } overlap over the source file`
       );
   }
