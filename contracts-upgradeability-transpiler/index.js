@@ -20,7 +20,7 @@ function transpileConstructor(contractName) {
   const contractNode = getContract(contractData.ast, contractName);
   const constructorNode = getConstructor(contractNode);
 
-  const directive = `import "@openzeppelin/upgrades/contracts/Initializable.sol";\n`;
+  const directive = `\nimport "@openzeppelin/upgrades/contracts/Initializable.sol";`;
 
   const finalCode = transpile(source, [
     insertDirective(contractData.ast, directive),

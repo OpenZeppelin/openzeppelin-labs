@@ -157,6 +157,10 @@ function getImportDirectives(node) {
   return getNodes(node, isImportDirective);
 }
 
+function getPragmaDirectives(node) {
+  return getNodes(node, isPragmaDirective);
+}
+
 /**
  * Search for the constructor node
  * @param {Object} node The AST Node to start search from
@@ -256,5 +260,6 @@ module.exports = {
   getNodeSources,
   isPragmaDirective,
   isImportDirective,
-  getImportDirectives
+  getImportDirectives,
+  getPragmaDirectives
 };

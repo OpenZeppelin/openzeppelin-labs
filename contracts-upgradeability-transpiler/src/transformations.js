@@ -1,13 +1,28 @@
-const { getImportDirectives, getNodeSources } = require("./ast-utils");
+const {
+  getImportDirectives,
+  getPragmaDirectives,
+  getNodeSources,
+  getSourceIndices
+} = require("./ast-utils");
 
 function insertDirective(node, directive) {
-  const imports = getImportDirectives(node);
-  console.log(imports);
-  return {
+  const retVal = {
     start: 0,
     end: 0,
     text: directive
   };
+  const importsAndPragmas = [
+    ...getPragmaDirectives(node),
+    ...getImportDirectives(node)
+  ];
+  if (importsAndPragmas.length) {
+    const last = importsAndPragmas.slice(-1)[0];
+    const [start, len] = getSourceIndices(last);
+    retVal.start = start + len;
+    retVal.end = start + len;
+  }
+
+  return retVal;
 }
 
 function transformContractName(contractNode, source, newName) {
