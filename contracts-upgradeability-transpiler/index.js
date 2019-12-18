@@ -7,7 +7,8 @@ const { transpile } = require("./src/transpiler");
 const {
   transformConstructor,
   transformContractName,
-  insertDirective
+  insertDirective,
+  insertBaseClass
 } = require("./src/transformations");
 
 function transpileConstructor(contractName) {
@@ -24,6 +25,7 @@ function transpileConstructor(contractName) {
 
   const finalCode = transpile(source, [
     insertDirective(contractData.ast, directive),
+    insertBaseClass(contractNode, source, "Initializable"),
     transformConstructor(constructorNode, source),
     transformContractName(contractNode, source, `${contractName}Upgradable`)
   ]);

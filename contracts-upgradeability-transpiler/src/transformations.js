@@ -25,6 +25,24 @@ function insertDirective(node, directive) {
   return retVal;
 }
 
+function insertBaseClass(node, source, cls) {
+  const hasInheritance = node.baseContracts.length;
+
+  const [start, len, nodeSource] = getNodeSources(node, source);
+
+  const regExp = RegExp(`\\bcontract\\s+${node.name}(\\s+is)?`);
+
+  var match = regExp.exec(nodeSource);
+  if (!match)
+    throw new Error(`Can't find ${contractNode.name} in ${nodeSource}`);
+
+  return {
+    start: start + match.index + match[0].length,
+    end: start + match.index + match[0].length,
+    text: hasInheritance ? ` ${cls},` : ` is ${cls}`
+  };
+}
+
 function transformContractName(contractNode, source, newName) {
   const [start, len, nodeSource] = getNodeSources(contractNode, source);
 
@@ -58,5 +76,6 @@ function transformConstructor(constructorNode, source) {
 module.exports = {
   transformConstructor,
   transformContractName,
-  insertDirective
+  insertDirective,
+  insertBaseClass
 };

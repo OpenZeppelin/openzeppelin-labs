@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-contract SimpleUpgradable {
+contract SimpleUpgradable is Initializable {
   uint256 private count;
   uint256 private local = 564;
 
