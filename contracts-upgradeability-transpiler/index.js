@@ -7,8 +7,8 @@ const { transpile } = require("./src/transpiler");
 const {
   transformConstructor,
   transformContractName,
-  insertDirective,
-  insertBaseClass
+  appendDirective,
+  prependBaseClass
 } = require("./src/transformations");
 
 function transpileConstructor(contractName) {
@@ -24,9 +24,9 @@ function transpileConstructor(contractName) {
   const directive = `\nimport "@openzeppelin/upgrades/contracts/Initializable.sol";`;
 
   const finalCode = transpile(source, [
-    insertDirective(contractData.ast, directive),
-    insertBaseClass(contractNode, source, "Initializable"),
-    transformConstructor(constructorNode, source),
+    appendDirective(contractData.ast, directive),
+    prependBaseClass(contractNode, source, "Initializable"),
+    ...transformConstructor(constructorNode, source),
     transformContractName(contractNode, source, `${contractName}Upgradable`)
   ]);
 

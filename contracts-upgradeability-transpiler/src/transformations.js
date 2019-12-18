@@ -5,15 +5,15 @@ const {
   getSourceIndices
 } = require("./ast-utils");
 
-function insertDirective(node, directive) {
+function appendDirective(fileNode, directive) {
   const retVal = {
     start: 0,
     end: 0,
     text: directive
   };
   const importsAndPragmas = [
-    ...getPragmaDirectives(node),
-    ...getImportDirectives(node)
+    ...getPragmaDirectives(fileNode),
+    ...getImportDirectives(fileNode)
   ];
   if (importsAndPragmas.length) {
     const last = importsAndPragmas.slice(-1)[0];
@@ -25,12 +25,12 @@ function insertDirective(node, directive) {
   return retVal;
 }
 
-function insertBaseClass(node, source, cls) {
-  const hasInheritance = node.baseContracts.length;
+function prependBaseClass(contractNode, source, cls) {
+  const hasInheritance = contractNode.baseContracts.length;
 
-  const [start, len, nodeSource] = getNodeSources(node, source);
+  const [start, len, nodeSource] = getNodeSources(contractNode, source);
 
-  const regExp = RegExp(`\\bcontract\\s+${node.name}(\\s+is)?`);
+  const regExp = RegExp(`\\bcontract\\s+${contractNode.name}(\\s+is)?`);
 
   var match = regExp.exec(nodeSource);
   if (!match)
@@ -60,22 +60,34 @@ function transformContractName(contractNode, source, newName) {
 function transformConstructor(constructorNode, source) {
   const text = "function initialize";
 
-  const [start, len, nodeSource] = getNodeSources(constructorNode, source);
+  const [start, len, constructorSource] = getNodeSources(
+    constructorNode,
+    source
+  );
 
-  var match = /\bconstructor/.exec(nodeSource);
+  var match = /(\bconstructor\(){1}([^\)]*)*(\){1})/.exec(constructorSource);
   if (!match)
-    throw new Error(`Can't find ${contractNode.name} in ${nodeSource}`);
+    throw new Error(
+      `Can't find ${constructorNode.name} in ${constructorSource}`
+    );
 
-  return {
-    start: start + match.index,
-    end: start + match.index + "constructor".length,
-    text
-  };
+  return [
+    {
+      start: start + match.index,
+      end: start + match.index + "constructor".length,
+      text
+    },
+    {
+      start: start + match[0].length,
+      end: start + match[0].length,
+      text: ` initializer`
+    }
+  ];
 }
 
 module.exports = {
   transformConstructor,
   transformContractName,
-  insertDirective,
-  insertBaseClass
+  appendDirective,
+  prependBaseClass
 };
