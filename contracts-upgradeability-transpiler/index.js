@@ -8,7 +8,8 @@ const {
   transformConstructor,
   transformContractName,
   appendDirective,
-  prependBaseClass
+  prependBaseClass,
+  moveStateVarsInit
 } = require("./src/transformations");
 
 function transpileConstructor(contractName) {
@@ -27,11 +28,12 @@ function transpileConstructor(contractName) {
     appendDirective(contractData.ast, directive),
     prependBaseClass(contractNode, source, "Initializable"),
     ...transformConstructor(constructorNode, source),
+    ...moveStateVarsInit(contractNode, source),
     transformContractName(contractNode, source, `${contractName}Upgradable`)
   ]);
 
   fs.writeFileSync(`./contracts/${contractName}Upgradable.sol`, finalCode);
 }
 
-transpileConstructor("GLDToken");
+// transpileConstructor("GLDToken");
 transpileConstructor("Simple");

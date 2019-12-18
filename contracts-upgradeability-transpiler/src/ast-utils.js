@@ -36,6 +36,10 @@ function isImportDirective(node) {
   return isNodeType(node, "ImportDirective");
 }
 
+function isVarDeclaration(node) {
+  return isNodeType(node, "VariableDeclaration");
+}
+
 function isPragmaDirective(node) {
   return isNodeType(node, "PragmaDirective");
 }
@@ -161,6 +165,10 @@ function getPragmaDirectives(node) {
   return getNodes(node, isPragmaDirective);
 }
 
+function getVarDeclarations(node) {
+  return getNodes(node, isVarDeclaration);
+}
+
 /**
  * Search for the constructor node
  * @param {Object} node The AST Node to start search from
@@ -261,5 +269,6 @@ module.exports = {
   isPragmaDirective,
   isImportDirective,
   getImportDirectives,
-  getPragmaDirectives
+  getPragmaDirectives,
+  getVarDeclarations
 };

@@ -1,8 +1,10 @@
 const {
   getImportDirectives,
   getPragmaDirectives,
+  getVarDeclarations,
   getNodeSources,
-  getSourceIndices
+  getSourceIndices,
+  getConstructor
 } = require("./ast-utils");
 
 function appendDirective(fileNode, directive) {
@@ -32,7 +34,7 @@ function prependBaseClass(contractNode, source, cls) {
 
   const regExp = RegExp(`\\bcontract\\s+${contractNode.name}(\\s+is)?`);
 
-  var match = regExp.exec(nodeSource);
+  const match = regExp.exec(nodeSource);
   if (!match)
     throw new Error(`Can't find ${contractNode.name} in ${nodeSource}`);
 
@@ -65,7 +67,7 @@ function transformConstructor(constructorNode, source) {
     source
   );
 
-  var match = /(\bconstructor\(){1}([^\)]*)*(\){1})/.exec(constructorSource);
+  const match = /(\bconstructor\(){1}([^\)]*)*(\){1})/.exec(constructorSource);
   if (!match)
     throw new Error(
       `Can't find ${constructorNode.name} in ${constructorSource}`
@@ -85,9 +87,42 @@ function transformConstructor(constructorNode, source) {
   ];
 }
 
+function moveStateVarsInit(contractNode, source) {
+  const constructorNode = getConstructor(contractNode);
+
+  const [constructorStart, constructorLen, constructorSource] = getNodeSources(
+    constructorNode.body,
+    source
+  );
+
+  const varDeclarations = getVarDeclarations(contractNode);
+  return varDeclarations
+    .filter(vr => vr.value && !vr.constant)
+    .map(vr => {
+      const [start, len, varSource] = getNodeSources(vr, source);
+
+      const match = /(.*)(=.*)/.exec(varSource);
+      if (!match) throw new Error(`Can't find = in ${varSource}`);
+      return [
+        {
+          start: start + match[1].length,
+          end: start + match[0].length,
+          text: ""
+        },
+        {
+          start: constructorStart + 1,
+          end: constructorStart + 1,
+          text: `\n${vr.name} ${match[2]};`
+        }
+      ];
+    })
+    .flat();
+}
+
 module.exports = {
   transformConstructor,
   transformContractName,
   appendDirective,
-  prependBaseClass
+  prependBaseClass,
+  moveStateVarsInit
 };
