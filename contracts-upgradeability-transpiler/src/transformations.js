@@ -67,7 +67,9 @@ function transformConstructor(constructorNode, source) {
     source
   );
 
-  const match = /(\bconstructor\(){1}([^\)]*)*(\){1})/.exec(constructorSource);
+  const match = /(\bconstructor\s*\(){1}([^\)]*)*(\){1})/.exec(
+    constructorSource
+  );
   if (!match)
     throw new Error(
       `Can't find ${constructorNode.name} in ${constructorSource}`
