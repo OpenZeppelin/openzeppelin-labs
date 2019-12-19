@@ -21,6 +21,38 @@ test = true;
 }
 
 
-contract A {
+contract SimpleInheritanceAUpgradable is Initializable {
+  uint256 private foo ;
+  function initialize() initializer public {
+foo = 42;
+
+  }
+}
+
+contract SimpleInheritanceB  is SimpleInheritanceA {
+
+}
+
+contract SimpleInheritanceC is SimpleInheritanceB {
+
+}
+
+
+contract DiamondA {
+  uint256 private foo = 42;
+  constructor() public {
+
+  }
+}
+
+contract DiamondB is DiamondA {
+
+}
+
+contract DiamondC is DiamondA {
+
+}
+
+contract DiamondD is DiamondB, DiamondC {
 
 }

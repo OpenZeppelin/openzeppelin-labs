@@ -17,6 +17,37 @@ contract Simple {
 }
 
 
-contract A {
+contract SimpleInheritanceA {
+  uint256 private foo = 42;
+  constructor() public {
+
+  }
+}
+
+contract SimpleInheritanceB  is SimpleInheritanceA {
+
+}
+
+contract SimpleInheritanceC is SimpleInheritanceB {
+
+}
+
+
+contract DiamondA {
+  uint256 private foo = 42;
+  constructor() public {
+
+  }
+}
+
+contract DiamondB is DiamondA {
+
+}
+
+contract DiamondC is DiamondA {
+
+}
+
+contract DiamondD is DiamondB, DiamondC {
 
 }

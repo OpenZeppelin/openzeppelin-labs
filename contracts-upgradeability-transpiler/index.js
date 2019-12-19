@@ -14,7 +14,7 @@ const {
 } = require("./src/transformations");
 
 function transpileContracts(contracts, artifacts) {
-  return contracts.reduce((acc, contractName) => {
+  const fileTrans = contracts.reduce((acc, contractName) => {
     const artifact = artifacts.find(art => art.contractName === contractName);
 
     const source = artifact.source;
@@ -22,22 +22,36 @@ function transpileContracts(contracts, artifacts) {
     const contractNode = getContract(artifact.ast, contractName);
     const constructorNode = getConstructor(contractNode);
 
-    const directive = `\nimport "@openzeppelin/upgrades/contracts/Initializable.sol";`;
+    if (!acc[artifact.fileName]) {
+      const directive = `\nimport "@openzeppelin/upgrades/contracts/Initializable.sol";`;
 
-    const finalCode = transpile(source, [
-      appendDirective(artifact.ast, directive),
+      acc[artifact.fileName] = {
+        transformations: [appendDirective(artifact.ast, directive)]
+      };
+    }
+
+    acc[artifact.fileName].transformations = [
+      ...acc[artifact.fileName].transformations,
       prependBaseClass(contractNode, source, "Initializable"),
       ...transformConstructor(constructorNode, source),
       ...moveStateVarsInit(contractNode, source),
       transformContractName(contractNode, source, `${contractName}Upgradable`)
-    ]);
+    ];
 
+    return acc;
+  }, {});
+
+  return contracts.reduce((acc, contractName) => {
+    const artifact = artifacts.find(art => art.contractName === contractName);
+    const source = artifact.source;
+
+    const file = fileTrans[artifact.fileName];
+    if (!file.source) {
+      file.source = transpile(source, file.transformations);
+    }
     acc[contractName] = {
-      source: finalCode,
-      path: artifact.sourcePath.replace(
-        contractName,
-        `${contractName}Upgradable`
-      )
+      source: file.source,
+      path: artifact.sourcePath.replace(".sol", "Upgradable.sol")
     };
     return acc;
   }, {});
@@ -47,7 +61,7 @@ const artifacts = fs.readdirSync("./build/contracts/").map(file => {
   return JSON.parse(fs.readFileSync(`./build/contracts/${file}`));
 });
 
-const output = transpileContracts(["Simple"], artifacts);
+const output = transpileContracts(["Simple", "SimpleInheritanceA"], artifacts);
 
 for (const contractName of Object.keys(output)) {
   fs.writeFileSync(
