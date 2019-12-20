@@ -49,12 +49,19 @@ function transpileContracts(contracts, artifacts) {
     if (!file.source) {
       file.source = transpile(source, file.transformations);
     }
-    acc[contractName] = {
-      source: file.source,
-      path: artifact.sourcePath.replace(".sol", "Upgradable.sol")
-    };
+    const entry = acc.find(o => o.fileName === artifact.fileName);
+    if (!entry) {
+      acc.push({
+        source: file.source,
+        path: artifact.sourcePath.replace(".sol", "Upgradable.sol"),
+        fileName: artifact.fileName,
+        contracts: [contractName]
+      });
+    } else {
+      entry.contracts.push(contractName);
+    }
     return acc;
-  }, {});
+  }, []);
 }
 
 const artifacts = fs.readdirSync("./build/contracts/").map(file => {
@@ -63,9 +70,6 @@ const artifacts = fs.readdirSync("./build/contracts/").map(file => {
 
 const output = transpileContracts(["Simple", "SimpleInheritanceA"], artifacts);
 
-for (const contractName of Object.keys(output)) {
-  fs.writeFileSync(
-    `./${output[contractName].path}`,
-    output[contractName].source
-  );
+for (const file of output) {
+  fs.writeFileSync(`./${file.path}`, file.source);
 }
