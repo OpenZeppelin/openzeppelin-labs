@@ -9,8 +9,7 @@ const {
   transformConstructor,
   transformContractName,
   appendDirective,
-  prependBaseClass,
-  moveStateVarsInit
+  prependBaseClass
 } = require("./src/transformations");
 
 function transpileContracts(contracts, artifacts) {
@@ -33,8 +32,7 @@ function transpileContracts(contracts, artifacts) {
     acc[artifact.fileName].transformations = [
       ...acc[artifact.fileName].transformations,
       prependBaseClass(contractNode, source, "Initializable"),
-      ...transformConstructor(constructorNode, source),
-      ...moveStateVarsInit(contractNode, source),
+      ...transformConstructor(contractNode, source),
       transformContractName(contractNode, source, `${contractName}Upgradable`)
     ];
 
@@ -68,7 +66,7 @@ const artifacts = fs.readdirSync("./build/contracts/").map(file => {
   return JSON.parse(fs.readFileSync(`./build/contracts/${file}`));
 });
 
-const output = transpileContracts(["Simple", "SimpleInheritanceA"], artifacts);
+const output = transpileContracts(["Simple", "SimpleInheritanceC"], artifacts);
 
 for (const file of output) {
   fs.writeFileSync(`./${file.path}`, file.source);

@@ -29,6 +29,7 @@ contract SimpleInheritanceB  is SimpleInheritanceA {
 }
 
 contract SimpleInheritanceC is SimpleInheritanceB {
+  bool private foo;
 
 }
 

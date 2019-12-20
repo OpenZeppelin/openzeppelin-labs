@@ -59,72 +59,74 @@ function transformContractName(contractNode, source, newName) {
   };
 }
 
-function transformConstructor(constructorNode, source) {
-  const text = "function initialize";
-
-  const [start, len, constructorSource] = getNodeSources(
-    constructorNode,
-    source
-  );
-
-  const match = /(\bconstructor\s*\(){1}([^\)]*)*(\){1})/.exec(
-    constructorSource
-  );
-  if (!match)
-    throw new Error(
-      `Can't find ${constructorNode.name} in ${constructorSource}`
-    );
-
-  return [
-    {
-      start: start + match.index,
-      end: start + match.index + "constructor".length,
-      text
-    },
-    {
-      start: start + match[0].length,
-      end: start + match[0].length,
-      text: ` initializer`
-    }
-  ];
-}
-
-function moveStateVarsInit(contractNode, source) {
-  const constructorNode = getConstructor(contractNode);
-
-  const [constructorStart, constructorLen, constructorSource] = getNodeSources(
-    constructorNode.body,
-    source
-  );
-
+function transformConstructor(contractNode, source) {
   const varDeclarations = getVarDeclarations(contractNode);
-  return varDeclarations
+  const declarationInserts = varDeclarations
     .filter(vr => vr.value && !vr.constant)
     .map(vr => {
       const [start, len, varSource] = getNodeSources(vr, source);
 
       const match = /(.*)(=.*)/.exec(varSource);
       if (!match) throw new Error(`Can't find = in ${varSource}`);
-      return [
-        {
-          start: start + match[1].length,
-          end: start + match[0].length,
-          text: ""
-        },
-        {
-          start: constructorStart + 1,
-          end: constructorStart + 1,
-          text: `\n${vr.name} ${match[2]};`
-        }
-      ];
+      return `\n${vr.name} ${match[2]};`;
     })
-    .flat();
+    .join("");
+
+  const constructorNode = getConstructor(contractNode);
+
+  if (constructorNode) {
+    const text = "function initialize";
+
+    const [constructorStart, ,] = getNodeSources(constructorNode.body, source);
+
+    const [start, len, constructorSource] = getNodeSources(
+      constructorNode,
+      source
+    );
+
+    const match = /\bconstructor[^{]*/.exec(constructorSource);
+    if (!match)
+      throw new Error(
+        `Can't find ${constructorNode.name} in ${constructorSource}`
+      );
+
+    return [
+      {
+        start: start + match.index,
+        end: start + match.index + "constructor".length,
+        text
+      },
+      {
+        start: start + match[0].length,
+        end: start + match[0].length,
+        text: `initializer `
+      },
+      {
+        start: constructorStart + 1,
+        end: constructorStart + 1,
+        text: declarationInserts
+      }
+    ];
+  } else {
+    const [start, len, contractSource] = getNodeSources(contractNode, source);
+
+    const match = /\bcontract[^\{]*{/.exec(contractSource);
+    if (!match)
+      throw new Error(`Can't find contract pattern in ${constructorSource}`);
+
+    return [
+      {
+        start: start + match[0].length,
+        end: start + match[0].length,
+        text: `\nfunction initialize() public initializer { ${declarationInserts} }`
+      }
+    ];
+  }
 }
 
 module.exports = {
   transformConstructor,
   transformContractName,
   appendDirective,
-  prependBaseClass,
-  moveStateVarsInit
+  prependBaseClass
 };
