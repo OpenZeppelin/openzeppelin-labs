@@ -4,7 +4,8 @@ const {
   getVarDeclarations,
   getNodeSources,
   getSourceIndices,
-  getConstructor
+  getConstructor,
+  getContracts
 } = require("./ast-utils");
 
 function appendDirective(fileNode, directive) {
@@ -124,9 +125,25 @@ function transformConstructor(contractNode, source) {
   }
 }
 
+function purgeContracts(astNode, contracts) {
+  const toPurge = getContracts(astNode).filter(node =>
+    contracts.every(c => node.name !== c)
+  );
+  return toPurge.map(contractNode => {
+    const [start, len] = getSourceIndices(contractNode);
+
+    return {
+      start,
+      end: start + len,
+      text: ""
+    };
+  });
+}
+
 module.exports = {
   transformConstructor,
   transformContractName,
   appendDirective,
-  prependBaseClass
+  prependBaseClass,
+  purgeContracts
 };

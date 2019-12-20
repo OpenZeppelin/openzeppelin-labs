@@ -21,39 +21,20 @@ test = true;
 }
 
 
-contract SimpleInheritanceA {
-  uint256 private foo = 42;
-  constructor() public {
 
-  }
-}
 
-contract SimpleInheritanceB  is SimpleInheritanceA {
 
-}
 
 contract SimpleInheritanceCUpgradable is Initializable, SimpleInheritanceB {
-  function initialize() public initializer {  }
+function initialize() public initializer {  }
   bool private foo;
 
 }
 
 
-contract DiamondA {
-  uint256 private foo = 42;
-  constructor() public {
 
-  }
-}
 
-contract DiamondB is DiamondA {
 
-}
 
-contract DiamondC is DiamondA {
 
-}
 
-contract DiamondD is DiamondB, DiamondC {
-
-}

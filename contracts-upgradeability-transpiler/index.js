@@ -9,7 +9,8 @@ const {
   transformConstructor,
   transformContractName,
   appendDirective,
-  prependBaseClass
+  prependBaseClass,
+  purgeContracts
 } = require("./src/transformations");
 
 function transpileContracts(contracts, artifacts) {
@@ -25,7 +26,10 @@ function transpileContracts(contracts, artifacts) {
       const directive = `\nimport "@openzeppelin/upgrades/contracts/Initializable.sol";`;
 
       acc[artifact.fileName] = {
-        transformations: [appendDirective(artifact.ast, directive)]
+        transformations: [
+          appendDirective(artifact.ast, directive),
+          ...purgeContracts(artifact.ast, contracts)
+        ]
       };
     }
 
