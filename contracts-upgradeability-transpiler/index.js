@@ -10,7 +10,8 @@ const {
   transformContractName,
   appendDirective,
   prependBaseClass,
-  purgeContracts
+  purgeContracts,
+  transformParents
 } = require("./src/transformations");
 
 function transpileContracts(contracts, artifacts) {
@@ -20,7 +21,6 @@ function transpileContracts(contracts, artifacts) {
     const source = artifact.source;
 
     const contractNode = getContract(artifact.ast, contractName);
-    const constructorNode = getConstructor(contractNode);
 
     if (!acc[artifact.fileName]) {
       const directive = `\nimport "@openzeppelin/upgrades/contracts/Initializable.sol";`;
@@ -36,6 +36,7 @@ function transpileContracts(contracts, artifacts) {
     acc[artifact.fileName].transformations = [
       ...acc[artifact.fileName].transformations,
       prependBaseClass(contractNode, source, "Initializable"),
+      ...transformParents(contractNode, source),
       ...transformConstructor(contractNode, source),
       transformContractName(contractNode, source, `${contractName}Upgradable`)
     ];
@@ -70,7 +71,10 @@ const artifacts = fs.readdirSync("./build/contracts/").map(file => {
   return JSON.parse(fs.readFileSync(`./build/contracts/${file}`));
 });
 
-const output = transpileContracts(["Simple", "SimpleInheritanceC"], artifacts);
+const output = transpileContracts(
+  ["Simple", "SimpleInheritanceC", "DiamondD"],
+  artifacts
+);
 
 for (const file of output) {
   fs.writeFileSync(`./${file.path}`, file.source);

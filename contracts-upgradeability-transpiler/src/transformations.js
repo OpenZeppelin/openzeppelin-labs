@@ -46,6 +46,22 @@ function prependBaseClass(contractNode, source, cls) {
   };
 }
 
+function transformParents(contractNode, source) {
+  const hasInheritance = contractNode.baseContracts.length;
+
+  if (hasInheritance) {
+    return contractNode.baseContracts.map(base => {
+      const [start, len, baseSource] = getNodeSources(base, source);
+
+      return {
+        start: start,
+        end: start + len,
+        text: `${baseSource}Upgradable`
+      };
+    });
+  } else return [];
+}
+
 function transformContractName(contractNode, source, newName) {
   const [start, len, nodeSource] = getNodeSources(contractNode, source);
 
@@ -145,5 +161,6 @@ module.exports = {
   transformContractName,
   appendDirective,
   prependBaseClass,
-  purgeContracts
+  purgeContracts,
+  transformParents
 };

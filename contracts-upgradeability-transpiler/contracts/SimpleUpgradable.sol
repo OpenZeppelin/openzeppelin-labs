@@ -25,7 +25,7 @@ test = true;
 
 
 
-contract SimpleInheritanceCUpgradable is Initializable, SimpleInheritanceB {
+contract SimpleInheritanceCUpgradable is Initializable, SimpleInheritanceBUpgradable {
 function initialize() public initializer {  }
   bool private foo;
 
@@ -38,3 +38,7 @@ function initialize() public initializer {  }
 
 
 
+contract DiamondDUpgradable is Initializable, DiamondBUpgradable, DiamondCUpgradable {
+function initialize() public initializer {  }
+
+}
