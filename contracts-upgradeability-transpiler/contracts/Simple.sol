@@ -55,3 +55,22 @@ contract DiamondC is DiamondA {
 contract DiamondD is DiamondB, DiamondC {
 
 }
+
+
+contract InheritanceWithParamsParent {
+  constructor(bool foo, uint256 bar) public {
+
+  }
+}
+
+contract InheritanceWithParamsConstructorChild is InheritanceWithParamsParent {
+  constructor() InheritanceWithParamsParent(true, 564) public {
+
+  }
+}
+
+contract InheritanceWithParamsClassChild is InheritanceWithParamsParent(false, 87) {
+  constructor() public {
+
+  }
+}

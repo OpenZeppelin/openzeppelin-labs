@@ -5,7 +5,8 @@ const {
   getNodeSources,
   getSourceIndices,
   getConstructor,
-  getContracts
+  getContracts,
+  idModifierInvocation
 } = require("./ast-utils");
 
 function appendDirective(fileNode, directive) {
@@ -51,7 +52,8 @@ function transformParents(contractNode, source) {
 
   if (hasInheritance) {
     return contractNode.baseContracts.map(base => {
-      const [start, len, baseSource] = getNodeSources(base, source);
+      const [start, , baseSource] = getNodeSources(base.baseName, source);
+      const [, len] = getNodeSources(base, source);
 
       return {
         start: start,
@@ -76,12 +78,56 @@ function transformContractName(contractNode, source, newName) {
   };
 }
 
-function transformConstructor(contractNode, source) {
-  const hasInheritance = contractNode.baseContracts.length;
-  const superCall = hasInheritance ? `\nsuper.initialize();` : "";
+function buildSuperCalls(contractNode, source) {
+  function buildSuperCall(args, name) {
+    let superCall = `\n${name}Upgradable.initialize(`;
+    if (args && args.length) {
+      superCall += args.reduce((acc, arg, i) => {
+        const [, , argSource] = getNodeSources(arg, source);
+        return acc + argSource + (i !== args.length - 1 ? "," : "");
+      }, "");
+    }
+    return superCall + ");";
+  }
 
+  const hasInheritance = contractNode.baseContracts.length;
+  if (hasInheritance) {
+    let superCalls = [];
+
+    const constructorSuperCalls = {};
+
+    const constructorNode = getConstructor(contractNode);
+    if (constructorNode && constructorNode.modifiers) {
+      const mods = constructorNode.modifiers.filter(mod =>
+        idModifierInvocation(mod)
+      );
+      if (mods.length) {
+        superCalls = [
+          ...superCalls,
+          ...mods.map(mod => {
+            constructorSuperCalls[mod.modifierName.name] = true;
+            return buildSuperCall(mod.arguments, mod.modifierName.name);
+          })
+        ];
+      }
+    }
+
+    superCalls = [
+      ...superCalls,
+      ...contractNode.baseContracts
+        .filter(base => !constructorSuperCalls[base.baseName.name])
+        .map(base => buildSuperCall(base.arguments, base.baseName.name))
+    ];
+
+    return superCalls.join("");
+  } else {
+    return "";
+  }
+}
+
+function getVarInits(contractNode, source) {
   const varDeclarations = getVarDeclarations(contractNode);
-  const declarationInserts = varDeclarations
+  return varDeclarations
     .filter(vr => vr.value && !vr.constant)
     .map(vr => {
       const [start, len, varSource] = getNodeSources(vr, source);
@@ -91,6 +137,28 @@ function transformConstructor(contractNode, source) {
       return `\n${vr.name} ${match[2]};`;
     })
     .join("");
+}
+
+function purgeBaseConstructorCalls(constructorNode, source) {
+  if (constructorNode && constructorNode.modifiers) {
+    const mods = constructorNode.modifiers.filter(mod =>
+      idModifierInvocation(mod)
+    );
+    return mods.map(mod => {
+      const [start, len, modSource] = getNodeSources(mod, source);
+      return {
+        start,
+        end: start + len,
+        text: ""
+      };
+    });
+  }
+}
+
+function transformConstructor(contractNode, source) {
+  const superCalls = buildSuperCalls(contractNode, source);
+
+  const declarationInserts = getVarInits(contractNode, source);
 
   const constructorNode = getConstructor(contractNode);
 
@@ -124,13 +192,14 @@ function transformConstructor(contractNode, source) {
       {
         start: constructorStart + 1,
         end: constructorStart + 1,
-        text: superCall
+        text: superCalls
       },
       {
         start: constructorStart + 1,
         end: constructorStart + 1,
         text: declarationInserts
-      }
+      },
+      ...purgeBaseConstructorCalls(constructorNode, source)
     ];
   } else {
     const [start, len, contractSource] = getNodeSources(contractNode, source);
@@ -144,7 +213,7 @@ function transformConstructor(contractNode, source) {
         start: start + match[0].length,
         end: start + match[0].length,
         text: `\nfunction initialize() public initializer {
-          ${superCall}
+          ${superCalls}
           ${declarationInserts}
         }`
       }

@@ -32,7 +32,7 @@ foo = 42;
 contract SimpleInheritanceBUpgradable  is Initializable, SimpleInheritanceAUpgradable {
   bool private bar = false;
   function initialize() public initializer {
-super.initialize();
+SimpleInheritanceAUpgradable.initialize();
 bar = false;
 
   }
@@ -41,7 +41,7 @@ bar = false;
 contract SimpleInheritanceCUpgradable is Initializable, SimpleInheritanceBUpgradable {
 function initialize() public initializer {
           
-super.initialize();
+SimpleInheritanceBUpgradable.initialize();
           
         }
   bool private foo;
@@ -60,7 +60,7 @@ foo = 42;
 contract DiamondBUpgradable is Initializable, DiamondAUpgradable {
 function initialize() public initializer {
           
-super.initialize();
+DiamondAUpgradable.initialize();
           
         }
 
@@ -69,7 +69,7 @@ super.initialize();
 contract DiamondCUpgradable is Initializable, DiamondAUpgradable {
 function initialize() public initializer {
           
-super.initialize();
+DiamondAUpgradable.initialize();
           
         }
 
@@ -78,8 +78,30 @@ super.initialize();
 contract DiamondDUpgradable is Initializable, DiamondBUpgradable, DiamondCUpgradable {
 function initialize() public initializer {
           
-super.initialize();
+DiamondBUpgradable.initialize();
+DiamondCUpgradable.initialize();
           
         }
 
+}
+
+
+contract InheritanceWithParamsParentUpgradable is Initializable {
+  function initialize(bool foo, uint256 bar) public initializer {
+
+  }
+}
+
+contract InheritanceWithParamsConstructorChildUpgradable is Initializable, InheritanceWithParamsParentUpgradable {
+  function initialize()  public initializer {
+InheritanceWithParamsParentUpgradable.initialize(true,564);
+
+  }
+}
+
+contract InheritanceWithParamsClassChildUpgradable is Initializable, InheritanceWithParamsParentUpgradable {
+  function initialize() public initializer {
+InheritanceWithParamsParentUpgradable.initialize(false,87);
+
+  }
 }

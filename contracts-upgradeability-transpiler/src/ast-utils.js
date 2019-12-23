@@ -48,6 +48,10 @@ function isPragmaDirective(node) {
   return isNodeType(node, "PragmaDirective");
 }
 
+function idModifierInvocation(node) {
+  return isNodeType(node, "ModifierInvocation");
+}
+
 /**
  * @param {Object} node The node to check
  * @returns {Boolean} true if the given node is an BlockStatement
@@ -279,5 +283,6 @@ module.exports = {
   getImportDirectives,
   getPragmaDirectives,
   getVarDeclarations,
-  getContracts
+  getContracts,
+  idModifierInvocation
 };

@@ -91,7 +91,13 @@ const artifacts = fs.readdirSync("./build/contracts/").map(file => {
 });
 
 const output = transpileContracts(
-  ["Simple", "SimpleInheritanceC", "DiamondD"],
+  [
+    "Simple",
+    "SimpleInheritanceC",
+    "DiamondD",
+    "InheritanceWithParamsConstructorChild",
+    "InheritanceWithParamsClassChild"
+  ],
   artifacts
 );
 
