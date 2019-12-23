@@ -77,6 +77,9 @@ function transformContractName(contractNode, source, newName) {
 }
 
 function transformConstructor(contractNode, source) {
+  const hasInheritance = contractNode.baseContracts.length;
+  const superCall = hasInheritance ? `\nsuper.initialize();` : "";
+
   const varDeclarations = getVarDeclarations(contractNode);
   const declarationInserts = varDeclarations
     .filter(vr => vr.value && !vr.constant)
@@ -121,6 +124,11 @@ function transformConstructor(contractNode, source) {
       {
         start: constructorStart + 1,
         end: constructorStart + 1,
+        text: superCall
+      },
+      {
+        start: constructorStart + 1,
+        end: constructorStart + 1,
         text: declarationInserts
       }
     ];
@@ -135,7 +143,10 @@ function transformConstructor(contractNode, source) {
       {
         start: start + match[0].length,
         end: start + match[0].length,
-        text: `\nfunction initialize() public initializer { ${declarationInserts} }`
+        text: `\nfunction initialize() public initializer {
+          ${superCall}
+          ${declarationInserts}
+        }`
       }
     ];
   }

@@ -25,7 +25,10 @@ contract SimpleInheritanceA {
 }
 
 contract SimpleInheritanceB  is SimpleInheritanceA {
+  bool private bar = false;
+  constructor() public {
 
+  }
 }
 
 contract SimpleInheritanceC is SimpleInheritanceB {
