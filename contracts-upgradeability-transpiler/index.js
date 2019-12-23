@@ -14,8 +14,26 @@ const {
   transformParents
 } = require("./src/transformations");
 
+const { getInheritanceChain } = require("./src/get-inheritance-chain");
+
 function transpileContracts(contracts, artifacts) {
-  const fileTrans = contracts.reduce((acc, contractName) => {
+  const contractsToArtifactsMap = artifacts.reduce((acc, art) => {
+    acc[art.contractName] = art;
+    return acc;
+  }, {});
+
+  const contractsWithInheritance = [
+    ...new Set(
+      contracts
+        .map(contract => [
+          contract,
+          ...getInheritanceChain(contract, contractsToArtifactsMap)
+        ])
+        .flat()
+    )
+  ];
+
+  const fileTrans = contractsWithInheritance.reduce((acc, contractName) => {
     const artifact = artifacts.find(art => art.contractName === contractName);
 
     const source = artifact.source;
@@ -28,7 +46,7 @@ function transpileContracts(contracts, artifacts) {
       acc[artifact.fileName] = {
         transformations: [
           appendDirective(artifact.ast, directive),
-          ...purgeContracts(artifact.ast, contracts)
+          ...purgeContracts(artifact.ast, contractsWithInheritance)
         ]
       };
     }
@@ -44,7 +62,7 @@ function transpileContracts(contracts, artifacts) {
     return acc;
   }, {});
 
-  return contracts.reduce((acc, contractName) => {
+  return contractsWithInheritance.reduce((acc, contractName) => {
     const artifact = artifacts.find(art => art.contractName === contractName);
     const source = artifact.source;
 

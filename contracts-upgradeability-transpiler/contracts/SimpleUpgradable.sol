@@ -21,9 +21,18 @@ test = true;
 }
 
 
+contract SimpleInheritanceAUpgradable is Initializable {
+  uint256 private foo = 42;
+  function initialize() public initializer {
+foo = 42;
 
+  }
+}
 
+contract SimpleInheritanceBUpgradable  is Initializable, SimpleInheritanceAUpgradable {
+function initialize() public initializer {  }
 
+}
 
 contract SimpleInheritanceCUpgradable is Initializable, SimpleInheritanceBUpgradable {
 function initialize() public initializer {  }
@@ -32,11 +41,23 @@ function initialize() public initializer {  }
 }
 
 
+contract DiamondAUpgradable is Initializable {
+  uint256 private foo = 42;
+  function initialize() public initializer {
+foo = 42;
 
+  }
+}
 
+contract DiamondBUpgradable is Initializable, DiamondAUpgradable {
+function initialize() public initializer {  }
 
+}
 
+contract DiamondCUpgradable is Initializable, DiamondAUpgradable {
+function initialize() public initializer {  }
 
+}
 
 contract DiamondDUpgradable is Initializable, DiamondBUpgradable, DiamondCUpgradable {
 function initialize() public initializer {  }
