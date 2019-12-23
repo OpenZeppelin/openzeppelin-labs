@@ -34,7 +34,7 @@ function transpileContracts(contracts, artifacts) {
   ];
 
   const fileTrans = contractsWithInheritance.reduce((acc, contractName) => {
-    const artifact = artifacts.find(art => art.contractName === contractName);
+    const artifact = contractsToArtifactsMap[contractName];
 
     const source = artifact.source;
 
@@ -63,7 +63,8 @@ function transpileContracts(contracts, artifacts) {
   }, {});
 
   return contractsWithInheritance.reduce((acc, contractName) => {
-    const artifact = artifacts.find(art => art.contractName === contractName);
+    const artifact = contractsToArtifactsMap[contractName];
+
     const source = artifact.source;
 
     const file = fileTrans[artifact.fileName];
