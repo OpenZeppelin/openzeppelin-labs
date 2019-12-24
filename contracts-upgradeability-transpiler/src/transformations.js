@@ -47,20 +47,24 @@ function prependBaseClass(contractNode, source, cls) {
   };
 }
 
-function transformParents(contractNode, source) {
+function transformParents(contractNode, source, contracts) {
   const hasInheritance = contractNode.baseContracts.length;
 
   if (hasInheritance) {
-    return contractNode.baseContracts.map(base => {
-      const [start, , baseSource] = getNodeSources(base.baseName, source);
-      const [, len] = getNodeSources(base, source);
+    return contractNode.baseContracts
+      .filter(base =>
+        contracts.some(contract => base.baseName.name === contract)
+      )
+      .map(base => {
+        const [start, , baseSource] = getNodeSources(base.baseName, source);
+        const [, len] = getNodeSources(base, source);
 
-      return {
-        start: start,
-        end: start + len,
-        text: `${baseSource}Upgradable`
-      };
-    });
+        return {
+          start: start,
+          end: start + len,
+          text: `${baseSource}Upgradable`
+        };
+      });
   } else return [];
 }
 
@@ -78,7 +82,7 @@ function transformContractName(contractNode, source, newName) {
   };
 }
 
-function buildSuperCalls(contractNode, source) {
+function buildSuperCalls(contractNode, source, contracts) {
   function buildSuperCall(args, name) {
     let superCall = `\n${name}Upgradable.initialize(`;
     if (args && args.length) {
@@ -115,7 +119,11 @@ function buildSuperCalls(contractNode, source) {
     superCalls = [
       ...superCalls,
       ...contractNode.baseContracts
-        .filter(base => !constructorSuperCalls[base.baseName.name])
+        .filter(
+          base =>
+            !constructorSuperCalls[base.baseName.name] &&
+            contracts.some(contract => base.baseName.name === contract)
+        )
         .map(base => buildSuperCall(base.arguments, base.baseName.name))
     ];
 
@@ -155,8 +163,8 @@ function purgeBaseConstructorCalls(constructorNode, source) {
   }
 }
 
-function transformConstructor(contractNode, source) {
-  const superCalls = buildSuperCalls(contractNode, source);
+function transformConstructor(contractNode, source, contracts) {
+  const superCalls = buildSuperCalls(contractNode, source, contracts);
 
   const declarationInserts = getVarInits(contractNode, source);
 

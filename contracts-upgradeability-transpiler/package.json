@@ -11,6 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "@openzeppelin/contracts": "^2.4.0",
+    "fs-extra": "^8.1.0",
     "lodash.find": "^4.6.0"
   },
   "devDependencies": {

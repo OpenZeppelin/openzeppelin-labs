@@ -22,6 +22,23 @@ function throwIfInvalidNode(node) {
   }
 }
 
+function isContractKind(node, kind) {
+  throwIfInvalidNode(node);
+  return node["contractKind"] === kind;
+}
+
+function isInterface(node) {
+  return isContractKind(node, "interface");
+}
+
+function isInterface(node) {
+  return isContractKind(node, "interface");
+}
+
+function isContract(node) {
+  return isContractKind(node, "contract");
+}
+
 /**
  * @param {Object} node The node to check
  * @param {String} name The type of the node
@@ -40,7 +57,7 @@ function isVarDeclaration(node) {
   return isNodeType(node, "VariableDeclaration");
 }
 
-function isContract(node) {
+function isContractType(node) {
   return isNodeType(node, "ContractDefinition");
 }
 
@@ -178,7 +195,7 @@ function getVarDeclarations(node) {
 }
 
 function getContracts(node) {
-  return getNodes(node, isContract);
+  return getNodes(node, isContractType);
 }
 
 /**
@@ -284,5 +301,7 @@ module.exports = {
   getPragmaDirectives,
   getVarDeclarations,
   getContracts,
-  idModifierInvocation
+  idModifierInvocation,
+  isContract,
+  isInterface
 };

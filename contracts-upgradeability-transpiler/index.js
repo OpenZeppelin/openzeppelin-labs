@@ -1,7 +1,7 @@
-const fs = require("fs");
-const find = require("lodash.find");
+const path = require("path");
+const fs = require("fs-extra");
 
-const { getContract, getConstructor } = require("./src/ast-utils");
+const { getContract, isContract } = require("./src/ast-utils");
 
 const { transpile } = require("./src/transpiler");
 
@@ -31,7 +31,11 @@ function transpileContracts(contracts, artifacts) {
         ])
         .flat()
     )
-  ];
+  ].filter(contract => {
+    const artifact = contractsToArtifactsMap[contract];
+    const contractNode = getContract(artifact.ast, contract);
+    return isContract(contractNode);
+  });
 
   const fileTrans = contractsWithInheritance.reduce((acc, contractName) => {
     const artifact = contractsToArtifactsMap[contractName];
@@ -54,8 +58,8 @@ function transpileContracts(contracts, artifacts) {
     acc[artifact.fileName].transformations = [
       ...acc[artifact.fileName].transformations,
       prependBaseClass(contractNode, source, "Initializable"),
-      ...transformParents(contractNode, source),
-      ...transformConstructor(contractNode, source),
+      ...transformParents(contractNode, source, contractsWithInheritance),
+      ...transformConstructor(contractNode, source, contractsWithInheritance),
       transformContractName(contractNode, source, `${contractName}Upgradable`)
     ];
 
@@ -86,21 +90,24 @@ function transpileContracts(contracts, artifacts) {
   }, []);
 }
 
-const artifacts = fs.readdirSync("./build/contracts/").map(file => {
-  return JSON.parse(fs.readFileSync(`./build/contracts/${file}`));
-});
+async function main() {
+  const artifacts = fs.readdirSync("./build/contracts/").map(file => {
+    return JSON.parse(fs.readFileSync(`./build/contracts/${file}`));
+  });
 
-const output = transpileContracts(
-  [
-    "Simple",
-    "SimpleInheritanceC",
-    "DiamondD",
-    "InheritanceWithParamsConstructorChild",
-    "InheritanceWithParamsClassChild"
-  ],
-  artifacts
-);
+  const output = transpileContracts(["GLDToken"], artifacts);
 
-for (const file of output) {
-  fs.writeFileSync(`./${file.path}`, file.source);
+  for (const file of output) {
+    const patchedFilePath = file.path.replace("contracts/", "");
+    await fs.ensureDir(path.dirname(`./contracts/${patchedFilePath}`));
+    fs.writeFileSync(`./contracts/${patchedFilePath}`, file.source);
+  }
 }
+
+(async () => {
+  try {
+    await main();
+  } catch (e) {
+    console.log(e);
+  }
+})();
