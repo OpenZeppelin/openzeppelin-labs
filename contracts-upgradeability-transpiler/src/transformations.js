@@ -244,11 +244,28 @@ function purgeContracts(astNode, contracts) {
   });
 }
 
+function fixImportDirectives(
+  artifact,
+  contractsToArtifactsMap,
+  contractsWithInheritance
+) {
+  const imports = getImportDirectives(artifact.ast);
+  return imports.map(imp => {
+    const [start, len] = getSourceIndices(imp);
+    return {
+      start,
+      end: start + len,
+      text: `import "${imp.absolutePath}";`
+    };
+  });
+}
+
 module.exports = {
   transformConstructor,
   transformContractName,
   appendDirective,
   prependBaseClass,
   purgeContracts,
-  transformParents
+  transformParents,
+  fixImportDirectives
 };

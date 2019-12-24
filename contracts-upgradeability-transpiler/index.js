@@ -11,7 +11,8 @@ const {
   appendDirective,
   prependBaseClass,
   purgeContracts,
-  transformParents
+  transformParents,
+  fixImportDirectives
 } = require("./src/transformations");
 
 const { getInheritanceChain } = require("./src/get-inheritance-chain");
@@ -50,6 +51,11 @@ function transpileContracts(contracts, artifacts) {
       acc[artifact.fileName] = {
         transformations: [
           appendDirective(artifact.ast, directive),
+          ...fixImportDirectives(
+            artifact,
+            contractsToArtifactsMap,
+            contractsWithInheritance
+          ),
           ...purgeContracts(artifact.ast, contractsWithInheritance)
         ]
       };
