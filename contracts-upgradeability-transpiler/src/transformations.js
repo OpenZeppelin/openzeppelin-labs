@@ -187,12 +187,21 @@ function transformConstructor(contractNode, source, contracts) {
         `Can't find ${constructorNode.name} in ${constructorSource}`
       );
 
+    const matchInternal = /\binternal/.exec(constructorSource);
+
     return [
       {
         start: start + match.index,
         end: start + match.index + "constructor".length,
         text
       },
+      matchInternal
+        ? {
+            start: start + matchInternal.index,
+            end: start + matchInternal.index + matchInternal[0].length,
+            text: "public"
+          }
+        : null,
       {
         start: start + match[0].length,
         end: start + match[0].length,
@@ -209,7 +218,7 @@ function transformConstructor(contractNode, source, contracts) {
         text: declarationInserts
       },
       ...purgeBaseConstructorCalls(constructorNode, source)
-    ];
+    ].filter(tran => tran !== null);
   } else {
     const [start, len, contractSource] = getNodeSources(contractNode, source);
 
