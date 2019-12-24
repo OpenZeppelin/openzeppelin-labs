@@ -6,6 +6,7 @@ const {
   getSourceIndices,
   getConstructor,
   getContracts,
+  getContract,
   idModifierInvocation
 } = require("./ast-utils");
 
@@ -244,18 +245,24 @@ function purgeContracts(astNode, contracts) {
   });
 }
 
-function fixImportDirectives(
-  artifact,
-  contractsToArtifactsMap,
-  contractsWithInheritance
-) {
+function fixImportDirectives(artifact, artifacts, contracts) {
   const imports = getImportDirectives(artifact.ast);
   return imports.map(imp => {
     const [start, len] = getSourceIndices(imp);
+    const isTranspiled = artifacts.some(
+      art =>
+        art.ast.id === imp.sourceUnit &&
+        contracts.some(contract => contract === art.contractName)
+    );
+    const prefix = !imp.file.startsWith(".") ? "./" : "";
+    let fixedPath = `import "${prefix}${imp.file.replace(
+      ".sol",
+      "Upgradable.sol"
+    )}";`;
     return {
       start,
       end: start + len,
-      text: `import "${imp.absolutePath}";`
+      text: !isTranspiled ? `import "${imp.absolutePath}";` : fixedPath
     };
   });
 }

@@ -51,11 +51,7 @@ function transpileContracts(contracts, artifacts) {
       acc[artifact.fileName] = {
         transformations: [
           appendDirective(artifact.ast, directive),
-          ...fixImportDirectives(
-            artifact,
-            contractsToArtifactsMap,
-            contractsWithInheritance
-          ),
+          ...fixImportDirectives(artifact, artifacts, contractsWithInheritance),
           ...purgeContracts(artifact.ast, contractsWithInheritance)
         ]
       };
@@ -104,7 +100,10 @@ async function main() {
   const output = transpileContracts(["GLDToken"], artifacts);
 
   for (const file of output) {
-    const patchedFilePath = file.path.replace("contracts/", "");
+    let patchedFilePath = file.path;
+    if (file.path.startsWith("contracts")) {
+      patchedFilePath = file.path.replace("contracts/", "");
+    }
     await fs.ensureDir(path.dirname(`./contracts/${patchedFilePath}`));
     fs.writeFileSync(`./contracts/${patchedFilePath}`, file.source);
   }
