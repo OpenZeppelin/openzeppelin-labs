@@ -99,7 +99,10 @@ async function main() {
     return JSON.parse(fs.readFileSync(`./build/contracts/${file}`));
   });
 
-  const output = transpileContracts(["GLDToken", "Simple"], artifacts);
+  const output = transpileContracts(
+    ["GLDToken", "Simple", "DiamondC"],
+    artifacts
+  );
 
   for (const file of output) {
     let patchedFilePath = file.path;
@@ -111,10 +114,6 @@ async function main() {
   }
 }
 
-(async () => {
-  try {
-    await main();
-  } catch (e) {
-    console.log(e);
-  }
-})();
+main().then(() => {
+  require("child_process").execSync("npx prettier --write **/*.sol");
+});

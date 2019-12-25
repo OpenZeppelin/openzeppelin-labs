@@ -15,6 +15,8 @@
     "lodash.find": "^4.6.0"
   },
   "devDependencies": {
-    "@openzeppelin/cli": "^2.6.0"
+    "@openzeppelin/cli": "^2.6.0",
+    "prettier": "^1.19.1",
+    "prettier-plugin-solidity": "^1.0.0-alpha.35"
   }
 }
