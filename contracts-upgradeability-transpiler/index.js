@@ -115,5 +115,5 @@ async function main() {
 }
 
 main().then(() => {
-  require("child_process").execSync("npx prettier --write **/*.sol");
+  // require("child_process").execSync("npx prettier --write **/*.sol");
 });
