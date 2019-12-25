@@ -6,7 +6,6 @@ const {
   getSourceIndices,
   getConstructor,
   getContracts,
-  getContract,
   idModifierInvocation
 } = require("./ast-utils");
 
@@ -148,6 +147,22 @@ function getVarInits(contractNode, source) {
     .join("");
 }
 
+function purgeVarInits(contractNode, source) {
+  const varDeclarations = getVarDeclarations(contractNode);
+  return varDeclarations
+    .filter(vr => vr.value && !vr.constant)
+    .map(vr => {
+      const [start, len, varSource] = getNodeSources(vr, source);
+      const match = /(.*)(=.*)/.exec(varSource);
+      if (!match) throw new Error(`Can't find = in ${varSource}`);
+      return {
+        start: start + match[1].length,
+        end: start + match[1].length + match[2].length,
+        text: ""
+      };
+    });
+}
+
 function purgeBaseConstructorCalls(constructorNode, source) {
   if (constructorNode && constructorNode.modifiers) {
     const mods = constructorNode.modifiers.filter(mod =>
@@ -283,5 +298,6 @@ module.exports = {
   prependBaseClass,
   purgeContracts,
   transformParents,
-  fixImportDirectives
+  fixImportDirectives,
+  purgeVarInits
 };

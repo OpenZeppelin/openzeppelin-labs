@@ -12,7 +12,8 @@ const {
   prependBaseClass,
   purgeContracts,
   transformParents,
-  fixImportDirectives
+  fixImportDirectives,
+  purgeVarInits
 } = require("./src/transformations");
 
 const { getInheritanceChain } = require("./src/get-inheritance-chain");
@@ -62,6 +63,7 @@ function transpileContracts(contracts, artifacts) {
       prependBaseClass(contractNode, source, "Initializable"),
       ...transformParents(contractNode, source, contractsWithInheritance),
       ...transformConstructor(contractNode, source, contractsWithInheritance),
+      ...purgeVarInits(contractNode, source),
       transformContractName(contractNode, source, `${contractName}Upgradable`)
     ];
 
@@ -97,7 +99,7 @@ async function main() {
     return JSON.parse(fs.readFileSync(`./build/contracts/${file}`));
   });
 
-  const output = transpileContracts(["GLDToken"], artifacts);
+  const output = transpileContracts(["GLDToken", "Simple"], artifacts);
 
   for (const file of output) {
     let patchedFilePath = file.path;
