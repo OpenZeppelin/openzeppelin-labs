@@ -16,7 +16,11 @@ contract ERC20DetailedUpgradable is Initializable, IERC20 {
      * these values are immutable: they can only be set once during
      * construction.
      */
-    function initialize (string memory name, string memory symbol, uint8 decimals) public initializer {
+    function initialize(
+        string memory name,
+        string memory symbol,
+        uint8 decimals
+    ) public initializer {
         _name = name;
         _symbol = symbol;
         _decimals = decimals;

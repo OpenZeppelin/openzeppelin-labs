@@ -51,7 +51,8 @@ contract InheritanceWithParamsConstructorChild is InheritanceWithParamsParent {
 }
 
 contract InheritanceWithParamsClassChild is
-    InheritanceWithParamsParent(false87)
+    /* solium-disable-next-line */
+    InheritanceWithParamsParent(false, 87)
 {
     constructor() public {}
 }
