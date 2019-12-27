@@ -84,7 +84,7 @@ function transformContractName(contractNode, source, newName) {
 
 function buildSuperCalls(contractNode, source, contracts) {
   function buildSuperCall(args, name) {
-    let superCall = `\n${name}Upgradable.initialize(`;
+    let superCall = `\n${name}Upgradable.__init(false`;
     if (args && args.length) {
       superCall += args.reduce((acc, arg, i) => {
         const [, , argSource] = getNodeSources(arg, source);
@@ -185,73 +185,71 @@ function transformConstructor(contractNode, source, contracts) {
   const declarationInserts = getVarInits(contractNode, source);
 
   const constructorNode = getConstructor(contractNode);
+  [];
 
+  let removeConstructor = null;
+  let constructorBodySource = null;
+  let constructorParameterList = null;
+  let constructorArgsList = null;
   if (constructorNode) {
-    const text = "function initialize";
+    constructorBodySource = getNodeSources(constructorNode.body, source)[2];
 
-    const [constructorStart, ,] = getNodeSources(constructorNode.body, source);
-
-    const [start, len, constructorSource] = getNodeSources(
-      constructorNode,
+    constructorParameterList = getNodeSources(
+      constructorNode.parameters,
       source
-    );
+    )[2]
+      .slice(1)
+      .slice(0, -1);
 
-    const match = /\bconstructor[^{]*/.exec(constructorSource);
-    if (!match)
-      throw new Error(
-        `Can't find ${constructorNode.name} in ${constructorSource}`
-      );
+    const [start, len] = getNodeSources(constructorNode, source);
 
-    const matchInternal = /\binternal/.exec(constructorSource);
+    removeConstructor = {
+      start: start,
+      end: start + len,
+      text: ""
+    };
 
-    return [
-      {
-        start: start + match.index,
-        end: start + match.index + "constructor".length,
-        text
-      },
-      matchInternal
-        ? {
-            start: start + matchInternal.index,
-            end: start + matchInternal.index + matchInternal[0].length,
-            text: "public"
-          }
-        : null,
-      {
-        start: start + match[0].length,
-        end: start + match[0].length,
-        text: `initializer `
-      },
-      {
-        start: constructorStart + 1,
-        end: constructorStart + 1,
-        text: superCalls
-      },
-      {
-        start: constructorStart + 1,
-        end: constructorStart + 1,
-        text: declarationInserts
-      },
-      ...purgeBaseConstructorCalls(constructorNode, source)
-    ].filter(tran => tran !== null);
-  } else {
-    const [start, len, contractSource] = getNodeSources(contractNode, source);
-
-    const match = /\bcontract[^\{]*{/.exec(contractSource);
-    if (!match)
-      throw new Error(`Can't find contract pattern in ${constructorSource}`);
-
-    return [
-      {
-        start: start + match[0].length,
-        end: start + match[0].length,
-        text: `\nfunction initialize() public initializer {
-          ${superCalls}
-          ${declarationInserts}
-        }`
-      }
-    ];
+    constructorArgsList = constructorNode.parameters.parameters
+      .map(par => par.name)
+      .join(",");
   }
+
+  constructorParameterList = constructorParameterList
+    ? constructorParameterList
+    : "";
+  constructorBodySource = constructorBodySource ? constructorBodySource : "";
+  constructorArgsList = constructorArgsList ? constructorArgsList : "";
+
+  const [start, len, contractSource] = getNodeSources(contractNode, source);
+
+  const match = /\bcontract[^\{]*{/.exec(contractSource);
+  if (!match)
+    throw new Error(`Can't find contract pattern in ${constructorSource}`);
+
+  return [
+    removeConstructor,
+    {
+      start: start + match[0].length,
+      end: start + match[0].length,
+      text: `
+        \n // Auto generated code. Do not edit.
+        function initialize(${constructorParameterList}) public initializer {
+                \n__init(true${
+                  constructorArgsList ? `, ${constructorArgsList}` : ""
+                });
+              }
+        \n// Auto generated code. Do not edit.
+        function __init(bool callChain${
+          constructorParameterList ? `, ${constructorParameterList}` : ""
+        }) internal {
+          \nif(callChain) {
+            ${superCalls}
+          }
+          ${declarationInserts}
+          ${constructorBodySource}
+        }`
+    }
+  ].filter(tran => tran !== null);
 }
 
 function purgeContracts(astNode, contracts) {

@@ -31,8 +31,18 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
  */
 contract ERC20Upgradable is Initializable, ContextUpgradable, IERC20 {
 function initialize() public initializer {
+                
+__init(true);
+              
+}
+        
+function __init(bool callChain) internal {
           
+if(callChain) {
+            
 ContextUpgradable.initialize();
+          
+}
           
         }
     using SafeMath for uint256;

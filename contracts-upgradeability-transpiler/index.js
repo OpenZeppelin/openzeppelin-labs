@@ -100,7 +100,11 @@ async function main() {
   });
 
   const output = transpileContracts(
-    ["GLDToken", "Simple", "DiamondC"],
+    [
+      // "GLDToken",
+      "Simple",
+      "DiamondC"
+    ],
     artifacts
   );
 
@@ -115,5 +119,7 @@ async function main() {
 }
 
 main().then(() => {
+  // waiting for the fix of an issue
+  // https://github.com/prettier-solidity/prettier-plugin-solidity/issues/211
   // require("child_process").execSync("npx prettier --write **/*.sol");
 });

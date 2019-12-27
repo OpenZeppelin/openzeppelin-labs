@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 contract Simple {
-    uint256 private count;
+    uint256 public count;
     uint256 private local = 564;
     string private hello = "hello";
     bool public test = true;
