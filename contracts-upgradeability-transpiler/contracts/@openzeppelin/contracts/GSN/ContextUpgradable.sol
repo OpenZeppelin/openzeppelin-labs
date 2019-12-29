@@ -12,9 +12,18 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
  * This contract is only required for intermediate, library-like contracts.
  */
 contract ContextUpgradable is Initializable {
+        function initialize() public initializer {
+                __init(true);
+              }
+        
+function __init(bool callChain) internal {
+          if(callChain) {}
+          
+          { }
+        }
     // Empty internal constructor, to prevent people from mistakenly deploying
     // an instance of this contract, which should be used via inheritance.
-    function initialize () public initializer { }
+    
     // solhint-disable-previous-line no-empty-blocks
 
     function _msgSender() internal view returns (address payable) {

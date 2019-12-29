@@ -6,8 +6,11 @@ const {
   getSourceIndices,
   getConstructor,
   getContracts,
+  getContract,
   idModifierInvocation
 } = require("./ast-utils");
+
+const { getInheritanceChain } = require("./get-inheritance-chain");
 
 function appendDirective(fileNode, directive) {
   const retVal = {
@@ -82,55 +85,71 @@ function transformContractName(contractNode, source, newName) {
   };
 }
 
-function buildSuperCalls(contractNode, source, contracts) {
-  function buildSuperCall(args, name) {
-    let superCall = `\n${name}Upgradable.__init(false`;
-    if (args && args.length) {
-      superCall += args.reduce((acc, arg, i) => {
-        const [, , argSource] = getNodeSources(arg, source);
-        return acc + argSource + (i !== args.length - 1 ? "," : "");
-      }, "");
-    }
-    return superCall + ");";
+function buildSuperCall(args, name, source) {
+  let superCall = `\n${name}Upgradable.__init(false`;
+  if (args && args.length) {
+    superCall += args.reduce((acc, arg, i) => {
+      const [, , argSource] = getNodeSources(arg, source);
+      return acc + `, ${argSource}`;
+    }, "");
   }
+  return superCall + ");";
+}
 
-  const hasInheritance = contractNode.baseContracts.length;
+function buildSuperCalls(node, source, contracts) {
+  const hasInheritance = node.baseContracts.length;
   if (hasInheritance) {
     let superCalls = [];
 
-    const constructorSuperCalls = {};
+    const constructorNode = getConstructor(node);
+    const mods = constructorNode
+      ? constructorNode.modifiers.filter(mod => idModifierInvocation(mod))
+      : [];
 
-    const constructorNode = getConstructor(contractNode);
-    if (constructorNode && constructorNode.modifiers) {
-      const mods = constructorNode.modifiers.filter(mod =>
-        idModifierInvocation(mod)
-      );
-      if (mods.length) {
-        superCalls = [
-          ...superCalls,
-          ...mods.map(mod => {
-            constructorSuperCalls[mod.modifierName.name] = true;
-            return buildSuperCall(mod.arguments, mod.modifierName.name);
-          })
-        ];
-      }
-    }
-
-    superCalls = [
+    return [
       ...superCalls,
-      ...contractNode.baseContracts
-        .filter(
-          base =>
-            !constructorSuperCalls[base.baseName.name] &&
-            contracts.some(contract => base.baseName.name === contract)
+      ...node.baseContracts
+        .filter(base =>
+          contracts.some(contract => base.baseName.name === contract)
         )
-        .map(base => buildSuperCall(base.arguments, base.baseName.name))
+        .map(base => {
+          const mod = mods.some(
+            mod => mod.modifierName.name === base.baseName.name
+          )[0];
+          if (mod) {
+            return buildSuperCall(mod.arguments, mod.modifierName.name, source);
+          } else {
+            return buildSuperCall(base.arguments, base.baseName.name, source);
+          }
+        })
     ];
-
-    return superCalls.join("");
   } else {
-    return "";
+    return [];
   }
+}
+
+function buildSuperCallsForChain(
+  contractNode,
+  source,
+  contracts,
+  contractsToArtifactsMap
+) {
+  return [
+    ...new Set(
+      getInheritanceChain(contractNode.name, contractsToArtifactsMap)
+        .map(base => {
+          const calls = buildSuperCalls(
+            getContract(contractsToArtifactsMap[base].ast, base),
+            source,
+            contracts
+          );
+          return calls.reverse();
+        })
+        .flat()
+    )
+  ]
+    .reverse()
+    .join("");
 }
 
 function getVarInits(contractNode, source) {
@@ -179,8 +198,18 @@ function purgeBaseConstructorCalls(constructorNode, source) {
   }
 }
 
-function transformConstructor(contractNode, source, contracts) {
-  const superCalls = buildSuperCalls(contractNode, source, contracts);
+function transformConstructor(
+  contractNode,
+  source,
+  contracts,
+  contractsToArtifactsMap
+) {
+  const superCalls = buildSuperCallsForChain(
+    contractNode,
+    source,
+    contracts,
+    contractsToArtifactsMap
+  );
 
   const declarationInserts = getVarInits(contractNode, source);
 
@@ -232,19 +261,15 @@ function transformConstructor(contractNode, source, contracts) {
       start: start + match[0].length,
       end: start + match[0].length,
       text: `
-        \n // Auto generated code. Do not edit.
         function initialize(${constructorParameterList}) public initializer {
-                \n__init(true${
+                __init(true${
                   constructorArgsList ? `, ${constructorArgsList}` : ""
                 });
               }
-        \n// Auto generated code. Do not edit.
-        function __init(bool callChain${
+        \nfunction __init(bool callChain${
           constructorParameterList ? `, ${constructorParameterList}` : ""
         }) internal {
-          \nif(callChain) {
-            ${superCalls}
-          }
+          if(callChain) {${superCalls}}
           ${declarationInserts}
           ${constructorBodySource}
         }`

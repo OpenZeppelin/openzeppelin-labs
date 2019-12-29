@@ -7,6 +7,19 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
  * @dev Optional functions from the ERC20 standard.
  */
 contract ERC20DetailedUpgradable is Initializable, IERC20 {
+        function initialize(string memory name, string memory symbol, uint8 decimals) public initializer {
+                __init(true, name,symbol,decimals);
+              }
+        
+function __init(bool callChain, string memory name, string memory symbol, uint8 decimals) internal {
+          if(callChain) {}
+          
+          {
+        _name = name;
+        _symbol = symbol;
+        _decimals = decimals;
+    }
+        }
     string private _name;
     string private _symbol;
     uint8 private _decimals;
@@ -16,11 +29,7 @@ contract ERC20DetailedUpgradable is Initializable, IERC20 {
      * these values are immutable: they can only be set once during
      * construction.
      */
-    function initialize (string memory name, string memory symbol, uint8 decimals) public initializer {
-        _name = name;
-        _symbol = symbol;
-        _decimals = decimals;
-    }
+    
 
     /**
      * @dev Returns the name of the token.

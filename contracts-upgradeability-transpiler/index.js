@@ -21,16 +21,14 @@ const { getInheritanceChain } = require("./src/get-inheritance-chain");
 function transpileContracts(contracts, artifacts) {
   const contractsToArtifactsMap = artifacts.reduce((acc, art) => {
     acc[art.contractName] = art;
+    acc[getContract(art.ast, art.contractName).id] = art;
     return acc;
   }, {});
 
   const contractsWithInheritance = [
     ...new Set(
       contracts
-        .map(contract => [
-          contract,
-          ...getInheritanceChain(contract, contractsToArtifactsMap)
-        ])
+        .map(contract => getInheritanceChain(contract, contractsToArtifactsMap))
         .flat()
     )
   ].filter(contract => {
@@ -62,7 +60,12 @@ function transpileContracts(contracts, artifacts) {
       ...acc[artifact.fileName].transformations,
       prependBaseClass(contractNode, source, "Initializable"),
       ...transformParents(contractNode, source, contractsWithInheritance),
-      ...transformConstructor(contractNode, source, contractsWithInheritance),
+      ...transformConstructor(
+        contractNode,
+        source,
+        contractsWithInheritance,
+        contractsToArtifactsMap
+      ),
       ...purgeVarInits(contractNode, source),
       transformContractName(contractNode, source, `${contractName}Upgradable`)
     ];
@@ -102,8 +105,11 @@ async function main() {
   const output = transpileContracts(
     [
       // "GLDToken",
-      "Simple",
+      // "InheritanceWithParamsClassChild",
+      // "InheritanceWithParamsConstructorChild",
+      // "Simple",
       "DiamondC"
+      // "NoInheritance"
     ],
     artifacts
   );

@@ -1,5 +1,9 @@
 pragma solidity ^0.5.0;
 
+contract NoInheritance {
+
+}
+
 contract Simple {
     uint256 public count;
     uint256 private local = 564;
@@ -40,7 +44,11 @@ contract DiamondB1 is DiamondA {}
 
 contract DiamondB2 is DiamondA {}
 
-contract DiamondC is DiamondB2, DiamondB1 {}
+contract DiamondC is DiamondB1, DiamondB2 {
+    constructor() DiamondB2() DiamondB1() public {
+
+    }
+}
 
 contract InheritanceWithParamsParent {
     constructor(bool foo, uint256 bar) public {}

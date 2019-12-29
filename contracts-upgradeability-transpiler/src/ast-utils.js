@@ -216,6 +216,10 @@ function getContract(node, contractName) {
   return getNode(node, ["name", contractName]);
 }
 
+function getContractById(node, id) {
+  return getNode(node, ["id", id]);
+}
+
 /**
  * Get the parent node of the specified node
  * @param {Object} node The AST Node to retrieve the parent of
@@ -293,6 +297,7 @@ module.exports = {
   getNode,
   getConstructor,
   getContract,
+  getContractById,
   getSourceIndices,
   getNodeSources,
   isPragmaDirective,

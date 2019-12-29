@@ -5,9 +5,19 @@ import "./@openzeppelin/contracts/token/ERC20/ERC20DetailedUpgradable.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract GLDTokenUpgradable is Initializable, ERC20Upgradable, ERC20DetailedUpgradable {
-    function initialize(uint256 initialSupply) public  initializer {
-ERC20DetailedUpgradable.initialize("Gold","GLD",18);
-ERC20Upgradable.initialize();
+        function initialize(uint256 initialSupply) public initializer {
+                __init(true, initialSupply);
+              }
+        
+function __init(bool callChain, uint256 initialSupply) internal {
+          if(callChain) {
+ContextUpgradable.__init(false);
+ERC20Upgradable.__init(false);
+ERC20DetailedUpgradable.__init(false, "Gold", "GLD", 18);}
+          
+          {
         _mint(msg.sender, initialSupply);
     }
+        }
+    
 }
