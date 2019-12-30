@@ -18,7 +18,13 @@ function buildSuperCall(args, name, source) {
   return superCall + ");";
 }
 
-function buildSuperCalls(node, source, contracts, mods) {
+function buildSuperCalls(
+  node,
+  source,
+  contracts,
+  mods,
+  contractsToArtifactsMap
+) {
   const hasInheritance = node.baseContracts.length;
   if (hasInheritance) {
     return [
@@ -33,7 +39,18 @@ function buildSuperCalls(node, source, contracts, mods) {
           if (mod) {
             return buildSuperCall(mod.arguments, mod.modifierName.name, source);
           } else {
-            return buildSuperCall(base.arguments, base.baseName.name, source);
+            const contractName = base.baseName.name;
+            const node = getContract(
+              contractsToArtifactsMap[contractName].ast,
+              contractName
+            );
+            const constructorNode = getConstructor(node);
+
+            return (constructorNode &&
+              !constructorNode.parameters.parameters.length) ||
+              (base.arguments && base.arguments.length)
+              ? buildSuperCall(base.arguments, contractName, source)
+              : [];
           }
         })
     ];
@@ -67,7 +84,8 @@ function buildSuperCallsForChain(
             getContract(contractsToArtifactsMap[base].ast, base),
             source,
             contracts,
-            mods
+            mods,
+            contractsToArtifactsMap
           );
           return calls.reverse();
         })

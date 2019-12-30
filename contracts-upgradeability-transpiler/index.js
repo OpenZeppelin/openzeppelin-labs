@@ -104,12 +104,12 @@ async function main() {
 
   const output = transpileContracts(
     [
-      // "GLDToken",
-      // "InheritanceWithParamsClassChild",
-      // "InheritanceWithParamsConstructorChild",
-      // "Simple",
-      "DiamondC"
-      // "NoInheritance"
+      "GLDToken",
+      "InheritanceWithParamsClassChild",
+      "InheritanceWithParamsConstructorChild",
+      "Simple",
+      "DiamondC",
+      "NoInheritance"
     ],
     artifacts
   );

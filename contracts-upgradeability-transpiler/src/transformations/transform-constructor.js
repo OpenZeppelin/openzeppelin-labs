@@ -37,7 +37,7 @@ function transformConstructor(
 
   const constructorNode = getConstructor(contractNode);
 
-  const isFullyImplemented = contractNode.isFullyImplemented;
+  const isFullyImplemented = contractNode.fullyImplemented;
 
   let removeConstructor = null;
   let constructorBodySource = null;
@@ -77,10 +77,12 @@ function transformConstructor(
   constructorBodySource = constructorBodySource ? constructorBodySource : "";
   constructorArgsList = constructorArgsList ? `, ${constructorArgsList}` : "";
 
-  const initializeFuncText = `
+  const initializeFuncText = isFullyImplemented
+    ? `
     function initialize(${constructorParameterList}) external initializer {
         __init(true${constructorArgsList});
-    }`;
+    }`
+    : "";
 
   const superCallsBlock = superCalls
     ? `if(callChain) {${superCalls}
