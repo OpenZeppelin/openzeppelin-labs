@@ -37,15 +37,18 @@ contract SimpleInheritanceC is SimpleInheritanceB {
 
 contract DiamondA {
     uint256 private foo = 42;
-    constructor() public {}
+    bool public bar;
+    constructor(bool _bar) public {
+      bar = _bar;
+    }
 }
 
 contract DiamondB1 is DiamondA {}
 
-contract DiamondB2 is DiamondA {}
+contract DiamondB2 is DiamondA {}z
 
 contract DiamondC is DiamondB1, DiamondB2 {
-    constructor() DiamondB2() DiamondB1() public {
+    constructor() DiamondA(true) DiamondB2() DiamondB1() public {
 
     }
 }

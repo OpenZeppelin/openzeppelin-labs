@@ -83,7 +83,7 @@ function transformConstructor(
       start: start + match[0].length,
       end: start + match[0].length,
       text: `
-        function initialize(${constructorParameterList}) public initializer {
+        function initialize(${constructorParameterList}) external initializer {
                 __init(true${
                   constructorArgsList ? `, ${constructorArgsList}` : ""
                 });
