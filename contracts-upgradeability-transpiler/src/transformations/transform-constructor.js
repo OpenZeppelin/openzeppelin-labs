@@ -15,7 +15,7 @@ function getVarInits(contractNode, source) {
 
       const match = /(.*)(=.*)/.exec(varSource);
       if (!match) throw new Error(`Can't find = in ${varSource}`);
-      return `\n${vr.name} ${match[2]};`;
+      return `\n        ${vr.name} ${match[2]};`;
     })
     .join("");
 }
@@ -36,14 +36,17 @@ function transformConstructor(
   const declarationInserts = getVarInits(contractNode, source);
 
   const constructorNode = getConstructor(contractNode);
-  [];
+
+  const isFullyImplemented = contractNode.isFullyImplemented;
 
   let removeConstructor = null;
   let constructorBodySource = null;
   let constructorParameterList = null;
   let constructorArgsList = null;
   if (constructorNode) {
-    constructorBodySource = getNodeSources(constructorNode.body, source)[2];
+    constructorBodySource = getNodeSources(constructorNode.body, source)[2]
+      .slice(1)
+      .slice(0, -1);
 
     constructorParameterList = getNodeSources(
       constructorNode.parameters,
@@ -68,8 +71,21 @@ function transformConstructor(
   constructorParameterList = constructorParameterList
     ? constructorParameterList
     : "";
+  const constructorParameterListWithComma = constructorParameterList
+    ? `, ${constructorParameterList}`
+    : "";
   constructorBodySource = constructorBodySource ? constructorBodySource : "";
-  constructorArgsList = constructorArgsList ? constructorArgsList : "";
+  constructorArgsList = constructorArgsList ? `, ${constructorArgsList}` : "";
+
+  const initializeFuncText = `
+    function initialize(${constructorParameterList}) external initializer {
+        __init(true${constructorArgsList});
+    }`;
+
+  const superCallsBlock = superCalls
+    ? `if(callChain) {${superCalls}
+        }`
+    : "";
 
   const [start, len, contractSource] = getNodeSources(contractNode, source);
 
@@ -82,19 +98,12 @@ function transformConstructor(
     {
       start: start + match[0].length,
       end: start + match[0].length,
-      text: `
-        function initialize(${constructorParameterList}) external initializer {
-                __init(true${
-                  constructorArgsList ? `, ${constructorArgsList}` : ""
-                });
-              }
-        \nfunction __init(bool callChain${
-          constructorParameterList ? `, ${constructorParameterList}` : ""
-        }) internal {
-          if(callChain) {${superCalls}}
-          ${declarationInserts}
-          ${constructorBodySource}
-        }`
+      text: `${initializeFuncText}\n
+    function __init(bool callChain${constructorParameterListWithComma}) internal {
+        ${superCallsBlock}
+        ${declarationInserts}
+        ${constructorBodySource}
+    }\n`
     }
   ].filter(tran => tran !== null);
 }

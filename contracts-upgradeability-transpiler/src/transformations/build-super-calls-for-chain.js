@@ -8,7 +8,7 @@ const {
 const { getInheritanceChain } = require("../get-inheritance-chain");
 
 function buildSuperCall(args, name, source) {
-  let superCall = `\n${name}Upgradable.__init(false`;
+  let superCall = `\n            ${name}Upgradable.__init(false`;
   if (args && args.length) {
     superCall += args.reduce((acc, arg, i) => {
       const [, , argSource] = getNodeSources(arg, source);
@@ -18,24 +18,16 @@ function buildSuperCall(args, name, source) {
   return superCall + ");";
 }
 
-function buildSuperCalls(node, source, contracts) {
+function buildSuperCalls(node, source, contracts, mods) {
   const hasInheritance = node.baseContracts.length;
   if (hasInheritance) {
-    let superCalls = [];
-
-    const constructorNode = getConstructor(node);
-    const mods = constructorNode
-      ? constructorNode.modifiers.filter(mod => idModifierInvocation(mod))
-      : [];
-
     return [
-      ...superCalls,
       ...node.baseContracts
         .filter(base =>
           contracts.some(contract => base.baseName.name === contract)
         )
         .map(base => {
-          const mod = mods.some(
+          const mod = mods.filter(
             mod => mod.modifierName.name === base.baseName.name
           )[0];
           if (mod) {
@@ -56,14 +48,26 @@ function buildSuperCallsForChain(
   contracts,
   contractsToArtifactsMap
 ) {
+  const chain = getInheritanceChain(contractNode.name, contractsToArtifactsMap);
+  const mods = chain
+    .map(base => {
+      const node = getContract(contractsToArtifactsMap[base].ast, base);
+      const constructorNode = getConstructor(node);
+      return constructorNode
+        ? constructorNode.modifiers.filter(mod => idModifierInvocation(mod))
+        : [];
+    })
+    .flat();
+
   return [
     ...new Set(
-      getInheritanceChain(contractNode.name, contractsToArtifactsMap)
+      chain
         .map(base => {
           const calls = buildSuperCalls(
             getContract(contractsToArtifactsMap[base].ast, base),
             source,
-            contracts
+            contracts,
+            mods
           );
           return calls.reverse();
         })

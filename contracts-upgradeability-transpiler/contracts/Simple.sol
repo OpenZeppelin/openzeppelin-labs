@@ -39,16 +39,22 @@ contract DiamondA {
     uint256 private foo = 42;
     bool public bar;
     constructor(bool _bar) public {
-      bar = _bar;
+        bar = _bar;
     }
 }
 
 contract DiamondB1 is DiamondA {}
 
-contract DiamondB2 is DiamondA {}z
+contract DiamondB2 is DiamondA {
+    string public foo;
+    constructor(string memory _foo) public {
+        foo = _foo;
+    }
+
+}
 
 contract DiamondC is DiamondB1, DiamondB2 {
-    constructor() DiamondA(true) DiamondB2() DiamondB1() public {
+    constructor() DiamondA(true) DiamondB2("hello") DiamondB1() public {
 
     }
 }
