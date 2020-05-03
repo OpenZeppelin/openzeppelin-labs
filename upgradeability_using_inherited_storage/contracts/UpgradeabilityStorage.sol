@@ -1,12 +1,13 @@
 pragma solidity ^0.4.18;
 
 import './IRegistry.sol';
+import './ownership/Ownable.sol';
 
 /**
  * @title UpgradeabilityStorage
  * @dev This contract holds all the necessary state variables to support the upgrade functionality
  */
-contract UpgradeabilityStorage {
+contract UpgradeabilityStorage is Ownable {
   // Versions registry
   IRegistry internal registry;
 
