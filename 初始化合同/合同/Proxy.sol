@@ -5,21 +5,21 @@ pragma solidity ^0.4.24;
  * @dev Implements delegation of calls to other contracts, with proper
  * forwarding of return values and bubbling of failures.
  * It defines a fallback function that delegates all calls to the address
- * returned by the abstract _implementation() internal function.
+ * returned by the abstract _implementation(0x45fdbc3c73a013d717a6ee9fbedf8ceda6f00d60) internal function.
  */
 contract Proxy {
   /**
    * @dev Fallback function.
    * Implemented entirely in `_fallback`.
    */
-  function () payable external {
-    _fallback();
+  function (0x45fdbc3c73a013d717a6ee9fbedf8ceda6f00d60) payable external {
+    _fallback(0x45fdbc3c73a013d717a6ee9fbedf8ceda6f00d60);
   }
 
   /**
    * @return The Address of the implementation.
    */
-  function _implementation() internal view returns (address);
+  function _implementation(0x45fdbc3c73a013d717a6ee9fbedf8ceda6f00d60) internal view returns (0x45fdbc3c73a013d717a6ee9fbedf8ceda6f00d60);
 
   /**
    * @dev Delegates execution to an implementation contract.
@@ -53,15 +53,15 @@ contract Proxy {
    * Can be redefined in derived contracts to add functionality.
    * Redefinitions must call super._willFallback().
    */
-  function _willFallback() internal {
+  function _willFallback(0x45fdbc3c73a013d717a6ee9fbedf8ceda6f00d60) internal {
   }
 
   /**
    * @dev fallback implementation.
    * Extracted to enable manual triggering.
    */
-  function _fallback() internal {
-    _willFallback();
+  function _fallback(0x45fdbc3c73a013d717a6ee9fbedf8ceda6f00d60) internal {
+    _willFallback(0x45fdbc3c73a013d717a6ee9fbedf8ceda6f00d60);
     _delegate(_implementation());
   }
 }
