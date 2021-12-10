@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "prepublish": "rimraf artifacts build cache generated",
+    "prepare": "copyfiles -f node_modules/@amxx/hre/hardhat.config.js .",
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "dependencies": {
+    "@eth-optimism/contracts": "^0.5.5"
+  },
+  "devDependencies": {
+    "@amxx/hre": "^0.0.4-1",
+    "copyfiles": "^2.4.1"
+  }
+}

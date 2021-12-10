@@ -1,0 +1,95 @@
+version: "3.4"
+services:
+  l1:
+    image: ethereumoptimism/hardhat:${DOCKER_TAG:-latest}
+    ports:
+        # expose the service to the host for integration testing
+      - ${L1_HTTP_PORT:-9545}:8545
+
+  deployer:
+    depends_on:
+      - l1
+    image: ethereumoptimism/deployer:${DOCKER_TAG:-latest}
+    entrypoint: ./deployer.sh
+    environment:
+      FRAUD_PROOF_WINDOW_SECONDS: 0
+      L1_NODE_WEB3_URL: http://l1:8545
+      # these keys are hardhat's first 3 accounts, DO NOT use in production
+      DEPLOYER_PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+      SEQUENCER_PRIVATE_KEY: "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+      PROPOSER_PRIVATE_KEY: "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
+      # Default hardhat account 5
+      GAS_PRICE_ORACLE_OWNER: "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc"
+      # setting the whitelist owner to address(0) disables the whitelist
+      WHITELIST_OWNER: "0x0000000000000000000000000000000000000000"
+      L1_FEE_WALLET_ADDRESS: "0x391716d440c151c42cdf1c95c1d83a5427bca52c"
+      L2_CHAIN_ID: 420
+      L2_BLOCK_GAS_LIMIT: 15000000
+      BLOCK_SIGNER_ADDRESS: "0x00000398232E2064F896018496b4b44b3D62751F"
+      GAS_PRICE_ORACLE_OVERHEAD: "2750"
+      GAS_PRICE_ORACLE_SCALAR: "1500000"
+      GAS_PRICE_ORACLE_L1_BASE_FEE: "1"
+      GAS_PRICE_ORACLE_GAS_PRICE: "1"
+      GAS_PRICE_ORACLE_DECIMALS: "6"
+      # skip compilation when run in docker-compose, since the contracts
+      # were already compiled in the builder step
+      NO_COMPILE: 1
+    ports:
+        # expose the service to the host for getting the contract addrs
+      - ${DEPLOYER_PORT:-8080}:8081
+
+  l2:
+    depends_on:
+      - l1
+      - deployer
+    image: ethereumoptimism/l2geth:${DOCKER_TAG:-latest}
+    entrypoint: sh ./geth.sh
+    env_file:
+      - ./envs/geth.env
+    environment:
+      ETH1_HTTP: http://l1:8545
+      ROLLUP_TIMESTAMP_REFRESH: 5s
+      ROLLUP_STATE_DUMP_PATH: http://deployer:8081/state-dump.latest.json
+      # connecting to the DTL
+      ROLLUP_CLIENT_HTTP: http://dtl:7878
+      ETH1_CTC_DEPLOYMENT_HEIGHT: 8
+      RETRIES: 60
+    ports:
+      - ${L2_HTTP_PORT:-8545}:8545
+      - ${L2_WS_PORT:-8546}:8546
+
+  dtl:
+    depends_on:
+      - l1
+      - l2
+      - deployer
+    image: ethereumoptimism/data-transport-layer:${DOCKER_TAG:-latest}
+    entrypoint: ./dtl.sh
+    env_file:
+      - ./envs/dtl.env
+    environment:
+      # used for setting the address manager address
+      URL: http://deployer:8081/addresses.json
+      # connect to the 2 layers
+      DATA_TRANSPORT_LAYER__L1_RPC_ENDPOINT: http://l1:8545
+      DATA_TRANSPORT_LAYER__L2_RPC_ENDPOINT: http://l2:8545
+      DATA_TRANSPORT_LAYER__SYNC_FROM_L2: 'true'
+      DATA_TRANSPORT_LAYER__L2_CHAIN_ID: 420
+    ports:
+      - ${DTL_PORT:-7878}:7878
+
+  batch_submitter:
+    depends_on:
+      - l1
+      - l2
+      - deployer
+    image: ethereumoptimism/batch-submitter:${DOCKER_TAG:-latest}
+    entrypoint: ./batches.sh
+    env_file:
+      - ./envs/batches.env
+    environment:
+      L1_NODE_WEB3_URL: http://l1:8545
+      L2_NODE_WEB3_URL: http://l2:8545
+      URL: http://deployer:8081/addresses.json
+      SEQUENCER_PRIVATE_KEY: "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+      PROPOSER_PRIVATE_KEY: "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
