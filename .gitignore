@@ -1,4 +1,8 @@
-*/build/*
 node_modules/
 .vscode
+artifacts/
 build/
+cache/
+coverage/
+
+

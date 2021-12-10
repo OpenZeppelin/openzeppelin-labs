@@ -1,0 +1,15 @@
+{
+    "name": "@openzeppelin/crosschain-env",
+    "description": "Test environment for crosschain operations",
+    "version": "0.0.1",
+    "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/OpenZeppelin/openzeppelin-labs.git"
+    },
+    "scripts": {
+        "optimism:start": "docker-compose -f optimism/docker-compose.yml up -d ",
+        "optimism:stop": "docker-compose -f optimism/docker-compose.yml down"
+    }
+}
