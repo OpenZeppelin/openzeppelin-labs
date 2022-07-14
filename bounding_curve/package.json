@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "prepublish": "rimraf artifacts build cache generated",
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "git://github.com/OpenZeppelin/openzeppelin-contracts.git",
+    "@prb/math": "^2.5.0"
+  },
+  "devDependencies": {
+    "@amxx/hre": "^0.0.6",
+    "hardhat": "^2.9.6"
+  }
+}
