@@ -1,0 +1,47 @@
+{
+  "name": "package-manager",
+  "version": "0.0.1",
+  "description": "Ethereum on-chain package manager",
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zeppelinos/package-manager.git"
+  },
+  "files": [
+    "contracts"
+  ],
+  "keywords": [
+    "zeppelinos",
+    "zeppelin",
+    "ethereum",
+    "packagemanager",
+    "libraries",
+    "smartcontracts",
+    "solidity",
+    "evm"
+  ],
+  "main": "./truffle.js",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zeppelinos/package-manager/issues"
+  },
+  "homepage": "https://github.com/zeppelinos/package-manager/tree/master/#readme",
+  "devDependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "ethereumjs-abi": "^0.6.5",
+    "truffle": "^4.1.14"
+  },
+  "dependencies": {
+    "@aragon/os": "^4.0.0-beta.2",
+    "eth-ens-namehash": "^2.0.8",
+    "openzeppelin-zos": "^1.9.4",
+    "zos-lib": "^1.4.1"
+  }
+}
