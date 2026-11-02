@@ -9,7 +9,7 @@
     "@prb/math": "^2.5.0"
   },
   "devDependencies": {
-    "@amxx/hre": "^0.0.6",
+    "@amxx/hre": "^0.2.1",
     "hardhat": "^2.9.6"
   }
 }
